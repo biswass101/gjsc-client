@@ -13,63 +13,7 @@ import p4 from "@/assets/p4.jpg";
 import p5 from "@/assets/p5.jpg";
 import p6 from "@/assets/p6.jpg";
 
-export const Route = definePage("/")({
-  head: () => ({
-    meta: [
-      { title: "Glorious Japan Skin Care — Authentic Japanese Beauty in Bangladesh" },
-      {
-        name: "description",
-        content:
-          "Premium Japanese skincare: fermented serums, essences and sunscreens. Cash on Delivery & bKash. Stay Glorious, Shine with Confidence.",
-      },
-      { property: "og:title", content: "Glorious Japan Skin Care — Authentic Japanese Beauty" },
-      {
-        property: "og:description",
-        content: "Fermented Japanese serums, essences and rituals. Free delivery over ৳5,000.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Home,
-});
-
-function Section({
-  eyebrow,
-  title,
-  subtitle,
-  children,
-  to,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  to?: string;
-}) {
-  return (
-    <section className="container-lux py-10 sm:py-14 lg:py-20">
-      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col items-center text-center">
-        <p className="eyebrow text-[10px] sm:text-xs">{eyebrow}</p>
-        <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl">{title}</h2>
-        {subtitle && <p className="mt-2 sm:mt-3 max-w-xl text-xs sm:text-sm text-muted-foreground">{subtitle}</p>}
-        <div className="gold-rule mt-4 sm:mt-6" />
-      </div>
-      {children}
-      {to && (
-        <div className="mt-6 sm:mt-8 lg:mt-12 text-center">
-          <Button asChild variant="outline" className="rounded-full px-6 sm:px-8 py-2 sm:py-6 text-[9px] sm:text-xs uppercase tracking-[0.2em]">
-            <Link to={to as "/shop"}>
-              View all <ArrowRight className="ml-1.5 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
-            </Link>
-          </Button>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function Home() {
+export function Home() {
   const best = PRODUCTS.filter((p) => p.badge === "Best Seller").slice(0, 4);
   const trending = PRODUCTS.filter((p) => p.badge === "Trending").slice(0, 4);
   const flash = PRODUCTS.filter((p) => p.compareAt).slice(0, 4);
@@ -243,3 +187,59 @@ function Home() {
     </Layout>
   );
 }
+
+function Section({
+  eyebrow,
+  title,
+  subtitle,
+  children,
+  to,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  to?: string;
+}) {
+  return (
+    <section className="container-lux py-10 sm:py-14 lg:py-20">
+      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col items-center text-center">
+        <p className="eyebrow text-[10px] sm:text-xs">{eyebrow}</p>
+        <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl">{title}</h2>
+        {subtitle && <p className="mt-2 sm:mt-3 max-w-xl text-xs sm:text-sm text-muted-foreground">{subtitle}</p>}
+        <div className="gold-rule mt-4 sm:mt-6" />
+      </div>
+      {children}
+      {to && (
+        <div className="mt-6 sm:mt-8 lg:mt-12 text-center">
+          <Button asChild variant="outline" className="rounded-full px-6 sm:px-8 py-2 sm:py-6 text-[9px] sm:text-xs uppercase tracking-[0.2em]">
+            <Link to={to as "/shop"}>
+              View all <ArrowRight className="ml-1.5 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
+            </Link>
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+export const Route = definePage("/")({
+  head: () => ({
+    meta: [
+      { title: "Glorious Japan Skin Care — Authentic Japanese Beauty in Bangladesh" },
+      {
+        name: "description",
+        content:
+          "Premium Japanese skincare: fermented serums, essences and sunscreens. Cash on Delivery & bKash. Stay Glorious, Shine with Confidence.",
+      },
+      { property: "og:title", content: "Glorious Japan Skin Care — Authentic Japanese Beauty" },
+      {
+        property: "og:description",
+        content: "Fermented Japanese serums, essences and rituals. Free delivery over ৳5,000.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Home,
+});
