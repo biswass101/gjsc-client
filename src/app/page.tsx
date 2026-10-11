@@ -1,4 +1,4 @@
-import { Home } from "@/components/pages/Home";
+import { Home } from "../components/pages/Home";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
