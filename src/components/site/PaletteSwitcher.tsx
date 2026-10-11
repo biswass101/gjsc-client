@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Palette, Check, Sparkles } from "lucide-react";
 import { toast } from "sonner";

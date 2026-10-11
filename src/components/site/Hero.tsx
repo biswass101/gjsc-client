@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Link } from "@/lib/navigation";
 import { PackageCheck, ShieldCheck, Truck } from "lucide-react";

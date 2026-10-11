@@ -1,5 +1,6 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { definePage, Link, notFound } from "@/lib/navigation";
 import { Heart, Minus, Plus, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 import { Layout } from "@/components/site/Layout";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -7,33 +8,14 @@ import { Rating } from "@/components/site/Rating";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PRODUCTS, bySlug, formatBDT } from "@/lib/catalog";
+import { PRODUCTS, formatBDT } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
 
-export const Route = definePage("/product/$slug")({
-  loader: ({ params }) => {
-    const product = bySlug(params["slug"]!);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }: { loaderData?: { product: typeof PRODUCTS[number] } } = {}) => {
-    const p = loaderData?.product;
-    return {
-      meta: [
-        { title: p ? `${p.name} | Glorious Japan Skin Care` : "Product | Glorious Japan Skin Care" },
-        { name: "description", content: p ? `${p.name} — ${p.short} ${formatBDT(p.price)}.` : "Japanese skincare product." },
-        { property: "og:title", content: p ? `${p.name} | Glorious Japan` : "Glorious Japan Skin Care" },
-        { property: "og:description", content: p?.short ?? "Premium Japanese skincare." },
-        { property: "og:type", content: "product" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
-  },
-  component: ProductPage,
-});
+interface ProductPageClientProps {
+  product: typeof PRODUCTS[number];
+}
 
-function ProductPage() {
-  const { product } = Route.useLoaderData();
+export function ProductPageClient({ product }: ProductPageClientProps) {
   const { addToCart, toggleWishlist, wishlist, addRecent, recent } = useShop();
   const [qty, setQty] = useState(1);
   const [size, setSize] = useState(product.sizes[0] ?? "50ml");
@@ -71,9 +53,9 @@ function ProductPage() {
 
       <div className="container-lux py-8">
         <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary">Home</Link>
+          <a href="/" className="hover:text-primary">Home</a>
           <span className="mx-2">/</span>
-          <Link to="/shop" search={{ category: product.category }} className="hover:text-primary">{product.category}</Link>
+          <a href="/shop" className="hover:text-primary">{product.category}</a>
           <span className="mx-2">/</span>
           <span className="text-foreground">{product.name}</span>
         </nav>

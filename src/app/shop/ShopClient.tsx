@@ -1,5 +1,6 @@
+"use client";
+
 import { useMemo, useState, useEffect } from "react";
-import { definePage, Link } from "@/lib/navigation";
 import { ChevronLeft, ChevronRight, LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import { Layout } from "@/components/site/Layout";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -9,6 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { BRANDS, CATEGORIES, CONCERNS, PRODUCTS, SKIN_TYPES } from "@/lib/catalog";
+import { useSearchParams } from "next/navigation";
 
 const PER_PAGE = 12;
 
@@ -19,29 +21,6 @@ type ShopSearch = {
   badge?: string | undefined;
 };
 
-export const Route = definePage("/shop")({
-  validateSearch: (search: Record<string, unknown>): ShopSearch => ({
-    category: typeof search["category"] === "string" ? search["category"] : undefined,
-    skinType: typeof search["skinType"] === "string" ? search["skinType"] : undefined,
-    concern: typeof search["concern"] === "string" ? search["concern"] : undefined,
-    badge: typeof search["badge"] === "string" ? search["badge"] : undefined,
-  }),
-  head: () => ({
-    meta: [
-      { title: "Shop All Japanese Skincare | Glorious Japan Skin Care" },
-      {
-        name: "description",
-        content: "Browse serums, essences, cleansers, sunscreens and gift sets. Filter by category, skin type, concern, brand and price.",
-      },
-      { property: "og:title", content: "Shop All Japanese Skincare | Glorious Japan" },
-      { property: "og:description", content: "Filter premium Japanese skincare by skin type, concern and price." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Shop,
-});
-
 const SORTS = [
   { value: "popular", label: "Popularity" },
   { value: "newest", label: "Newest" },
@@ -51,8 +30,14 @@ const SORTS = [
   { value: "rating", label: "Top Rated" },
 ];
 
-function Shop() {
-  const search = Route.useSearch();
+export function ShopClient() {
+  const searchParams = useSearchParams();
+  const search: ShopSearch = {
+    category: searchParams.get("category") ?? undefined,
+    skinType: searchParams.get("skinType") ?? undefined,
+    concern: searchParams.get("concern") ?? undefined,
+    badge: searchParams.get("badge") ?? undefined,
+  };
   const [cats, setCats] = useState<string[]>(search.category ? [search.category] : []);
   const [types, setTypes] = useState<string[]>(search.skinType ? [search.skinType] : []);
   const [concerns, setConcerns] = useState<string[]>(search.concern ? [search.concern] : []);
@@ -151,14 +136,16 @@ function Shop() {
     return nums;
   })();
 
+  const headerTitle = search.badge ?? search.category ?? "All Products";
+
   return (
     <Layout>
       <div className="border-b border-border bg-cream py-12">
         <div className="container-lux">
           <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-primary">Home</Link> <span className="mx-2">/</span> Shop
+            <a href="/" className="hover:text-primary">Home</a> <span className="mx-2">/</span> Shop
           </nav>
-          <h1 className="mt-3 font-display text-4xl md:text-5xl">{search.badge ?? search.category ?? "All Products"}</h1>
+          <h1 className="mt-3 font-display text-4xl md:text-5xl">{headerTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{results.length} product{results.length !== 1 ? "s" : ""}</p>
         </div>
       </div>

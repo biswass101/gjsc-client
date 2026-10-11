@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, Instagram, Headset, PhoneCall, X } from "lucide-react";
 import { toast } from "sonner";

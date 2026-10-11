@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
 import { User, Settings, LogOut } from "lucide-react";

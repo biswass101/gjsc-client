@@ -1,4 +1,6 @@
 
+"use client";
+
 import { ChevronDown } from "lucide-react";
 import { useNavigate } from "@/lib/navigation";
 import type { ReactNode, MouseEvent } from "react";

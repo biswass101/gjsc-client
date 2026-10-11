@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { useNavigate } from "@/lib/navigation";
 import { Search } from "lucide-react";

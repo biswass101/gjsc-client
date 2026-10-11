@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 
 const ANNOUNCEMENTS_TEXT = "Free nationwide delivery on orders over ৳5,000  ·  100% authentic Japanese formulas  ·  Cash on Delivery & bKash  ·  Stay Glorious, Shine with Confidence  ·  ";

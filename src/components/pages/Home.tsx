@@ -1,4 +1,5 @@
-import { definePage, Link } from "@/lib/navigation";
+"use client";
+
 import { ArrowRight, Leaf, PackageCheck, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { Layout } from "@/components/site/Layout";
 import { Hero } from "@/components/site/Hero";
@@ -12,6 +13,7 @@ import p3 from "@/assets/p3.jpg";
 import p4 from "@/assets/p4.jpg";
 import p5 from "@/assets/p5.jpg";
 import p6 from "@/assets/p6.jpg";
+import { Link } from "@/lib/navigation";
 
 export function Home() {
   const best = PRODUCTS.filter((p) => p.badge === "Best Seller").slice(0, 4);
@@ -222,24 +224,3 @@ function Section({
     </section>
   );
 }
-
-export const Route = definePage("/")({
-  head: () => ({
-    meta: [
-      { title: "Glorious Japan Skin Care — Authentic Japanese Beauty in Bangladesh" },
-      {
-        name: "description",
-        content:
-          "Premium Japanese skincare: fermented serums, essences and sunscreens. Cash on Delivery & bKash. Stay Glorious, Shine with Confidence.",
-      },
-      { property: "og:title", content: "Glorious Japan Skin Care — Authentic Japanese Beauty" },
-      {
-        property: "og:description",
-        content: "Fermented Japanese serums, essences and rituals. Free delivery over ৳5,000.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Home,
-});
