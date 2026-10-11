@@ -5,7 +5,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+,     "src/components/pages/Home.tsx"  ],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "preserve",

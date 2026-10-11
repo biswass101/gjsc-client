@@ -34,6 +34,40 @@ export const CATEGORIES = [
   "Beauty Accessories", "Makeup", "Gift Sets", "Travel Kits",
 ] as const;
 
+export const TOP_CATEGORIES = ["Serum", "Cleanser", "Moisturizer", "Toner", "Sunscreen"] as const;
+
+export type CategoryGroup = {
+  label: string;
+  categories: typeof CATEGORIES[number][];
+};
+
+export const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    label: "Skincare",
+    categories: ["Face Wash", "Cleanser", "Serum", "Essence", "Moisturizer", "Toner", "Sunscreen", "Eye Care", "Lip Care", "Face Mask"],
+  },
+  {
+    label: "Hair",
+    categories: ["Hair Care"],
+  },
+  {
+    label: "Body",
+    categories: ["Body Care"],
+  },
+  {
+    label: "Accessories",
+    categories: ["Beauty Accessories"],
+  },
+  {
+    label: "Makeup",
+    categories: ["Makeup"],
+  },
+  {
+    label: "Gifts & Kits",
+    categories: ["Gift Sets", "Travel Kits"],
+  },
+] as const;
+
 export const SKIN_TYPES = ["Dry", "Oily", "Combination", "Sensitive", "Normal"] as const;
 
 export const CONCERNS = [

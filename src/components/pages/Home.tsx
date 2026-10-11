@@ -5,8 +5,7 @@ import { Layout } from "@/components/site/Layout";
 import { Hero } from "@/components/site/Hero";
 import { ProductCard } from "@/components/site/ProductCard";
 import story from "@/assets/story.jpg";
-import { Button } from "@/components/ui/button";
-import { BLOG_POSTS, CATEGORIES, CONCERNS, PRODUCTS, SKIN_TYPES, TESTIMONIALS } from "@/lib/catalog";
+import { BLOG_POSTS, CATEGORIES, TOP_CATEGORIES, CONCERNS, PRODUCTS, SKIN_TYPES, TESTIMONIALS } from "@/lib/catalog";
 import p1 from "@/assets/p1.jpg";
 import p2 from "@/assets/p2.jpg";
 import p3 from "@/assets/p3.jpg";
@@ -14,6 +13,8 @@ import p4 from "@/assets/p4.jpg";
 import p5 from "@/assets/p5.jpg";
 import p6 from "@/assets/p6.jpg";
 import { Link } from "@/lib/navigation";
+import { Categories } from "./Categories";
+import { Section } from "./shared/Section";
 
 export function Home() {
   const best = PRODUCTS.filter((p) => p.badge === "Best Seller").slice(0, 4);
@@ -24,41 +25,28 @@ export function Home() {
   return (
     <Layout>
       <Hero />
+      <Categories/>
 
-      {/* Categories */}
-      <Section eyebrow="Shop by Category" title="The Collection" subtitle="Sixteen curated categories, one considered ritual." to="/shop">
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:gap-4 lg:grid-cols-8">
-          {CATEGORIES.map((c, i) => {
-            const bgImages = [p1, p2, p3, p4, p5, p6];
-            const bgImage = bgImages[i % bgImages.length]!;
-            return (
-              <Link
-                key={c}
-                to="/shop"
-                search={{ category: c }}
-                className="group relative flex flex-col items-center justify-center gap-2 rounded-lg border border-border overflow-hidden p-2 sm:p-4 lg:p-5 text-center transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-card)] aspect-square"
-              >
-                {/* Background image */}
-                <img
-                  src={bgImage.src}
-                  alt={c}
-                  className="absolute inset-0 h-full w-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500"
-                />
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />
+      <Section eyebrow="Loved Most" title="Bestsellers" to="/shop" search={{ badge: "Best Seller" }}>
+        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {best.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </Section>
 
-                {/* Content */}
-                <div className="relative flex flex-col items-center justify-center">
-                  <span className="text-[10px] sm:text-xs leading-tight font-semibold text-foreground drop-shadow-md">{c}</span>
-                </div>
-              </Link>
-            );
-          })}
+      <Section eyebrow="Just Landed" title="New Arrivals" to="/shop" search={{ badge: "New" }}>
+        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {fresh.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </Section>
+
+      <Section eyebrow="Limited Time" title="Offers & Discounts" to="/shop" search={{ onSale: true }}>
+        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {flash.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       </Section>
 
       {/* Skin type / concern */}
-      <section className="bg-cream py-10 sm:py-14 lg:py-20">
+      <section className="bg-cream py-6 sm:py-8 lg:py-12">
         <div className="container-lux grid gap-8 sm:gap-10 lg:gap-12 lg:grid-cols-2">
           <div>
             <p className="eyebrow text-[10px] sm:text-xs">Shop by Skin Type</p>
@@ -77,7 +65,7 @@ export function Home() {
             </div>
           </div>
           <div>
-            <p className="eyebrow text-[10px] sm:text-xs">Shop by Concern</p>
+            <p className="eyebrow text-[10px] sm:text-xs">Shop by Skin Concern</p>
             <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl">Target the concern</h2>
             <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
               {CONCERNS.map((c) => (
@@ -95,30 +83,22 @@ export function Home() {
         </div>
       </section>
 
-      <Section eyebrow="Loved Most" title="Best Sellers" to="/shop">
+      {/* Combo/Gifts - Placeholder for now as per current structure */}
+      <Section eyebrow="Curated Collections" title="Combo & Gift Sets" to="/shop" search={{ category: "Gift Sets" }}>
         <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {best.map((p) => <ProductCard key={p.id} product={p} />)}
+          {PRODUCTS.filter(p => p.category === "Gift Sets").slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       </Section>
 
-      {/* Flash sale */}
-      <section className="bg-foreground py-10 sm:py-14 lg:py-20 text-background">
-        <div className="container-lux">
-          <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col items-center text-center">
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.28em] text-champagne">Flash Sale · Ends Sunday</p>
-            <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Quiet Luxury, Kinder Price</h2>
-          </div>
-          <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {flash.map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </div>
-      </section>
-
-      <Section eyebrow="Just Landed" title="New Arrivals" to="/shop">
-        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {fresh.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
+      {/* Placeholder sections */}
+      <Section eyebrow="Authentic Imports" title="Pre-Order from Japan">
+         <div className="surface-card p-10 text-center text-muted-foreground italic">Coming Soon: Exclusive Pre-order service from Japan.</div>
       </Section>
+      
+      <Section eyebrow="Global Selection" title="SHEIN Products">
+         <div className="surface-card p-10 text-center text-muted-foreground italic">Coming Soon: Curated SHEIN selection.</div>
+      </Section>
+
 
       <Section eyebrow="Rising" title="Trending Now" to="/shop">
         <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -190,37 +170,3 @@ export function Home() {
   );
 }
 
-function Section({
-  eyebrow,
-  title,
-  subtitle,
-  children,
-  to,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  to?: string;
-}) {
-  return (
-    <section className="container-lux py-10 sm:py-14 lg:py-20">
-      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col items-center text-center">
-        <p className="eyebrow text-[10px] sm:text-xs">{eyebrow}</p>
-        <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl">{title}</h2>
-        {subtitle && <p className="mt-2 sm:mt-3 max-w-xl text-xs sm:text-sm text-muted-foreground">{subtitle}</p>}
-        <div className="gold-rule mt-4 sm:mt-6" />
-      </div>
-      {children}
-      {to && (
-        <div className="mt-6 sm:mt-8 lg:mt-12 text-center">
-          <Button asChild variant="outline" className="rounded-full px-6 sm:px-8 py-2 sm:py-6 text-[9px] sm:text-xs uppercase tracking-[0.2em]">
-            <Link to={to as "/shop"}>
-              View all <ArrowRight className="ml-1.5 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
-            </Link>
-          </Button>
-        </div>
-      )}
-    </section>
-  );
-}

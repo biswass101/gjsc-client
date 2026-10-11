@@ -158,7 +158,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <AnnouncementBar />
+      {/* <AnnouncementBar /> */}
 
       <div
         className={`border-b border-border/30 transition-all duration-500 ${
