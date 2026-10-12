@@ -1,7 +1,6 @@
 import { Link } from "@/lib/navigation";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Rating } from "./Rating";
 import { formatBDT, type Product } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
@@ -11,6 +10,13 @@ export function ProductCard({ product, view = "grid" }: { product: Product; view
   const { addToCart, toggleWishlist, wishlist } = useShop();
   const saved = wishlist.includes(product.slug);
   const off = product.compareAt ? Math.round((1 - product.price / product.compareAt) * 100) : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product.slug);
+    toast.success("Added to bag");
+  };
 
   return (
     <article
@@ -51,43 +57,52 @@ export function ProductCard({ product, view = "grid" }: { product: Product; view
         )}
       </Link>
 
+      {/* Wishlist Button - Left Side */}
       <button
         type="button"
         aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           toggleWishlist(product.slug);
           toast(saved ? "Removed from wishlist" : "Saved to your wishlist");
         }}
-        className="absolute right-2 top-2 sm:right-3 sm:top-3 grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-full border border-border bg-background/85 backdrop-blur transition-colors hover:border-primary"
+        className="absolute right-11 top-2 sm:right-12 sm:top-3 grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full border border-border bg-background/85 backdrop-blur transition-all hover:border-primary hover:bg-background z-10"
       >
-        <Heart className={cn("h-3 w-3 sm:h-4 sm:w-4", saved ? "fill-rose text-rose" : "text-muted-foreground")} strokeWidth={1.5} />
+        <Heart className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", saved ? "fill-rose text-rose" : "text-muted-foreground")} strokeWidth={1.5} />
       </button>
 
-      <div className={cn("flex flex-col gap-1.5 sm:gap-2 p-3 sm:p-5", view === "list" && "sm:flex-1 sm:justify-center")}>
-        <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{product.brand}</p>
-        <h3 className="font-display text-sm sm:text-xl leading-tight line-clamp-2">
+      {/* Add to Cart Button - Top Right on Hover */}
+      {product.stock > 0 && (
+        <button
+          type="button"
+          aria-label="Add to bag"
+          onClick={handleAddToCart}
+          className="absolute right-2 top-2 sm:right-3 sm:top-3 grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full border border-primary bg-primary text-primary-foreground backdrop-blur transition-all opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
+        >
+          <Plus className="h-4 w-4 sm:h-4.5 sm:w-4.5" strokeWidth={2} />
+        </button>
+      )}
+
+      <div className={cn("flex flex-col gap-1 sm:gap-1.5 p-2.5 sm:p-3.5", view === "list" && "sm:flex-1 sm:justify-center")}>
+        <p className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-muted-foreground">{product.brand}</p>
+        <h3 className="font-display text-xs sm:text-base leading-tight line-clamp-2">
           <Link to="/product/$slug" params={{ slug: product.slug }} className="transition-colors hover:text-primary">
             {product.name}
           </Link>
         </h3>
-        <p className="line-clamp-2 text-[11px] sm:text-sm text-muted-foreground hidden sm:block">{product.short}</p>
-        <Rating value={product.rating} count={product.reviews} />
-        <div className="mt-0.5 sm:mt-1 flex items-baseline gap-1.5 sm:gap-2">
-          <span className="text-sm sm:text-base font-semibold">{formatBDT(product.price)}</span>
-          {product.compareAt && (
-            <span className="text-xs sm:text-sm text-muted-foreground line-through">{formatBDT(product.compareAt)}</span>
-          )}
+        <p className="line-clamp-2 text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{product.short}</p>
+        
+        {/* Rating and Price on Same Line */}
+        <div className="flex items-center justify-between gap-2 mt-0.5">
+          <Rating value={product.rating} count={product.reviews} />
+          <div className="flex items-baseline gap-1 sm:gap-1.5">
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{formatBDT(product.price)}</span>
+            {product.compareAt && (
+              <span className="text-[10px] sm:text-xs text-muted-foreground line-through whitespace-nowrap">{formatBDT(product.compareAt)}</span>
+            )}
+          </div>
         </div>
-        <Button
-          variant="outline"
-          className="mt-1.5 sm:mt-2 w-full rounded-full border-border text-[8px] sm:text-xs uppercase tracking-[0.18em] hover:border-primary hover:bg-primary hover:text-primary-foreground py-1.5 sm:py-2"
-          disabled={product.stock === 0}
-          onClick={() => addToCart(product.slug)}
-        >
-          <ShoppingBag className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
-          <span className="hidden sm:inline">Add to bag</span>
-          <span className="inline sm:hidden">Add</span>
-        </Button>
       </div>
     </article>
   );

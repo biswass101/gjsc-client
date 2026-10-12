@@ -19,7 +19,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="container-lux relative min-h-[15vh] sm:min-h-[22vh] lg:min-h-[35vh] flex items-center overflow-hidden">
+    <section className="container-lux relative min-h-[25vh] sm:min-h-[40vh] lg:min-h-[55vh] flex items-center overflow-hidden">
       <BackgroundSlider currentIndex={currentIndex} />
       
       <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">

@@ -18,23 +18,22 @@ export function Section({
   search?: any;
 }) {
   return (
-    <section className="container-lux py-4 sm:py-6 lg:py-8">
-      <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col items-center text-center">
-        <p className="eyebrow text-[10px] sm:text-xs">{eyebrow}</p>
-        <h2 className="mt-1 sm:mt-2 font-display text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl">{title}</h2>
-        {subtitle && <p className="mt-1 sm:mt-2 max-w-xl text-xs sm:text-sm text-muted-foreground">{subtitle}</p>}
-        <div className="gold-rule mt-3 sm:mt-4" />
+    <section className="pt-2 sm:pt-4 lg:pt-6">
+      <div className="mb-2 sm:mb-4 lg:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 text-center sm:text-left">
+        <h2 className="font-display text-sm sm:text-lg md:text-xl lg:text-2xl">
+          {title} <span className="text-muted-foreground">— {eyebrow.toUpperCase()}</span>
+        </h2>
+{to && (
+          <div className="flex justify-center sm:justify-end">
+            <Button asChild variant="outline" className="rounded-full px-4 sm:px-6 py-1.5 sm:py-3 text-[8px] sm:text-[9px] uppercase tracking-[0.15em] whitespace-nowrap">
+              <Link to={to as "/shop"} search={search}>
+                View all <ArrowRight className="ml-1.5 sm:ml-2 h-2.5 w-2.5 sm:h-3.5 sm:w-3.5" strokeWidth={1.5} />
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
       {children}
-      {to && (
-        <div className="mt-4 sm:mt-6 lg:mt-8 text-center">
-          <Button asChild variant="outline" className="rounded-full px-6 sm:px-8 py-2 sm:py-6 text-[9px] sm:text-xs uppercase tracking-[0.2em]">
-            <Link to={to as "/shop"} search={search}>
-              View all <ArrowRight className="ml-1.5 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
-            </Link>
-          </Button>
-        </div>
-      )}
     </section>
   );
 }
