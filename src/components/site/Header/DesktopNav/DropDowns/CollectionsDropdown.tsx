@@ -20,37 +20,37 @@ const collections: DropdownItem[] = [
     label: "Bestsellers",
     category: "bestsellers",
     icon: Star,
-    iconClassName: "text-yellow-500",
+    iconClassName: "text-primary",
   },
   {
     label: "New Arrivals",
     category: "new-arrivals",
     icon: Sparkles,
-    iconClassName: "text-purple-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Combo & Gift Sets",
     category: "combo-gift-sets",
     icon: Gift,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Shop by Skin Concern",
     category: "skin-concern",
     icon: Search,
-    iconClassName: "text-blue-500",
+    iconClassName: "text-primary",
   },
   {
     label: "SHEIN Products",
     category: "shein",
     icon: Shield,
-    iconClassName: "text-indigo-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Pre-Order from Japan",
     category: "pre-order-japan",
     icon: Globe,
-    iconClassName: "text-red-500",
+    iconClassName: "text-primary",
   },
 ];
 
@@ -59,45 +59,45 @@ const moreCollections: DropdownItem[] = [
     label: "Winter Essentials",
     category: "winter-essentials",
     icon: Package,
-    iconClassName: "text-blue-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Summer Glow",
     category: "summer-glow",
     icon: Star,
-    iconClassName: "text-yellow-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Travel Size",
     category: "travel-size",
     icon: Truck,
-    iconClassName: "text-green-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Value Sets",
     category: "value-sets",
     icon: Gift,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "K-Beauty Picks",
     category: "k-beauty",
     icon: Globe,
-    iconClassName: "text-red-500",
+    iconClassName: "text-primary",
   },
   {
     label: "J-Beauty Picks",
     category: "j-beauty",
     icon: Globe,
-    iconClassName: "text-red-500",
+    iconClassName: "text-primary",
   },
 ];
 
 export function CollectionsDropdown() {
   return (
-    <div className="absolute left-0 top-full z-50 w-full min-w-3xl">
-      <div className="mt-1 rounded-lg border border-border bg-popover p-4 shadow-[var(--shadow-lift)]">
-        <div className="grid grid-cols-12 gap-6">
+    <div className="z-50 container-lux">
+      <div className="rounded-2xl border border-border/20 bg-background/80 p-4 shadow-(--shadow-lift) backdrop-blur-2xl">
+        <div className="grid grid-cols-12 gap-4">
           <DropdownColumn
             title="Collections"
             items={collections}

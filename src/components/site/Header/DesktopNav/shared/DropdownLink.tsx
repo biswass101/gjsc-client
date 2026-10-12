@@ -15,21 +15,21 @@ export function DropdownLink({
   label,
   category,
   icon: Icon,
-  iconClassName = "",
+  iconClassName = "text-primary",
   to = "/shop",
   searchParam = "category",
   href,
 }: DropdownLinkProps) {
   const className =
-    "flex items-center gap-2 rounded px-2 py-1 transition-colors hover:bg-secondary hover:text-primary";
+    "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary";
 
   const content = (
     <>
       <Icon
-        className={`h-3.5 w-3.5 shrink-0 ${iconClassName}`}
-        strokeWidth={2}
+        className={`h-4 w-4 shrink-0 ${iconClassName}`}
+        strokeWidth={1.75}
       />
-      <span>{label}</span>
+      <span className="font-medium">{label}</span>
     </>
   );
 

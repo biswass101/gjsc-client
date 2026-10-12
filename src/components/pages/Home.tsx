@@ -24,7 +24,7 @@ export function Home() {
 
   return (
     <Layout>
-      <Hero />
+      <Hero/>
       <Categories/>
 
       <Section eyebrow="Loved Most" title="Bestsellers" to="/shop" search={{ badge: "Best Seller" }}>
@@ -46,8 +46,8 @@ export function Home() {
       </Section>
 
       {/* Skin type / concern */}
-      <section className="bg-cream py-6 sm:py-8 lg:py-12">
-        <div className="container-lux grid gap-8 sm:gap-10 lg:gap-12 lg:grid-cols-2">
+      <section className="bg-cream py-4 sm:py-6 lg:py-8">
+        <div className="container-lux grid gap-6 sm:gap-8 lg:gap-10 lg:grid-cols-2">
           <div>
             <p className="eyebrow text-[10px] sm:text-xs">Shop by Skin Type</p>
             <h2 className="mt-2 sm:mt-3 font-display text-lg xs:text-2xl sm:text-3xl md:text-4xl">Know your skin</h2>
@@ -107,7 +107,7 @@ export function Home() {
       </Section>
 
       {/* Story */}
-      <section className="bg-cream py-10 sm:py-14 lg:py-20">
+      <section className="bg-cream py-4 sm:py-6 lg:py-8">
         <div className="container-lux grid items-center gap-6 sm:gap-8 lg:gap-14 lg:grid-cols-2">
           <img
             src={story.src}
@@ -115,7 +115,7 @@ export function Home() {
             width={1200}
             height={1408}
             loading="lazy"
-            className="rounded-lg object-cover shadow-[var(--shadow-card)]"
+            className="rounded-lg object-cover shadow-(--shadow-card)"
           />
           <div>
             <p className="eyebrow text-[10px] sm:text-xs">Our Philosophy</p>
@@ -158,7 +158,7 @@ export function Home() {
       <Section eyebrow="The Journal" title="Beauty Notes" to="/blog">
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           {BLOG_POSTS.map((b) => (
-            <Link key={b.slug} to="/blog" className="group surface-card overflow-hidden p-4 sm:p-6 lg:p-8 transition-all duration-500 hover:shadow-[var(--shadow-card)]">
+            <Link key={b.slug} to="/blog" className="group surface-card overflow-hidden p-4 sm:p-6 lg:p-8 transition-all duration-500 hover:shadow-(--shadow-card)">
               <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{b.date} · {b.read}</p>
               <h3 className="mt-2 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl leading-snug transition-colors group-hover:text-primary">{b.title}</h3>
               <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-muted-foreground">{b.excerpt}</p>
