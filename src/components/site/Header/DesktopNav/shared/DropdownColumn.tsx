@@ -25,8 +25,8 @@ export function DropdownColumn({
   getHref,
 }: DropdownColumnProps) {
   return (
-    <div className="col-span-12 px-4 lg:col-span-6">
-      <p className="eyebrow mb-2">{title}</p>
+    <div className="col-span-12 px-2 lg:col-span-6">
+      <p className="eyebrow mb-3 text-[11px] tracking-[0.2em] text-primary/80">{title}</p>
 
       <div className="space-y-1 text-[13px] normal-case tracking-normal">
         {items.map((item) => (

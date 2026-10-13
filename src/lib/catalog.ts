@@ -34,7 +34,7 @@ export const CATEGORIES = [
   "Beauty Accessories", "Makeup", "Gift Sets", "Travel Kits",
 ] as const;
 
-export const TOP_CATEGORIES = ["Serum", "Cleanser", "Moisturizer", "Toner", "Sunscreen"] as const;
+export const TOP_CATEGORIES = ["Serum", "Cleanser", "Moisturizer", "Toner", "Sunscreen", "Face Mask", "Eye Care"] as const;
 
 export type CategoryGroup = {
   label: string;

@@ -26,7 +26,7 @@ export interface NavItemData {
   label: string;
   icon: React.ElementType;
   iconClassName?: string;
-  dropdown?: React.ComponentType;
+  dropdown?: React.ComponentType<{}>;
   fallbackRoute?: string;
 }
 
@@ -35,77 +35,84 @@ export const navItems: NavItemData[] = [
       to: "/",
       label: "Home",
       icon: Home,
+      iconClassName: "text-primary",
     },
     {
       to: "/shop",
       label: "Shop All",
       icon: Store,
+      iconClassName: "text-primary",
     },
     {
       to: "/categories",
       label: "Categories",
       icon: Grid,
+      iconClassName: "text-primary",
       dropdown: CategoriesDropdown,
     },
     {
       to: "/collections",
       label: "Collections",
       icon: Sparkles,
+      iconClassName: "text-primary",
       dropdown: CollectionsDropdown,
     },
     {
       to: "/brands",
       label: "Brands",
       icon: Gem,
+      iconClassName: "text-primary",
       dropdown: BrandsDropdown,
     },
     {
       to: "/offers",
       label: "Offers",
       icon: Tag,
+      iconClassName: "text-primary",
       fallbackRoute: "/coming-soon",
     },
     {
       to: "/pre-order",
       label: "Pre-Order",
       icon: Truck,
+      iconClassName: "text-primary",
       fallbackRoute: "/coming-soon",
     },
     {
       to: "/collections?type=bestsellers",
       label: "Bestsellers",
       icon: Star,
-      iconClassName: "text-yellow-500",
+      iconClassName: "text-primary",
     },
     {
       to: "/collections?type=new-arrivals",
       label: "New Arrivals",
       icon: Sparkles,
-      iconClassName: "text-purple-500",
+      iconClassName: "text-primary",
     },
     {
       to: "/collections?type=combo-gift-sets",
       label: "Combo & Gift Sets",
       icon: Gift,
-      iconClassName: "text-pink-500",
+      iconClassName: "text-primary",
     },
     {
       to: "/collections?type=skin-concern",
       label: "Shop by Skin Concern",
       icon: Search,
-      iconClassName: "text-blue-500",
+      iconClassName: "text-primary",
     },
     {
       to: "/collections?type=shein",
       label: "SHEIN Products",
       icon: Shield,
-      iconClassName: "text-indigo-500",
+      iconClassName: "text-primary",
     },
     {
       to: "/collections?type=pre-order-japan",
       label: "Pre-Order from Japan",
       icon: Globe,
-      iconClassName: "text-red-500",
+      iconClassName: "text-primary",
     },
 ];
 
@@ -121,25 +128,25 @@ export const brands: DropdownItem[] = [
     label: "Sakura Lab",
     category: "sakura-lab",
     icon: Sparkles,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Kyoto Botanicals",
     category: "kyoto-botanicals",
     icon: Leaf,
-    iconClassName: "text-green-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Yuzu No Mori",
     category: "yuzu-no-mori",
     icon: Star,
-    iconClassName: "text-yellow-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Hikari Beauty",
     category: "hikari-beauty",
     icon: Shield,
-    iconClassName: "text-purple-500",
+    iconClassName: "text-primary",
   },
 ];
 
@@ -149,31 +156,31 @@ export const featuredBrands: DropdownItem[] = [
     label: "Best of Glorious Japan",
     category: "glorious-japan",
     icon: Star,
-    iconClassName: "text-yellow-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Sakura Lab Favorites",
     category: "sakura-lab",
     icon: Sparkles,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Kyoto Botanicals Top Picks",
     category: "kyoto-botanicals",
     icon: Leaf,
-    iconClassName: "text-green-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Yuzu Collection",
     category: "yuzu-no-mori",
     icon: Globe,
-    iconClassName: "text-orange-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Hikari Beauty Essentials",
     category: "hikari-beauty",
     icon: Gem,
-    iconClassName: "text-purple-500",
+    iconClassName: "text-primary",
   },
 ];
 
@@ -183,37 +190,37 @@ export const categories: DropdownItem[] = [
     label: "Skincare",
     category: "Skincare",
     icon: Leaf,
-    iconClassName: "text-green-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Hair Care",
     category: "Hair Care",
     icon: Scissors,
-    iconClassName: "text-purple-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Body Care",
     category: "Body Care",
     icon: Baby,
-    iconClassName: "text-orange-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Makeup",
     category: "Makeup",
     icon: Sparkles,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Baby Care",
     category: "Baby Care",
     icon: Baby,
-    iconClassName: "text-blue-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Accessories",
     category: "Accessories",
     icon: Gem,
-    iconClassName: "text-gray-500",
+    iconClassName: "text-primary",
   },
 ];
 
@@ -228,30 +235,30 @@ export const featured: DropdownItem[] = [
     label: "Sunscreen",
     category: "Sunscreen",
     icon: Shield,
-    iconClassName: "text-yellow-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Cleanser",
     category: "Cleanser",
     icon: Search,
-    iconClassName: "text-blue-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Moisturizer",
     category: "Moisturizer",
     icon: Sparkles,
-    iconClassName: "text-pink-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Toner",
     category: "Toner",
     icon: Home,
-    iconClassName: "text-green-500",
+    iconClassName: "text-primary",
   },
   {
     label: "Face Mask",
     category: "Face Mask",
     icon: Gem,
-    iconClassName: "text-purple-500",
+    iconClassName: "text-primary",
   },
 ];

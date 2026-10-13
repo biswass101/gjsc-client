@@ -5,10 +5,9 @@ import { categories, featured } from "../data";
 
 export function CategoriesDropdown() {
   return (
-    
-    <div className="absolute left-0 top-full z-50 w-full min-w-[48rem]">
-      <div className="mt-1 rounded-lg border border-border bg-popover p-4 shadow-[var(--shadow-lift)]">
-        <div className="grid grid-cols-12 gap-6">
+    <div className="z-50 container-lux">
+      <div className="rounded-2xl border border-border/20 bg-background/80 p-4 shadow-(--shadow-lift) backdrop-blur-2xl">
+        <div className="grid grid-cols-12 gap-4">
           <DropdownColumn
             title="Categories"
             items={categories}

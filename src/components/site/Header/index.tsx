@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/navigation";
 import { toast } from "sonner";
 import { useShop } from "@/lib/store";
+import { useHeaderVisibility } from "@/hooks/useHeaderVisibility";
 import { SearchDialog } from "../SearchDialog";
 import { PaletteSwitcher } from "../PaletteSwitcher";
 import { AnnouncementBar } from "./AnnouncementBar";
@@ -118,7 +119,7 @@ function DropdownRenderer({ label, onMouseEnter, onMouseLeave }: { label: string
 
   return (
     <div
-      className="absolute left-0 top-full z-50 w-full"
+      className="absolute left-0 right-0 top-full z-50 w-full"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -134,6 +135,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const isHeaderVisible = useHeaderVisibility();
 
   const unread = notifications.filter((n) => !n.read).length;
 
@@ -161,20 +163,25 @@ export function Header() {
       {/* <AnnouncementBar /> */}
 
       <div
-        className={`border-b border-border/30 transition-all duration-500 ${
+        className={`border-b border-border/30 transition-all duration-300 ${
           scrolled ? "bg-background/40 backdrop-blur-xl" : "bg-transparent"
+        } ${
+          isHeaderVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Row 1: Logo + Icon Buttons */}
+        {/* Row 1: Logo + Search bar (middle) + Icon Buttons */}
         <div className="container-lux flex h-14 lg:h-16 items-center justify-between gap-2 sm:gap-3 lg:gap-4">
           <Logo />
+
+          <div className="flex-1 flex justify-center px-2 sm:px-4">
+            <SearchButton onClick={() => setSearchOpen(true)} />
+          </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1">
             <div className="hidden lg:block">
               <PaletteSwitcher />
             </div>
 
-            <SearchButton onClick={() => setSearchOpen(true)} />
             <WishlistButton count={wishlist.length} />
             <NotificationsDropdown
               notifications={notifications}
@@ -195,20 +202,19 @@ export function Header() {
           </div>
         </div>
 
-        {/* Row 2: Desktop Navigation */}
+{/* Row 2: Desktop Navigation */}
         <div className="hidden lg:block border-t border-border/20 relative">
           <div className="container-lux relative">
             <DesktopNav
               openDropdown={openDropdown}
               onOpenDropdown={setOpenDropdown}
             />
-            <DropdownRenderer
-              label={openDropdown}
-              onMouseEnter={() => setOpenDropdown(openDropdown)}
-              onMouseLeave={() => setOpenDropdown(null)}
-            />
-            {/* <CollectionsBar /> */}
           </div>
+          <DropdownRenderer
+            label={openDropdown}
+            onMouseEnter={() => setOpenDropdown(openDropdown)}
+            onMouseLeave={() => setOpenDropdown(null)}
+          />
         </div>
 
         {/* Row 3: Collections Horizontal Scroll */}

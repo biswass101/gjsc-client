@@ -8,11 +8,11 @@ export function SearchButton({ onClick }: SearchButtonProps) {
   return (
     <button
       type="button"
-      aria-label="Search"
       onClick={onClick}
-      className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-secondary"
+      className="flex h-9 w-full max-w-xs md:max-w-sm lg:max-w-md items-center gap-2.5 rounded-full border border-border/60 bg-secondary/30 px-3.5 py-1.5 text-xs text-muted-foreground transition-all hover:bg-secondary/60 hover:border-primary/30"
     >
-      <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
+      <Search className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+      <span className="truncate">Search products, brands, concerns...</span>
     </button>
   );
 }

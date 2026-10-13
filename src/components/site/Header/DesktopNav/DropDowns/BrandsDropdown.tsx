@@ -16,9 +16,9 @@ const brandRoutes = {
 // 5. Export the component here
 export function BrandsDropdown() {
   return (
-    <div className="absolute left-0 top-full z-50 w-full min-w-[48rem]">
-      <div className="mt-1 rounded-lg border border-border bg-popover p-4 shadow-[var(--shadow-lift)]">
-        <div className="grid grid-cols-12 gap-6">
+    <div className="z-50 container-lux">
+      <div className="rounded-2xl border border-border/20 bg-background/80 p-4 shadow-(--shadow-lift) backdrop-blur-2xl">
+        <div className="grid grid-cols-12 gap-4">
           <DropdownColumn
             title="Our Brands"
             items={brands}
@@ -27,8 +27,8 @@ export function BrandsDropdown() {
             getHref={(item) => brandRoutes[item.category as keyof typeof brandRoutes]}
           />
 
-          <div className="col-span-12 px-4 lg:col-span-6">
-            <p className="eyebrow mb-2">Featured</p>
+          <div className="col-span-12 px-2 lg:col-span-6">
+            <p className="eyebrow mb-3 text-[11px] tracking-[0.2em] text-primary/80">Featured</p>
 
             <div className="space-y-1 text-[13px] normal-case tracking-normal">
               {featuredBrands.map((brand) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import NavScrollButton from "./NavScrollButton";
 import { NavItem } from "./shared/NavItem";
 import { navItems, type NavItemData } from "./data";
@@ -12,6 +12,7 @@ interface DesktopNavProps {
 
 export function DesktopNav({ openDropdown, onOpenDropdown }: DesktopNavProps) {
   const navScrollRef = useRef<HTMLDivElement>(null);
+  const [openItem, setOpenItem] = useState<string | null>(null);
 
   return (
     <nav
@@ -25,12 +26,21 @@ export function DesktopNav({ openDropdown, onOpenDropdown }: DesktopNavProps) {
       >
         {navItems.map(({ to, label, icon: Icon, iconClassName, dropdown: Dropdown, fallbackRoute }) => {
           const item = { to, label, icon: Icon, iconClassName, dropdown: Dropdown, fallbackRoute } as NavItemData;
+          const isOpen = openItem === label;
           return (
             <div
               key={label}
               className="relative shrink-0"
-              onMouseEnter={() => item.dropdown && onOpenDropdown(label)}
-              onMouseLeave={() => item.dropdown && onOpenDropdown(null)}
+              onMouseEnter={() => {
+                if (item.dropdown) {
+                  setOpenItem(label);
+                  onOpenDropdown(label);
+                }
+              }}
+              onMouseLeave={() => {
+                setOpenItem(null);
+                onOpenDropdown(null);
+              }}
             >
               <NavItem
                 to={to}

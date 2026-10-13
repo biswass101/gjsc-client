@@ -272,6 +272,7 @@
   margin-inline: auto;
   max-width: 84rem;
   padding-inline: 1.25rem;
+  position: relative;
 
   @media (min-width: 1024px) {
     padding-inline: 2.5rem;
