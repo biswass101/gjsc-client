@@ -99,7 +99,9 @@ export function ProductCarousel({ products, title, eyebrow, to, search }: Produc
         >
           <div className="flex gap-3 sm:gap-4 lg:gap-5 pb-2">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} className="shrink-0 w-56 sm:w-64 lg:w-72" />
+              <div key={product.id} className="shrink-0 w-56 sm:w-64 lg:w-72">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
