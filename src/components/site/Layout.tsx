@@ -5,7 +5,6 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { CartDrawer } from "./CartDrawer";
 import { FloatingChat } from "./FloatingChat";
-import { PaletteSwitcher } from "./PaletteSwitcher";
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -15,7 +14,6 @@ export function Layout({ children }: { children: ReactNode }) {
       <Footer />
       <CartDrawer />
       <FloatingChat />
-      <PaletteSwitcher variant="floating" />
     </div>
   );
 }

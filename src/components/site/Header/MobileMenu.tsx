@@ -1,8 +1,7 @@
 import { Link } from "@/lib/navigation";
-import { Store, LayoutGrid, BookOpen, Info, ShoppingBag, Bell, User, Heart, Settings, LogOut, Sparkles, Menu } from "lucide-react";
+import { Store, LayoutGrid, BookOpen, Info, ShoppingBag, Bell, User, Heart, Settings, LogOut, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CATEGORIES } from "@/lib/catalog";
-import { PaletteSwitcher } from "../PaletteSwitcher";
 
 interface User {
   name: string;
@@ -131,17 +130,6 @@ export function MobileMenu({ user, wishlistCount, onLogout, onNavigate, classNam
               </>
             )}
           </MobileSection>
-
-          {/* Theme Section */}
-          <div className="border-b border-border/50">
-            <p className="eyebrow px-6 pt-4 pb-2 text-[11px] flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3 text-primary" />
-              Brand Themes
-            </p>
-            <div className="px-6 pb-4">
-              <PaletteSwitcher variant="inline" />
-            </div>
-          </div>
         </nav>
       </SheetContent>
     </Sheet>
