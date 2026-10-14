@@ -19,6 +19,7 @@ type ShopSearch = {
   skinType?: string | undefined;
   concern?: string | undefined;
   badge?: string | undefined;
+  type?: string | undefined;
 };
 
 const SORTS = [
@@ -37,12 +38,13 @@ export function ShopClient() {
     skinType: searchParams.get("skinType") ?? undefined,
     concern: searchParams.get("concern") ?? undefined,
     badge: searchParams.get("badge") ?? undefined,
+    type: searchParams.get("type") ?? undefined,
   };
   const [cats, setCats] = useState<string[]>(search.category ? [search.category] : []);
   const [types, setTypes] = useState<string[]>(search.skinType ? [search.skinType] : []);
   const [concerns, setConcerns] = useState<string[]>(search.concern ? [search.concern] : []);
   const [brands, setBrands] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState(11000);
+  const [maxPrice, setMaxPrice] = useState(16000);
   const [inStock, setInStock] = useState(false);
   const [onSale, setOnSale] = useState(false);
   const [sort, setSort] = useState("popular");
@@ -50,7 +52,7 @@ export function ShopClient() {
   const [page, setPage] = useState(1);
 
   // Reset page when filters change
-  useEffect(() => { setPage(1); }, [cats, types, concerns, brands, maxPrice, inStock, onSale, sort, search.badge]);
+  useEffect(() => { setPage(1); }, [cats, types, concerns, brands, maxPrice, inStock, onSale, sort, search.badge, search.type]);
 
   const toggle = (list: string[], set: (v: string[]) => void, v: string) =>
     set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
@@ -58,6 +60,7 @@ export function ShopClient() {
   const results = useMemo(() => {
     let out = PRODUCTS.filter((p) => {
       if (search.badge && p.badge !== search.badge) return false;
+      if (search.type && p.type !== search.type) return false;
       if (cats.length && !cats.includes(p.category)) return false;
       if (types.length && !p.skinTypes.some((t) => types.includes(t))) return false;
       if (concerns.length && !p.concerns.some((c) => concerns.includes(c))) return false;
@@ -76,7 +79,7 @@ export function ShopClient() {
       return b.rating - a.rating;
     });
     return out;
-  }, [cats, types, concerns, brands, maxPrice, inStock, onSale, sort, search.badge]);
+  }, [cats, types, concerns, brands, maxPrice, inStock, onSale, sort, search.badge, search.type]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PER_PAGE));
   const safePage = Math.min(page, totalPages);
@@ -85,7 +88,7 @@ export function ShopClient() {
 
   const clearAll = () => {
     setCats([]); setTypes([]); setConcerns([]); setBrands([]);
-    setMaxPrice(11000); setInStock(false); setOnSale(false);
+    setMaxPrice(16000); setInStock(false); setOnSale(false);
   };
 
   const FilterGroup = ({ title, items, list, set }: { title: string; items: readonly string[]; list: string[]; set: (v: string[]) => void }) => (
@@ -110,7 +113,7 @@ export function ShopClient() {
       <FilterGroup title="Brand" items={BRANDS} list={brands} set={setBrands} />
       <div>
         <p className="eyebrow">Max Price</p>
-        <Slider className="mt-5" value={[maxPrice]} min={500} max={11000} step={100} onValueChange={(v) => setMaxPrice(v[0] ?? 11000)} />
+        <Slider className="mt-5" value={[maxPrice]} min={500} max={16000} step={100} onValueChange={(v) => setMaxPrice(v[0] ?? 16000)} />
         <p className="mt-3 text-sm text-muted-foreground">Up to ৳{maxPrice.toLocaleString()}</p>
       </div>
       <div className="space-y-2.5">

@@ -3,13 +3,7 @@ import {
   Scissors, Shield, ShoppingBag, Smile, Sparkles, Sunrise, Wind, Zap,
 } from "lucide-react";
 import { Layout } from "@/components/site/Layout";
-import { CATEGORIES, CATEGORY_GROUPS, PRODUCTS } from "@/lib/catalog";
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
-import p5 from "@/assets/p5.jpg";
-import p6 from "@/assets/p6.jpg";
+import { CATEGORIES, CATEGORY_GROUPS, PRODUCTS, PRODUCT_IMAGES } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 
@@ -92,8 +86,7 @@ export default function CategoriesPage() {
                 const Icon = CATEGORY_ICONS[cat] ?? Package;
                 const colorClass = CATEGORY_COLORS[(groupIndex + i) % CATEGORY_COLORS.length]!;
                 const count = counts[cat] ?? 0;
-                const bgImages = [p1, p2, p3, p4, p5, p6];
-                const bgImage = bgImages[(groupIndex + i) % bgImages.length]!;
+                const bgImage = PRODUCT_IMAGES[(groupIndex + i) % PRODUCT_IMAGES.length]!;
 
                 return (
                   <Link
@@ -104,7 +97,7 @@ export default function CategoriesPage() {
                   >
                     {/* Background image */}
                     <img
-                      src={bgImage.src}
+                      src={bgImage}
                       alt={cat}
                       className="absolute inset-0 h-full w-full object-cover opacity-30 group-hover:opacity-45 transition-opacity duration-300"
                     />

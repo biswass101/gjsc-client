@@ -1,12 +1,6 @@
 "use client";
 
-import { TOP_CATEGORIES } from "@/lib/catalog";
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
-import p5 from "@/assets/p5.jpg";
-import p6 from "@/assets/p6.jpg";
+import { TOP_CATEGORIES, PRODUCT_IMAGES } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { Section } from "./shared/Section";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -86,8 +80,7 @@ export function Categories() {
         >
           <div className="flex gap-2 sm:gap-3 lg:gap-4 pb-2">
             {TOP_CATEGORIES.map((c, i) => {
-              const bgImages = [p1, p2, p3, p4, p5, p6];
-              const bgImage = bgImages[i % bgImages.length]!;
+              const bgImage = PRODUCT_IMAGES[i % PRODUCT_IMAGES.length]!;
               return (
                 <Link
                   key={c}
@@ -97,7 +90,7 @@ export function Categories() {
                 >
                   {/* Background image */}
                   <img
-                    src={bgImage.src}
+                    src={bgImage}
                     alt={c}
                     className="absolute inset-0 h-full w-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500"
                   />

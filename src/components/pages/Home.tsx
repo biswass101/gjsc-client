@@ -6,12 +6,6 @@ import { Hero } from "@/components/site/Hero";
 import { ProductCard } from "@/components/site/ProductCard";
 import story from "@/assets/story.jpg";
 import { BLOG_POSTS, CATEGORIES, TOP_CATEGORIES, CONCERNS, PRODUCTS, SKIN_TYPES, TESTIMONIALS } from "@/lib/catalog";
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
-import p5 from "@/assets/p5.jpg";
-import p6 from "@/assets/p6.jpg";
 import { Link } from "@/lib/navigation";
 import { Categories } from "./Categories";
 import { Section } from "./shared/Section";
@@ -21,6 +15,8 @@ export function Home() {
   const trending = PRODUCTS.filter((p) => p.badge === "Trending").slice(0, 4);
   const flash = PRODUCTS.filter((p) => p.compareAt).slice(0, 4);
   const fresh = PRODUCTS.filter((p) => p.badge === "New").slice(0, 4);
+  const preOrder = PRODUCTS.filter((p) => p.type === "pre-order-japan").slice(0, 4);
+  const shein = PRODUCTS.filter((p) => p.type === "shein").slice(0, 4);
 
   return (
     <Layout>
@@ -120,19 +116,24 @@ export function Home() {
         </div>
       </div>
 
-      {/* Placeholder sections - Full Width */}
+      {/* Pre-Order from Japan */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Authentic Imports" title="Pre-Order from Japan">
-            <div className="surface-card p-10 text-center text-muted-foreground italic">Coming Soon: Exclusive Pre-order service from Japan.</div>
+          <Section eyebrow="Authentic Imports" title="Pre-Order from Japan" to="/shop" search={{ type: "pre-order-japan" }}>
+            <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {preOrder.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
           </Section>
         </div>
       </div>
-      
+
+      {/* SHEIN Products */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Global Selection" title="SHEIN Products">
-            <div className="surface-card p-10 text-center text-muted-foreground italic">Coming Soon: Curated SHEIN selection.</div>
+          <Section eyebrow="Global Selection" title="SHEIN Products" to="/shop" search={{ type: "shein" }}>
+            <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {shein.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
           </Section>
         </div>
       </div>

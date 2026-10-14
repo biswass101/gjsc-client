@@ -21,7 +21,6 @@ import { toast } from "sonner";
 import { useShop } from "@/lib/store";
 import { useHeaderVisibility } from "@/hooks/useHeaderVisibility";
 import { SearchDialog } from "../SearchDialog";
-import { PaletteSwitcher } from "../PaletteSwitcher";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { Logo } from "./Logo";
 import { DesktopNav } from "./DesktopNav";
@@ -178,10 +177,6 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1">
-            <div className="hidden lg:block">
-              <PaletteSwitcher />
-            </div>
-
             <WishlistButton count={wishlist.length} />
             <NotificationsDropdown
               notifications={notifications}
