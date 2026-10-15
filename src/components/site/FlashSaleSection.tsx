@@ -135,37 +135,43 @@ export function FlashSaleSection() {
             </p>
           </div>
 
-          {/* Live Countdown Box */}
-          <div className="flex items-center gap-2 self-start md:self-auto bg-card border border-rose-500/30 rounded-2xl p-2.5 sm:p-3 shadow-xs">
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-rose-600 mr-1 flex items-center gap-1">
-              <Zap className="h-3.5 w-3.5 fill-rose-500" />
-              <span>Ends in:</span>
+          {/* Live Countdown Box & Swipe prompt */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <span className="md:hidden inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">
+              Swipe →
             </span>
-            <div className="flex items-center gap-1 text-foreground font-mono font-bold text-xs sm:text-sm">
-              <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-1">
-                {pad(timeLeft.hours)}h
+
+            <div className="flex items-center gap-2 bg-card border border-rose-500/30 rounded-2xl p-2.5 sm:p-3 shadow-xs">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-rose-600 mr-1 flex items-center gap-1">
+                <Zap className="h-3.5 w-3.5 fill-rose-500" />
+                <span>Ends in:</span>
               </span>
-              <span>:</span>
-              <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-1">
-                {pad(timeLeft.minutes)}m
-              </span>
-              <span>:</span>
-              <span className="rounded-lg bg-rose-500/10 border border-rose-500/20 px-2 py-1 text-rose-600">
-                {pad(timeLeft.seconds)}s
-              </span>
+              <div className="flex items-center gap-1 text-foreground font-mono font-bold text-xs sm:text-sm">
+                <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-1">
+                  {pad(timeLeft.hours)}h
+                </span>
+                <span>:</span>
+                <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-1">
+                  {pad(timeLeft.minutes)}m
+                </span>
+                <span>:</span>
+                <span className="rounded-lg bg-rose-500/10 border border-rose-500/20 px-2 py-1 text-rose-600">
+                  {pad(timeLeft.seconds)}s
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 4 Flash Cards Grid */}
-        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/* 4 Flash Cards Grid / Mobile Horizontal Swipe Track */}
+        <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {FLASH_ITEMS.map((item) => {
             const saved = wishlist.includes(item.slug);
 
             return (
               <div
                 key={item.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-rose-500/20 bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-rose-500/50 hover:shadow-lg"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-rose-500/20 bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-rose-500/50 hover:shadow-lg w-[76vw] xs:w-[65vw] sm:w-auto shrink-0 snap-start"
               >
                 <div>
                   {/* Image with Flash Badge */}

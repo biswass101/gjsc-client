@@ -5,7 +5,15 @@ import { formatBDT, type Product } from "@/lib/catalog";
 import { useShop } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-export function ProductCard({ product, view = "grid" }: { product: Product; view?: "grid" | "list" }) {
+export function ProductCard({
+  product,
+  view = "grid",
+  className,
+}: {
+  product: Product;
+  view?: "grid" | "list";
+  className?: string;
+}) {
   const { addToCart, toggleWishlist, wishlist } = useShop();
   const saved = wishlist.includes(product.slug);
   const off = product.compareAt ? Math.round((1 - product.price / product.compareAt) * 100) : 0;
@@ -23,7 +31,9 @@ export function ProductCard({ product, view = "grid" }: { product: Product; view
     <article
       className={cn(
         "group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-border/80 bg-card transition-all duration-500 hover:shadow-[var(--shadow-lift)] hover:border-primary/50",
+        view === "grid" && "w-[72vw] xs:w-[60vw] sm:w-auto shrink-0 snap-start",
         view === "list" && "sm:flex sm:flex-row",
+        className,
       )}
     >
       <div>
