@@ -16,9 +16,7 @@ export function Categories() {
     if (!container) return;
 
     setCanScrollLeft(container.scrollLeft > 0);
-    setCanScrollRight(
-      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
-    );
+    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
   };
 
   useEffect(() => {
@@ -32,9 +30,10 @@ export function Categories() {
     if (!container) return;
 
     const scrollAmount = 300;
-    const targetScroll = direction === "left" 
-      ? container.scrollLeft - scrollAmount 
-      : container.scrollLeft + scrollAmount;
+    const targetScroll =
+      direction === "left"
+        ? container.scrollLeft - scrollAmount
+        : container.scrollLeft + scrollAmount;
 
     container.scrollTo({
       left: targetScroll,
@@ -76,9 +75,9 @@ export function Categories() {
         <div
           ref={scrollContainerRef}
           onScroll={checkScrollability}
-          className="overflow-x-auto scrollbar-hide scroll-smooth"
+          className="overflow-x-auto scrollbar-hide scroll-smooth rounded-4xl"
         >
-          <div className="flex gap-2 sm:gap-3 lg:gap-4 pb-2">
+          <div className="flex gap-3 sm:gap-5 lg:gap-7 px-2 pt-3 pb-5">
             {TOP_CATEGORIES.map((c, i) => {
               const bgImage = PRODUCT_IMAGES[i % PRODUCT_IMAGES.length]!;
               return (
@@ -86,23 +85,41 @@ export function Categories() {
                   key={c}
                   to="/shop"
                   search={{ category: c }}
-                  className="group relative shrink-0 flex flex-col items-center justify-center gap-2 rounded-lg border border-border overflow-hidden p-4 sm:p-6 lg:p-8 text-center transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-card)] w-32 sm:w-40 lg:w-48 aspect-square"
+                  aria-label={`Shop ${c}`}
+                  className="group relative shrink-0 aspect-square w-28 sm:w-36 lg:w-44 rounded-full transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-(--shadow-lift)"
                 >
-                  {/* Background image */}
-                  <img
-                    src={bgImage}
-                    alt={c}
-                    className="absolute inset-0 h-full w-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500"
+                  {/* Gradient ring border (gold → sakura → lavender) */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,var(--gold),var(--sakura),var(--lavender),var(--gold-soft),var(--gold))] shadow-(--shadow-card) transition-transform duration-1000 ease-out group-hover:rotate-180"
                   />
-                  {/* Dark overlay */}
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />
 
-                  {/* Content */}
-                  <div className="relative flex flex-col items-center justify-center">
-                    <span className="text-xs sm:text-sm lg:text-base leading-tight text-foreground drop-shadow-md">
-                      {c}
+                  {/* Ivory gap between ring and image */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-[3px] sm:inset-1 rounded-full bg-background"
+                  />
+
+                  {/* Circular image area */}
+                  <span className="absolute inset-[6px] sm:inset-2 overflow-hidden rounded-full bg-linear-to-br from-champagne via-cream to-sakura/40">
+                    <img
+                      src={bgImage}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-90"
+                    />
+
+                    {/* Soft ink gradient so the label always stays readable */}
+                    <span className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/25 to-transparent transition-colors duration-500 group-hover:from-ink/85" />
+
+                    {/* Label */}
+                    <span className="absolute inset-x-0 bottom-0 flex flex-col items-center px-2 pb-4 sm:pb-6 lg:pb-8 text-center">
+                      <span className="font-display text-sm sm:text-lg lg:text-xl leading-tight text-white drop-shadow-md">
+                        {c}
+                      </span>
+                      <span className="gold-rule mt-1.5 sm:mt-2 w-8 sm:w-12 transition-all duration-500 group-hover:w-16" />
                     </span>
-                  </div>
+                  </span>
                 </Link>
               );
             })}
@@ -112,10 +129,7 @@ export function Categories() {
         {/* Mobile Scroll Hint */}
         <div className="md:hidden flex justify-center gap-1 mt-3">
           {TOP_CATEGORIES.map((_, i) => (
-            <div
-              key={i}
-              className="h-1 w-8 rounded-full bg-border/40"
-            />
+            <div key={i} className="h-1 w-8 rounded-full bg-border/40" />
           ))}
         </div>
       </div>

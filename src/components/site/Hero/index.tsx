@@ -19,22 +19,24 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="container-lux relative min-h-[25vh] sm:min-h-[40vh] lg:min-h-[55vh] flex items-center overflow-hidden">
-      <BackgroundSlider currentIndex={currentIndex} />
-      
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        <Sakura />
-      </div>
+    <section className="container-lux pt-3">
+      <div className="relative flex h-65 items-center overflow-hidden rounded-xl sm:h-95 lg:h-115">
+        <BackgroundSlider currentIndex={currentIndex} />
 
-      <div className="relative z-20 w-full pt-1 sm:pt-2 lg:pt-4 pb-2 sm:pb-4 lg:pb-6">
-        <Content />
-      </div>
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+          <Sakura />
+        </div>
 
-      <CarouselIndicators
-        currentIndex={currentIndex}
-        total={HERO_IMAGES.length}
-        onSelect={setCurrentIndex}
-      />
+        {/* <div className="relative z-20 w-full pt-1 sm:pt-2 lg:pt-4 pb-2 sm:pb-4 lg:pb-6">
+          <Content />
+        </div> */}
+
+        <CarouselIndicators
+          currentIndex={currentIndex}
+          total={HERO_IMAGES.length}
+          onSelect={setCurrentIndex}
+        />
+      </div>
     </section>
   );
 }
