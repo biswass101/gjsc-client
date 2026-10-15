@@ -1,6 +1,7 @@
 import { Home } from "../components/pages/Home";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { LoadingScreen } from "@/components/site/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "Glorious Japan Skin Care — Authentic Japanese Beauty in Bangladesh",
@@ -22,10 +23,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="container-lux py-12">Loading...</div>}>
+    <Suspense fallback={<LoadingScreen />}>
       <Home />
     </Suspense>
   );
 }
-
-

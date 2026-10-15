@@ -163,7 +163,7 @@ export function Header() {
 
       <div
         className={`border-b border-border/30 transition-all duration-300 ${
-          scrolled ? "bg-background/40 backdrop-blur-xl" : "bg-transparent"
+          openDropdown ? "bg-background" : scrolled ? "bg-background/95 backdrop-blur-md" : "bg-transparent"
         } ${
           isHeaderVisible ? "translate-y-0" : "-translate-y-full"
         }`}

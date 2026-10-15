@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { ShopClient } from "./ShopClient";
 import type { Metadata } from "next";
+import { LoadingScreen } from "@/components/site/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "Shop All Japanese Skincare | Glorious Japan Skin Care",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="container-lux py-12">Loading shop...</div>}>
+    <Suspense fallback={<LoadingScreen message="Curating Japanese Skincare Catalog..." />}>
       <ShopClient />
     </Suspense>
   );
