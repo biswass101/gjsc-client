@@ -6,13 +6,14 @@ import { categories, featured } from "../data";
 export function CategoriesDropdown() {
   return (
     <div className="z-50 container-lux">
-      <div className="rounded-2xl border border-border/20 bg-background/80 p-4 shadow-(--shadow-lift) backdrop-blur-2xl">
+      <div className="rounded-2xl border border-border bg-background p-4 shadow-2xl">
         <div className="grid grid-cols-12 gap-4">
           <DropdownColumn
             title="Categories"
             items={categories}
             to="/shop"
             searchParam="category"
+            imageOffset={0}
           />
 
           <DropdownColumn
@@ -20,6 +21,7 @@ export function CategoriesDropdown() {
             items={featured}
             to="/shop"
             searchParam="category"
+            imageOffset={6}
           />
         </div>
       </div>
