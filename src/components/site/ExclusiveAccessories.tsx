@@ -35,18 +35,23 @@ export function ExclusiveAccessories() {
             </p>
           </div>
 
-          <Link
-            to="/shop"
-            search={{ category: "Beauty Accessories" }}
-            className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline self-start sm:self-auto"
-          >
-            <span>View All Accessories</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="sm:hidden inline-flex items-center gap-1 rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              Swipe →
+            </span>
+            <Link
+              to="/shop"
+              search={{ category: "Beauty Accessories" }}
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline"
+            >
+              <span>View All Accessories</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
 
         {/* 4 Products in 1 Row */}
-        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {accessories.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

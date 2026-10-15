@@ -105,20 +105,25 @@ export function BogoSection() {
             </p>
           </div>
 
-          <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider self-start sm:self-auto">
-            Limited stock per customer
-          </span>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="sm:hidden inline-flex items-center gap-1 rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              Swipe →
+            </span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
+              Limited stock per customer
+            </span>
+          </div>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/* 4 Cards Grid / Mobile Horizontal Swipe Track */}
+        <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {BOGO_ITEMS.map((item) => {
             const saved = wishlist.includes(item.slug);
 
             return (
               <div
                 key={item.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[var(--shadow-lift)]"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[var(--shadow-lift)] w-[76vw] xs:w-[65vw] sm:w-auto shrink-0 snap-start"
               >
                 <div>
                   {/* Image with BOGO Badge */}
