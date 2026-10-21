@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, Wallet, Banknote } from "lucide-react";
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatBDT } from "@/lib/catalog";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 export default function CheckoutPage() {
   const { lines, subtotal, clearCart } = useShop();

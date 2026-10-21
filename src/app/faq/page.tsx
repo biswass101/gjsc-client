@@ -1,4 +1,4 @@
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { Metadata } from "next";
 

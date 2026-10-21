@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Heart, MapPin, Package, Settings, Star, User } from "lucide-react";
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

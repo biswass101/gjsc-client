@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Heart, Minus, Plus, RotateCcw, ShieldCheck, Truck } from "lucide-react";
-import { Layout } from "@/components/site/Layout";
-import { ProductCard } from "@/components/site/ProductCard";
-import { Rating } from "@/components/site/Rating";
+import { Layout } from "@/components/layout";
+import { ProductCard } from "@/features/products";
+import { Rating } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PRODUCTS, formatBDT } from "@/lib/catalog";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 interface ProductPageClientProps {
   product: typeof PRODUCTS[number];

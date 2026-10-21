@@ -130,6 +130,12 @@
     border-color: var(--color-border);
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -206,7 +212,10 @@
 @utility surface-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  @media (min-width: 640px) {
+    border-radius: var(--radius-lg);
+  }
   box-shadow: var(--shadow-soft);
 }
 

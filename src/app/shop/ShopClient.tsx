@@ -2,8 +2,8 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
-import { Layout } from "@/components/site/Layout";
-import { ProductCard } from "@/components/site/ProductCard";
+import { Layout } from "@/components/layout";
+import { ProductCard } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";

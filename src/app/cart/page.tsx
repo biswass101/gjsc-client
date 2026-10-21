@@ -3,14 +3,14 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Layout } from "@/components/site/Layout";
-import { ProductCard } from "@/components/site/ProductCard";
+import { Layout } from "@/components/layout";
+import { ProductCard } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { PRODUCTS, formatBDT } from "@/lib/catalog";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 export default function CartPage() {
   const { lines, setQty, removeFromCart, subtotal } = useShop();

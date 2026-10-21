@@ -1,10 +1,10 @@
 "use client";
 
-import { Layout } from "@/components/site/Layout";
-import { ProductCard } from "@/components/site/ProductCard";
+import { Layout } from "@/components/layout";
+import { ProductCard } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { PRODUCTS } from "@/lib/catalog";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 export default function WishlistPage() {
   const { wishlist } = useShop();

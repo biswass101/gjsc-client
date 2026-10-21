@@ -2,7 +2,7 @@ import {
   Beaker, Droplets, Eye, Gift, Layers, Leaf, Package, Palette,
   Scissors, Shield, ShoppingBag, Smile, Sparkles, Sunrise, Wind, Zap,
 } from "lucide-react";
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { CATEGORIES, CATEGORY_GROUPS, PRODUCTS, PRODUCT_IMAGES } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";

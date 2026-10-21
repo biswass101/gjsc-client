@@ -15,29 +15,8 @@ import i14 from "@/assets/new_products_images/i14.jpg";
 import i15 from "@/assets/new_products_images/i15.jpg";
 import i16 from "@/assets/new_products_images/i16.jpg";
 
-export type Product = {
-  id: string;
-  slug: string;
-  name: string;
-  brand: string;
-  category: string;
-  price: number;
-  compareAt?: number | undefined;
-  rating: number;
-  reviews: number;
-  image: string;
-  short: string;
-  description: string;
-  ingredients: string[];
-  benefits: string[];
-  howTo: string;
-  skinTypes: string[];
-  concerns: string[];
-  stock: number;
-  badge?: "New" | "Best Seller" | "Trending" | "Flash Sale" | undefined;
-  sizes: string[];
-  type?: "pre-order-japan" | "shein" | undefined;
-};
+import type { Product, CategoryGroup } from "@/types";
+export type { Product, CategoryGroup };
 
 export const CATEGORIES = [
   "Face Wash", "Cleanser", "Serum", "Essence", "Moisturizer", "Toner",
@@ -56,10 +35,6 @@ export const TOP_CATEGORIES = [
   "Face Mask",
 ] as const;
 
-export type CategoryGroup = {
-  label: string;
-  categories: typeof CATEGORIES[number][];
-};
 
 export const CATEGORY_GROUPS: CategoryGroup[] = [
   {

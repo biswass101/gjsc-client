@@ -2,12 +2,12 @@
 
 import { toast } from "sonner";
 import { useState } from "react";
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 export default function AuthPage() {
   const { user, login, logout } = useShop();
