@@ -122,7 +122,7 @@ export function OffersToSayYes() {
           {BUNDLE_DEALS.map((deal) => (
             <div
               key={deal.id}
-              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-lift)] w-[54vw] sm:w-auto shrink-0 snap-start min-w-[175px]"
+              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-lift)] w-[54vw] sm:w-auto shrink-0 snap-start min-w-[175px]"
             >
               <div>
                 {/* Image & Badges */}
@@ -144,16 +144,16 @@ export function OffersToSayYes() {
                 </div>
 
                 {/* Content */}
-                <div className="p-2.5 sm:p-4">
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] text-amber-500">
+                <div className="p-2.5 sm:p-3">
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[10.5px] text-amber-500">
                     <div className="flex items-center">
-                      <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-amber-400 text-amber-400" />
-                      <span className="ml-1 font-semibold text-foreground text-[10px] sm:text-xs">{deal.rating}</span>
+                      <Star className="h-2.5 w-2.5 sm:h-2.5 sm:w-2.5 fill-amber-400 text-amber-400" />
+                      <span className="ml-1 font-semibold text-foreground text-[10px] sm:text-[11px]">{deal.rating}</span>
                     </div>
-                    <span className="text-muted-foreground text-[9px] sm:text-[10px]">({deal.reviews})</span>
+                    <span className="text-muted-foreground text-[9px] sm:text-[9.5px]">({deal.reviews})</span>
                   </div>
 
-                  <h3 className="mt-1 font-display text-xs sm:text-base font-semibold leading-snug">
+                  <h3 className="mt-1 font-display text-xs sm:text-[13px] font-semibold leading-snug">
                     <Link
                       to="/product/$slug"
                       params={{ slug: deal.slug }}
@@ -164,8 +164,8 @@ export function OffersToSayYes() {
                   </h3>
 
                   {/* Included Items List */}
-                  <div className="mt-2 space-y-1 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
-                    <p className="font-semibold text-foreground text-[8px] sm:text-[9px] uppercase tracking-wider">
+                  <div className="mt-1.5 space-y-1 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
+                    <p className="font-semibold text-foreground text-[8px] sm:text-[8.5px] uppercase tracking-wider">
                       Includes:
                     </p>
                     {deal.items.map((item, idx) => (
@@ -179,17 +179,17 @@ export function OffersToSayYes() {
               </div>
 
               {/* Bottom Price & Add to Bag */}
-              <div className="p-3 sm:p-4 pt-0">
-                <div className="flex items-baseline justify-between border-t border-border/60 pt-2.5">
+              <div className="p-2.5 sm:p-3 pt-0">
+                <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
                   <div>
-                    <span className="text-[10px] text-muted-foreground line-through block">
+                    <span className="text-[9.5px] sm:text-[10px] text-muted-foreground line-through block">
                       {formatBDT(deal.originalPrice)}
                     </span>
-                    <span className="font-display text-sm sm:text-base font-bold text-foreground">
+                    <span className="font-display text-xs sm:text-sm font-bold text-foreground">
                       {formatBDT(deal.bundlePrice)}
                     </span>
                   </div>
-                  <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
+                  <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[8.5px] sm:text-[9px] font-semibold text-emerald-600">
                     Combo Deal
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export function OffersToSayYes() {
                 <button
                   type="button"
                   onClick={() => handleAddBundle(deal)}
-                  className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
                 >
                   <ShoppingBag className="h-3.5 w-3.5" />
                   <span>Add Bundle to Bag</span>

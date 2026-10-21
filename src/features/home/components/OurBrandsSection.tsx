@@ -118,13 +118,13 @@ export function OurBrandsSection() {
         </div>
 
         {/* 8 Brands Grid with Photos */}
-        <div className="grid gap-4 sm:gap-5 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-3.5 sm:gap-4 grid-cols-2 md:grid-cols-4">
           {BRANDS_LIST.map((brand) => (
             <Link
               key={brand.name}
               to="/shop"
               search={{ brand: brand.name }}
-              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/60 hover:shadow-[var(--shadow-lift)]"
+              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/60 hover:shadow-[var(--shadow-lift)]"
             >
               <div>
                 {/* Brand Visual Header Image */}
@@ -159,20 +159,20 @@ export function OurBrandsSection() {
                 </div>
 
                 {/* Brand Details */}
-                <div className="p-3.5 sm:p-4">
-                  <h3 className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                <div className="p-3 sm:p-3">
+                  <h3 className="font-display text-base sm:text-base font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                     {brand.name}
                   </h3>
 
-                  <p className="mt-1.5 text-[11px] sm:text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                  <p className="mt-1 text-[11px] sm:text-[11.5px] text-muted-foreground leading-relaxed line-clamp-2">
                     {brand.tagline}
                   </p>
                 </div>
               </div>
 
               {/* Action Link Footer */}
-              <div className="p-3.5 sm:p-4 pt-0">
-                <div className="pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-primary">
+              <div className="p-3 sm:p-3 pt-0">
+                <div className="pt-2 border-t border-border/50 flex items-center justify-between text-[11px] font-semibold text-primary">
                   <span>Explore Collection</span>
                   <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                 </div>

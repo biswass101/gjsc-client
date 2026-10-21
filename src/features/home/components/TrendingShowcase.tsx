@@ -127,7 +127,7 @@ export function TrendingShowcase({
 
       {/* 5-Card 3D Showcase Stage */}
       <div
-        className="relative mx-auto w-full max-w-7xl h-[410px] sm:h-[480px] md:h-[510px] lg:h-[540px] flex items-center justify-center select-none overflow-hidden"
+        className="relative mx-auto w-full max-w-7xl h-[410px] sm:h-[450px] md:h-[475px] lg:h-[500px] flex items-center justify-center select-none overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -258,7 +258,7 @@ function ShowcaseCard({
       }
       className={cn(
         "absolute top-2 sm:top-5 left-1/2",
-        "w-[170px] sm:w-[235px] md:w-[275px] lg:w-[310px]",
+        "w-[170px] sm:w-[220px] md:w-[250px] lg:w-[275px]",
         "transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)",
         "origin-center will-change-transform",
         "[transform:translateX(calc(-50%_+_var(--tx-sm)))_scale(var(--sc-sm))]",
@@ -269,14 +269,14 @@ function ShowcaseCard({
     >
       <article
         className={cn(
-          "group relative overflow-hidden rounded-md sm:rounded-2xl border transition-all duration-500 bg-card",
+          "group relative overflow-hidden rounded-md sm:rounded-lg border transition-all duration-500 bg-card",
           isCenter
             ? "border-primary/50 shadow-[0_18px_50px_-10px_rgba(180,140,80,0.25)] dark:shadow-[0_18px_50px_-10px_rgba(0,0,0,0.55)] ring-2 ring-primary/25"
             : "border-border/80 shadow-sm backdrop-blur-xs hover:border-primary/40"
         )}
       >
-        {/* Card Image */}
-        <div className="relative aspect-square w-full overflow-hidden bg-cream/70">
+        {/* Card Image (Decreased image area) */}
+        <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-cream/70">
           <Link
             to="/product/$slug"
             params={{ slug: product.slug }}
@@ -346,17 +346,17 @@ function ShowcaseCard({
         </div>
 
         {/* Card Content */}
-        <div className={cn("flex flex-col p-2.5 sm:p-3.5 gap-1 sm:gap-1.5", isCenter ? "bg-card" : "bg-card/90")}>
+        <div className={cn("flex flex-col p-2 sm:p-2.5 gap-1 sm:gap-1.5", isCenter ? "bg-card" : "bg-card/90")}>
           <div className="flex items-center justify-between gap-1.5">
-            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-medium truncate">
+            <span className="text-[8px] sm:text-[8.5px] uppercase tracking-[0.2em] text-muted-foreground font-medium truncate">
               {product.brand}
             </span>
-            <span className="text-[8px] sm:text-[9px] text-primary/90 uppercase tracking-wider font-medium truncate">
+            <span className="text-[8px] sm:text-[8.5px] text-primary/90 uppercase tracking-wider font-medium truncate">
               {product.category}
             </span>
           </div>
 
-          <h3 className="font-display text-xs sm:text-sm md:text-base font-medium leading-snug line-clamp-1">
+          <h3 className="font-display text-xs sm:text-[13px] md:text-sm font-medium leading-snug line-clamp-1">
             <Link
               to="/product/$slug"
               params={{ slug: product.slug }}

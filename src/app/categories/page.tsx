@@ -3,7 +3,7 @@ import {
   Scissors, Shield, ShoppingBag, Smile, Sparkles, Sunrise, Wind, Zap,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import { CATEGORIES, CATEGORY_GROUPS, PRODUCTS, PRODUCT_IMAGES } from "@/lib/catalog";
+import { CATEGORIES, CATEGORY_GROUPS, PRODUCTS, PRODUCT_IMAGES, slugify } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { Link } from "@/lib/navigation";
 
@@ -91,9 +91,8 @@ export default function CategoriesPage() {
                 return (
                   <Link
                     key={cat}
-                    to="/shop"
-                    search={{ category: cat }}
-                    className="group hover-lift surface-card relative overflow-hidden p-6 text-left transition-all min-h-64"
+                    to={`/category/${slugify(cat)}`}
+                    className="group hover-lift surface-card relative overflow-hidden p-4 sm:p-5 text-left transition-all min-h-48 sm:min-h-52"
                   >
                     {/* Background image */}
                     <img
@@ -110,18 +109,18 @@ export default function CategoriesPage() {
 
                     <div className="relative z-10">
                       {/* Icon */}
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm transition-colors duration-300 group-hover:bg-primary/30">
-                        <Icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                      <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm transition-colors duration-300 group-hover:bg-primary/30">
+                        <Icon className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-primary" strokeWidth={1.5} />
                       </div>
 
                       {/* Name + count */}
-                      <p className="mt-4 font-display text-xl leading-snug text-foreground drop-shadow-md">{cat}</p>
-                      <p className="mt-1 text-xs text-muted-foreground drop-shadow-sm">
+                      <p className="mt-3 font-display text-base sm:text-lg leading-snug text-foreground drop-shadow-md">{cat}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground drop-shadow-sm">
                         {count} product{count !== 1 ? "s" : ""}
                       </p>
 
                       {/* Arrow hint */}
-                      <div className="mt-4 flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <div className="mt-3 flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                         Browse <span aria-hidden>→</span>
                       </div>
                     </div>

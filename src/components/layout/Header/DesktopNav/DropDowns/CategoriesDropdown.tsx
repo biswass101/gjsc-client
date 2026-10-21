@@ -2,6 +2,7 @@ import {
   DropdownColumn,
 } from "../shared/DropdownColumn";
 import { categories, featured } from "../data";
+import { slugify } from "@/lib/catalog";
 
 export function CategoriesDropdown() {
   return (
@@ -13,6 +14,7 @@ export function CategoriesDropdown() {
             items={categories}
             to="/shop"
             searchParam="category"
+            getHref={(item) => `/category/${slugify(item.category)}`}
             imageOffset={0}
           />
 
@@ -21,6 +23,7 @@ export function CategoriesDropdown() {
             items={featured}
             to="/shop"
             searchParam="category"
+            getHref={(item) => `/category/${slugify(item.category)}`}
             imageOffset={6}
           />
         </div>

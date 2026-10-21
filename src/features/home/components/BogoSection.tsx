@@ -120,11 +120,11 @@ export function BogoSection() {
             return (
               <div
                 key={item.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-md sm:rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[var(--shadow-lift)] w-[50vw] sm:w-auto shrink-0 snap-start min-w-[160px]"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[var(--shadow-lift)] w-[50vw] sm:w-auto shrink-0 snap-start min-w-[160px]"
               >
                 <div>
-                  {/* Image with BOGO Badge */}
-                  <div className="relative aspect-square w-full overflow-hidden bg-cream">
+                  {/* Image with BOGO Badge (Decreased image area) */}
+                  <div className="relative aspect-[4/3.25] w-full overflow-hidden bg-cream">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -160,20 +160,20 @@ export function BogoSection() {
                   </div>
 
                   {/* Body */}
-                  <div className="p-2.5 sm:p-4">
+                  <div className="p-2.5 sm:p-3">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="text-[7.5px] sm:text-[9px] uppercase tracking-[0.2em] font-medium text-muted-foreground">
+                      <span className="text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.2em] font-medium text-muted-foreground">
                         {item.brand}
                       </span>
                       <div className="flex items-center gap-0.5 sm:gap-1 text-amber-500">
-                        <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-amber-400 text-amber-400" />
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-foreground">
+                        <Star className="h-2.5 w-2.5 sm:h-2.5 sm:w-2.5 fill-amber-400 text-amber-400" />
+                        <span className="text-[10px] sm:text-[10.5px] font-semibold text-foreground">
                           {item.rating}
                         </span>
                       </div>
                     </div>
 
-                    <h3 className="mt-1 font-display text-[11px] sm:text-sm font-semibold line-clamp-1">
+                    <h3 className="mt-1 font-display text-[11px] sm:text-[13px] font-semibold line-clamp-1">
                       <Link
                         to="/product/$slug"
                         params={{ slug: item.slug }}
@@ -184,25 +184,25 @@ export function BogoSection() {
                     </h3>
 
                     {/* Free Gift Tag */}
-                    <div className="mt-2 sm:mt-2.5 flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-[9px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
-                      <Gift className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-emerald-600" />
+                    <div className="mt-1.5 sm:mt-2 flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-[9px] sm:text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                      <Gift className="h-3 w-3 sm:h-3 sm:w-3 shrink-0 text-emerald-600" />
                       <span className="truncate">{item.freeGift}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Price & Action */}
-                <div className="p-2.5 sm:p-4 pt-0">
-                  <div className="flex items-baseline justify-between border-t border-border/60 pt-2 mb-2 sm:pt-2.5 sm:mb-2.5">
+                <div className="p-2.5 sm:p-3 pt-0">
+                  <div className="flex items-baseline justify-between border-t border-border/60 pt-2 mb-2 sm:pt-2 sm:mb-2">
                     <div>
-                      <span className="text-[8.5px] sm:text-[9px] text-muted-foreground uppercase tracking-wider block">
+                      <span className="text-[8.5px] sm:text-[8.5px] text-muted-foreground uppercase tracking-wider block">
                         Pay Only
                       </span>
-                      <span className="font-display text-xs sm:text-base font-bold text-foreground">
+                      <span className="font-display text-xs sm:text-sm font-bold text-foreground">
                         {formatBDT(item.price)}
                       </span>
                     </div>
-                    <span className="text-[9px] sm:text-[10px] text-muted-foreground line-through">
+                    <span className="text-[9px] sm:text-[9.5px] text-muted-foreground line-through">
                       Worth {formatBDT(item.price + item.giftValue)}
                     </span>
                   </div>
@@ -210,7 +210,7 @@ export function BogoSection() {
                   <button
                     type="button"
                     onClick={() => handleClaim(item)}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-[11.5px] font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
                   >
                     <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     <span>Claim BOGO Offer</span>

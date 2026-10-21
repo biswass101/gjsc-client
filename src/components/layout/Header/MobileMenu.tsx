@@ -33,7 +33,7 @@ import {
   X,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { CATEGORIES, PRODUCT_IMAGES } from "@/lib/catalog";
+import { CATEGORIES, PRODUCT_IMAGES, slugify } from "@/lib/catalog";
 import bGlorious from "@/assets/brands/glorious-japan.jpg";
 import bSakura from "@/assets/brands/sakura-lab.jpg";
 import bKyoto from "@/assets/brands/kyoto-botanicals.jpg";
@@ -60,43 +60,37 @@ interface MobileMenuProps {
 
 const COLLECTIONS_ITEMS = [
   {
-    href: "/collections",
-    search: { type: "bestsellers" },
+    href: "/collections/bestsellers",
     icon: Star,
     label: "Bestsellers",
     color: "text-amber-500",
   },
   {
-    href: "/collections",
-    search: { type: "new-arrivals" },
+    href: "/collections/new-arrivals",
     icon: Sparkles,
     label: "New Arrivals",
     color: "text-purple-500",
   },
   {
-    href: "/collections",
-    search: { type: "combo-gift-sets" },
+    href: "/collections/combo-gift-sets",
     icon: Gift,
     label: "Combo & Gift Sets",
     color: "text-pink-500",
   },
   {
-    href: "/collections",
-    search: { type: "skin-concern" },
+    href: "/collections/skin-concern",
     icon: Search,
     label: "Shop by Skin Concern",
     color: "text-blue-500",
   },
   {
-    href: "/collections",
-    search: { type: "shein" },
+    href: "/collections/shein",
     icon: Shield,
     label: "SHEIN Products",
     color: "text-emerald-500",
   },
   {
-    href: "/collections",
-    search: { type: "pre-order-japan" },
+    href: "/collections/pre-order-japan",
     icon: Globe,
     label: "Pre-Order from Japan",
     color: "text-rose-500",
@@ -230,9 +224,8 @@ export function MobileMenu({
                       return (
                         <Link
                           key={cat}
-                          to="/shop"
-                          search={{ category: cat }}
-                          onClick={() => handleLinkClick("/shop")}
+                          to={`/category/${slugify(cat)}`}
+                          onClick={() => handleLinkClick(`/category/${slugify(cat)}`)}
                           className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-background transition-colors group"
                         >
                           <img
@@ -277,9 +270,8 @@ export function MobileMenu({
                     {COLLECTIONS_ITEMS.map((item) => (
                       <Link
                         key={item.label}
-                        to="/collections"
-                        search={item.search}
-                        onClick={() => handleLinkClick("/collections")}
+                        to={item.href}
+                        onClick={() => handleLinkClick(item.href)}
                         className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-background transition-colors"
                       >
                         <item.icon className={cn("h-4 w-4 shrink-0", item.color)} strokeWidth={2} />

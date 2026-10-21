@@ -89,7 +89,7 @@ export function BeautyJournalSection() {
             <Link
               key={art.slug}
               to="/blog"
-              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-2xl border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg w-[82vw] sm:w-[45vw] md:w-auto shrink-0 snap-start"
+              className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg w-[82vw] sm:w-[45vw] md:w-auto shrink-0 snap-start"
             >
               <div>
                 {/* Article Image Cover */}
@@ -111,7 +111,7 @@ export function BeautyJournalSection() {
                 </div>
 
                 {/* Article Content */}
-                <div className="p-3.5 sm:p-4">
+                <div className="p-3 sm:p-3">
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
@@ -124,7 +124,7 @@ export function BeautyJournalSection() {
                     </span>
                   </div>
 
-                  <h3 className="mt-1.5 font-display text-sm sm:text-base lg:text-lg font-bold leading-snug text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="mt-1.5 font-display text-sm sm:text-[15px] lg:text-base font-bold leading-snug text-foreground group-hover:text-primary transition-colors">
                     {art.title}
                   </h3>
 
@@ -135,8 +135,8 @@ export function BeautyJournalSection() {
               </div>
 
               {/* Bottom Author & Read Link */}
-              <div className="p-3.5 sm:p-4 pt-0">
-                <div className="pt-2.5 border-t border-border/60 flex items-center justify-between text-xs">
+              <div className="p-3 sm:p-3 pt-0">
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">
                   <span className="text-[10px] text-muted-foreground font-medium truncate max-w-[150px]">
                     {art.author}
                   </span>

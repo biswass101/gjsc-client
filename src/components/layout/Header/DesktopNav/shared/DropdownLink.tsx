@@ -47,26 +47,16 @@ export function DropdownLink({
   );
 
   if (href) {
-    // Explicit routes keep navigation type-safe.
-    switch (href) {
-      case "/brands/glorious-japan":
-        return <Link to="/brands/glorious-japan" className={className}>{content}</Link>;
-      case "/brands/sakura-lab":
-        return <Link to="/brands/sakura-lab" className={className}>{content}</Link>;
-      case "/brands/kyoto-botanicals":
-        return <Link to="/brands/kyoto-botanicals" className={className}>{content}</Link>;
-      case "/brands/yuzu-no-mori":
-        return <Link to="/brands/yuzu-no-mori" className={className}>{content}</Link>;
-      case "/brands/hikari-beauty":
-        return <Link to="/brands/hikari-beauty" className={className}>{content}</Link>;
-      case "/brands":
-        return <Link to="/brands" className={className}>{content}</Link>;
-    }
+    return (
+      <Link to={href} className={className}>
+        {content}
+      </Link>
+    );
   }
 
   if (to === "/collections" && searchParam === "type") {
     return (
-      <Link to="/collections" search={{ type: category }} className={className}>
+      <Link to={`/collections/${category}`} className={className}>
         {content}
       </Link>
     );

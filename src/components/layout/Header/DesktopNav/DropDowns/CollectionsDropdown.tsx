@@ -102,6 +102,7 @@ export function CollectionsDropdown() {
             items={collections}
             to="/collections"
             searchParam="type"
+            getHref={(item) => `/collections/${item.category}`}
             imageOffset={2}
           />
 
@@ -110,6 +111,7 @@ export function CollectionsDropdown() {
             items={moreCollections}
             to="/collections"
             searchParam="type"
+            getHref={(item) => `/collections/${item.category}`}
             imageOffset={8}
           />
         </div>

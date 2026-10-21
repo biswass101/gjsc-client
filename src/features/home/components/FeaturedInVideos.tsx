@@ -265,7 +265,7 @@ export function FeaturedInVideos() {
 
       {/* 3D Showcase Stage: exactly like Trending Now */}
       <div
-        className="relative mx-auto w-full max-w-7xl h-[420px] sm:h-[500px] md:h-[540px] flex items-center justify-center select-none overflow-hidden"
+        className="relative mx-auto w-full max-w-7xl h-[420px] sm:h-[460px] md:h-[490px] flex items-center justify-center select-none overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -324,7 +324,7 @@ export function FeaturedInVideos() {
               }
               className={cn(
                 "absolute top-2 sm:top-4 left-1/2 cursor-pointer",
-                "w-[190px] sm:w-[260px] md:w-[290px] lg:w-[310px]",
+                "w-[190px] sm:w-[235px] md:w-[260px] lg:w-[280px]",
                 "transition-all duration-700 ease-out will-change-transform",
                 "[transform:translateX(calc(-50%+var(--tx-sm)))_scale(var(--sc-sm))]",
                 "sm:[transform:translateX(calc(-50%+var(--tx-lg)))_scale(var(--sc-lg))]"

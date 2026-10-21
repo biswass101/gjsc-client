@@ -30,43 +30,37 @@ import { BrandsDropdown } from "./DesktopNav/DropDowns/BrandsDropdown";
 
 const collectionsItems = [
   {
-    href: "/collections",
-    search: { type: "bestsellers" },
+    href: "/collections/bestsellers",
     icon: StarIcon,
     label: "Bestsellers",
     color: "text-yellow-500",
   },
   {
-    href: "/collections",
-    search: { type: "new-arrivals" },
+    href: "/collections/new-arrivals",
     icon: SparklesIcon,
     label: "New Arrivals",
     color: "text-purple-500",
   },
   {
-    href: "/collections",
-    search: { type: "combo-gift-sets" },
+    href: "/collections/combo-gift-sets",
     icon: GiftIcon,
     label: "Combo & Gift Sets",
     color: "text-pink-500",
   },
   {
-    href: "/collections",
-    search: { type: "skin-concern" },
+    href: "/collections/skin-concern",
     icon: SearchIcon,
     label: "Shop by Skin Concern",
     color: "text-blue-500",
   },
   {
-    href: "/collections",
-    search: { type: "shein" },
+    href: "/collections/shein",
     icon: ShieldIcon,
     label: "SHEIN Products",
     color: "text-indigo-500",
   },
   {
-    href: "/collections",
-    search: { type: "pre-order-japan" },
+    href: "/collections/pre-order-japan",
     icon: GlobeIcon,
     label: "Pre-Order from Japan",
     color: "text-red-500",
@@ -86,7 +80,6 @@ function CollectionsBar() {
             <Link
               key={item.href}
               to={item.href}
-              search={item.search}
               className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap rounded-full bg-secondary/30 hover:bg-secondary/50"
             >
               <item.icon className={`h-3.5 w-3.5 ${item.color}`} strokeWidth={2} />

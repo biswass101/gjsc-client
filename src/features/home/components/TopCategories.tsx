@@ -1,6 +1,6 @@
 "use client";
 
-import { TOP_CATEGORIES, PRODUCT_IMAGES } from "@/lib/catalog";
+import { TOP_CATEGORIES, PRODUCT_IMAGES, slugify } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { Section } from "@/components/common";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -83,10 +83,9 @@ export function TopCategories() {
               return (
                 <Link
                   key={c}
-                  to="/shop"
-                  search={{ category: c }}
+                  to={`/category/${slugify(c)}`}
                   aria-label={`Shop ${c}`}
-                  className="group relative shrink-0 aspect-square w-22 sm:w-36 lg:w-44 rounded-full transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-(--shadow-lift)"
+                  className="group relative shrink-0 aspect-square w-22 sm:w-30 lg:w-36 rounded-full transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-(--shadow-lift)"
                 >
                   {/* Gradient ring border (gold → sakura → lavender) */}
                   <span
@@ -113,8 +112,8 @@ export function TopCategories() {
                     <span className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/25 to-transparent transition-colors duration-500 group-hover:from-ink/85" />
 
                     {/* Label */}
-                    <span className="absolute inset-x-0 bottom-0 flex flex-col items-center px-1.5 pb-2.5 sm:pb-6 lg:pb-8 text-center">
-                      <span className="font-display text-xs sm:text-lg lg:text-xl leading-tight text-white drop-shadow-md">
+                    <span className="absolute inset-x-0 bottom-0 flex flex-col items-center px-1.5 pb-2.5 sm:pb-4 lg:pb-5 text-center">
+                      <span className="font-display text-xs sm:text-sm lg:text-base leading-tight text-white drop-shadow-md">
                         {c}
                       </span>
                       <span className="gold-rule mt-1 sm:mt-2 w-6 sm:w-12 transition-all duration-500 group-hover:w-16" />
