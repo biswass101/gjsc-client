@@ -242,14 +242,20 @@ export const PRODUCTS: Product[] = [
 
 export const bySlug = (slug: string): Product | undefined => {
   if (!slug) return undefined;
-  const decoded = decodeURIComponent(slug).trim().toLowerCase();
+  let decoded = slug.trim().toLowerCase();
+  try {
+    decoded = decodeURIComponent(slug).trim().toLowerCase();
+  } catch {
+    // Keep raw slug if malformed URL encoding
+  }
   const normalized = slugify(decoded);
   return PRODUCTS.find(
     (p) =>
       p.slug.toLowerCase() === decoded ||
       p.slug.toLowerCase() === normalized ||
       p.id.toLowerCase() === decoded ||
-      slugify(p.name) === normalized
+      slugify(p.name) === normalized ||
+      p.name.toLowerCase() === decoded
   );
 };
 
