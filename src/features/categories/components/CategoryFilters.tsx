@@ -38,6 +38,7 @@ interface CategoryFiltersProps {
   availableSkinTypes: { name: string; count: number }[];
   priceBounds: { min: number; max: number };
   activeFilterCount: number;
+  filteredCount?: number;
 }
 
 export function CategoryFilterSidebar(props: CategoryFiltersProps) {
@@ -104,12 +105,14 @@ export function CategoryFilterDrawer(props: CategoryFiltersProps) {
             <FilterBody {...props} />
           </div>
 
-          <div className="sticky bottom-0 border-t border-border bg-background/95 p-4 backdrop-blur-md">
+          <div className="border-t border-border/60 p-4 bg-background/95 backdrop-blur-xs">
             <Button
-              className="w-full rounded-xl bg-primary py-2.5 text-xs font-semibold text-primary-foreground shadow-md"
+              className="w-full rounded-full bg-primary text-xs font-semibold text-primary-foreground py-2.5 shadow-sm cursor-pointer"
               onClick={() => setOpen(false)}
             >
-              View Results
+              {props.filteredCount !== undefined
+                ? `View ${props.filteredCount} Results`
+                : "Apply Filters"}
             </Button>
           </div>
         </SheetContent>

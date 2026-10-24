@@ -46,7 +46,7 @@ export function HomeScreen() {
       {/* 4. Bestsellers - Full Width Row */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Loved Most" title="Bestsellers" to="/shop" search={{ badge: "Best Seller" }}>
+          <Section eyebrow="Loved Most" title="Bestsellers" to="/collections/bestsellers">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {best.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -62,7 +62,7 @@ export function HomeScreen() {
       {/* 6. New Arrivals - Full Width Row */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Just Landed" title="New Arrivals" to="/shop" search={{ badge: "New" }}>
+          <Section eyebrow="Just Landed" title="New Arrivals" to="/collections/new-arrivals">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {fresh.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -81,7 +81,7 @@ export function HomeScreen() {
       {/* 9. Offers & Discounts - Full Width Row */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Limited Time" title="Offers & Discounts" to="/shop" search={{ onSale: true }}>
+          <Section eyebrow="Limited Time" title="Offers & Discounts" to="/offers">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {flash.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -109,7 +109,7 @@ export function HomeScreen() {
       {/* 15. Combo & Gift Sets - Full Width */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Curated Collections" title="Combo & Gift Sets" to="/shop" search={{ category: "Gift Sets" }}>
+          <Section eyebrow="Curated Collections" title="Combo & Gift Sets" to="/collections/combo-gift-sets">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {PRODUCTS.filter((p) => p.category === "Gift Sets" || p.category === "Travel Kits")
                 .slice(0, 4)
@@ -127,7 +127,7 @@ export function HomeScreen() {
       {/* 17. Pre-Order from Japan - Full Width */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Authentic Imports" title="Pre-Order from Japan" to="/shop" search={{ type: "pre-order-japan" }}>
+          <Section eyebrow="Authentic Imports" title="Pre-Order from Japan" to="/pre-order">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {preOrder.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -140,7 +140,7 @@ export function HomeScreen() {
       {/* 18. SHEIN Products - Full Width */}
       <div className="bg-background">
         <div className="container-lux">
-          <Section eyebrow="Global Selection" title="SHEIN Products" to="/shop" search={{ type: "shein" }}>
+          <Section eyebrow="Global Selection" title="SHEIN Products" to="/collections/shein">
             <div className="flex gap-2.5 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {shein.map((p) => (
                 <ProductCard key={p.id} product={p} />

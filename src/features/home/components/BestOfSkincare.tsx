@@ -37,8 +37,7 @@ export function BestOfSkincare() {
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <Link
-              to="/shop"
-              search={{ category: "Serum" }}
+              to="/category/skin-care"
               className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline"
             >
               <span>View All Skincare</span>

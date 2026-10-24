@@ -257,6 +257,7 @@ export function CategoryPageClient({ slug }: CategoryPageClientProps) {
     availableSkinTypes,
     priceBounds,
     activeFilterCount,
+    filteredCount: filteredProducts.length,
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutGrid, List, X } from "lucide-react";
+import { LayoutGrid, List, RotateCcw, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -188,18 +188,20 @@ export function CategoryActiveFilters({
 
       {/* Active Filter Chips */}
       {activeTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-[11px] font-medium text-muted-foreground mr-1">Active:</span>
+        <div className="flex flex-wrap items-center gap-2 pt-1 animate-in fade-in duration-150">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Active:
+          </span>
           {activeTags.map((tag) => (
             <span
               key={tag.id}
-              className="inline-flex items-center gap-1 rounded-full bg-secondary/80 border border-border px-2.5 py-1 text-[11px] font-medium text-foreground hover:border-primary/50 transition-colors"
+              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary shadow-2xs"
             >
               <span>{tag.label}</span>
               <button
                 type="button"
                 onClick={tag.onRemove}
-                className="hover:text-rose-500 transition-colors p-0.5 rounded-full hover:bg-black/5"
+                className="hover:opacity-75 cursor-pointer ml-0.5 p-0.5 rounded-full hover:bg-primary/20 transition-colors"
                 aria-label={`Remove filter ${tag.label}`}
               >
                 <X className="h-3 w-3" />
@@ -210,9 +212,10 @@ export function CategoryActiveFilters({
             variant="ghost"
             size="sm"
             onClick={onResetFilters}
-            className="text-[11px] text-primary hover:underline h-7 px-2 font-semibold"
+            className="h-6 px-2 text-[11px] text-muted-foreground hover:text-primary cursor-pointer gap-1"
           >
-            Clear all ({activeTags.length})
+            <RotateCcw className="h-3 w-3" />
+            <span>Clear All</span>
           </Button>
         </div>
       )}

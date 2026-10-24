@@ -26,7 +26,7 @@ export function BrandsDropdown() {
             to="/shop"
             searchParam="category"
             imageOffset={4}
-            getHref={(item) => brandRoutes[item.category as keyof typeof brandRoutes]}
+            getHref={(item) => `/brands/${item.category}`}
           />
 
           <div className="col-span-12 px-2 lg:col-span-6">
@@ -38,7 +38,7 @@ export function BrandsDropdown() {
                   key={brand.label}
                   {...brand}
                   image={brand.image ?? PRODUCT_IMAGES[(idx + 10) % PRODUCT_IMAGES.length]!}
-                  href={brandRoutes[brand.category as keyof typeof brandRoutes]}
+                  href={`/brands/${brand.category}`}
                 />
               ))}
               <DropdownLink

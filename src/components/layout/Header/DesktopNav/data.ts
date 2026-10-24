@@ -69,14 +69,12 @@ export const navItems: NavItemData[] = [
       label: "Offers",
       icon: Tag,
       iconClassName: "text-primary",
-      fallbackRoute: "/coming-soon",
     },
     {
       to: "/pre-order",
       label: "Pre-Order",
       icon: Truck,
       iconClassName: "text-primary",
-      fallbackRoute: "/coming-soon",
     },
     {
       to: "/collections/bestsellers",

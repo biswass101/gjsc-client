@@ -2,6 +2,7 @@
 
 import { Link } from "@/lib/navigation";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
+import { slugify } from "@/lib/catalog";
 import bGlorious from "@/assets/brands/glorious-japan.jpg";
 import bSakura from "@/assets/brands/sakura-lab.jpg";
 import bKyoto from "@/assets/brands/kyoto-botanicals.jpg";
@@ -109,7 +110,7 @@ export function OurBrandsSection() {
           </div>
 
           <Link
-            to="/shop"
+            to="/brands"
             className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline self-start sm:self-auto"
           >
             <span>Explore All Brands</span>
@@ -122,8 +123,7 @@ export function OurBrandsSection() {
           {BRANDS_LIST.map((brand) => (
             <Link
               key={brand.name}
-              to="/shop"
-              search={{ brand: brand.name }}
+              to={`/brands/${slugify(brand.name)}`}
               className="group flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg border border-border bg-card shadow-xs transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/60 hover:shadow-[var(--shadow-lift)]"
             >
               <div>

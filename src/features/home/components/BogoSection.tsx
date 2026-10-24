@@ -4,7 +4,7 @@ import { useShop } from "@/context";
 import { formatBDT } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
-import { Gift, Heart, Plus, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Gift, Heart, Plus, Sparkles, Star } from "lucide-react";
 import p1Img from "@/assets/new_products_images/i10.jpg";
 import p2Img from "@/assets/new_products_images/i7.jpg";
 import p3Img from "@/assets/new_products_images/i8.jpg";
@@ -106,9 +106,13 @@ export function BogoSection() {
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
-              Limited stock per customer
-            </span>
+            <Link
+              to="/offers"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline"
+            >
+              <span>View All Offers</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </div>
 

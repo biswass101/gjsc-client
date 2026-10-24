@@ -31,16 +31,30 @@ export function CartDrawer() {
             <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
               {lines.map(({ product, qty, size }) => (
                 <div key={product.slug} className="flex gap-4">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    width={900}
-                    height={900}
-                    loading="lazy"
-                    className="h-24 w-20 rounded-md object-cover"
-                  />
+                  <Link
+                    to="/product/$slug"
+                    params={{ slug: product.slug }}
+                    onClick={() => setCartOpen(false)}
+                    className="shrink-0 overflow-hidden rounded-md group"
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      width={900}
+                      height={900}
+                      loading="lazy"
+                      className="h-24 w-20 rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </Link>
                   <div className="flex-1">
-                    <p className="font-display text-lg leading-tight">{product.name}</p>
+                    <Link
+                      to="/product/$slug"
+                      params={{ slug: product.slug }}
+                      onClick={() => setCartOpen(false)}
+                      className="font-display text-lg leading-tight transition-colors hover:text-primary block"
+                    >
+                      {product.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">{size}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-full border border-border">

@@ -109,8 +109,7 @@ export function OffersToSayYes() {
             </p>
           </div>
           <Link
-            to="/shop"
-            search={{ category: "Gift Sets" }}
+            to="/collections/combo-gift-sets"
             className="text-[11px] sm:text-xs font-semibold text-primary hover:underline shrink-0"
           >
             All bundles →

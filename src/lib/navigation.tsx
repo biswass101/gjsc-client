@@ -29,14 +29,14 @@ function toHref(to: string, search?: Search) {
   return query ? `${to}?${query}` : to;
 }
 
-export function Link({ to, search, params, ...props }: Omit<ComponentProps<typeof NextLink>, "href"> & { to: string; search?: Search; params?: Record<string, string> }) {
+export function Link({ to, search, params, ...props }: Omit<ComponentProps<typeof NextLink>, "href"> & { to: string; search?: Search | undefined; params?: Record<string, string> | undefined; }) {
   const resolvedTo = params ? to.replace(/\$([\w]+)/g, (_, key: string) => params[key] ?? "") : to;
   return <NextLink href={toHref(resolvedTo, search)} {...props} />;
 }
 
 export function useNavigate() {
   const router = useNextRouter();
-  return ({ to, search, params }: { to: string; search?: Search; params?: Record<string, string> }) => {
+  return ({ to, search, params }: { to: string; search?: Search | undefined; params?: Record<string, string> | undefined; }) => {
     const resolvedTo = params ? to.replace(/\$([\w]+)/g, (_, key: string) => params[key] ?? "") : to;
     router.push(toHref(resolvedTo, search));
   };

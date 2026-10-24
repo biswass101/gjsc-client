@@ -83,6 +83,31 @@ export const COLLECTION_DEFINITIONS: CollectionMeta[] = [
       p.badge === "New" || p.badge === "Trending" || Number(p.id) > 25,
   },
   {
+    slug: "trending",
+    title: "Trending Now",
+    japaneseTitle: "トレンド · Viral Tokyo Sensations",
+    tagline: "Formulas Winning Hearts Across Bangladesh This Week",
+    description:
+      "Explore the most-coveted Japanese beauty formulas currently captivating skincare lovers. Viral sensations, high-performance daily essentials, and beloved Japanese customer favorites.",
+    metaDescription:
+      "Shop trending Japanese skincare and beauty sensations in Bangladesh. Top-rated viral Tokyo formulas.",
+    badgeText: "Viral Sensations · High Demand",
+    themeColor: "text-amber-500",
+    gradientClass: "from-amber-500/15 via-rose-500/10 to-transparent",
+    bannerImage: heroSpring.src,
+    frequentlySearched: [
+      "Sakura Radiance Serum",
+      "Hikari UV Shield",
+      "Koji Ferment Moisture Cream",
+      "Matcha Clarifying Toner",
+      "Silk Rice Cleanser",
+      "Hinoki Body Milk",
+    ],
+    aliases: ["trending", "trending-now", "popular-now", "viral"],
+    filterPredicate: (p) =>
+      p.badge === "Trending" || p.rating >= 4.7 || p.reviews >= 80,
+  },
+  {
     slug: "combo-gift-sets",
     title: "Combo & Gift Sets",
     japaneseTitle: "ギフトセット · The Art of Japanese Omiyage",

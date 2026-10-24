@@ -240,7 +240,18 @@ export const PRODUCTS: Product[] = [
   ...SHEIN_PRODUCTS,
 ];
 
-export const bySlug = (slug: string) => PRODUCTS.find((p) => p.slug === slug);
+export const bySlug = (slug: string): Product | undefined => {
+  if (!slug) return undefined;
+  const decoded = decodeURIComponent(slug).trim().toLowerCase();
+  const normalized = slugify(decoded);
+  return PRODUCTS.find(
+    (p) =>
+      p.slug.toLowerCase() === decoded ||
+      p.slug.toLowerCase() === normalized ||
+      p.id.toLowerCase() === decoded ||
+      slugify(p.name) === normalized
+  );
+};
 
 export const formatBDT = (n: number) => `৳${n.toLocaleString("en-BD")}`;
 

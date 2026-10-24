@@ -23,8 +23,8 @@ export function TrendingShowcase({
   products,
   title = "Trending Now",
   eyebrow = "Rising & Coveted",
-  to = "/shop",
-  search = { badge: "Trending" },
+  to = "/collections/trending",
+  search,
 }: TrendingShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -76,9 +76,9 @@ export function TrendingShowcase({
   if (total === 0) return null;
 
   return (
-    <section className="relative overflow-hidden py-5 sm:py-8 lg:py-12 bg-linear-to-b from-background via-cream/25 to-background">
+    <section className="relative overflow-hidden py-6 sm:py-8 lg:py-11 bg-linear-to-b from-background via-cream/25 to-background">
       {/* Header */}
-      <div className="container-lux mb-3 sm:mb-6 lg:mb-8">
+      <div className="container-lux mb-4 sm:mb-5 lg:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 text-center sm:text-left">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mb-1.5 sm:mb-2">
@@ -96,9 +96,15 @@ export function TrendingShowcase({
           <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
             {to && (
               <Button asChild variant="outline" className="rounded-full px-4 sm:px-6 py-1.5 sm:py-3 text-[9px] uppercase tracking-[0.18em]">
-                <Link to={to as "/shop"} search={search}>
-                  View all <ArrowRight className="ml-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                </Link>
+                {search ? (
+                  <Link to={to} search={search}>
+                    View all <ArrowRight className="ml-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  </Link>
+                ) : (
+                  <Link to={to}>
+                    View all <ArrowRight className="ml-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  </Link>
+                )}
               </Button>
             )}
 
@@ -127,7 +133,7 @@ export function TrendingShowcase({
 
       {/* 5-Card 3D Showcase Stage */}
       <div
-        className="relative mx-auto w-full max-w-7xl h-[410px] sm:h-[450px] md:h-[475px] lg:h-[500px] flex items-center justify-center select-none overflow-hidden"
+        className="relative mx-auto w-full max-w-7xl h-75 sm:h-95 md:h-102.5 lg:h-110 flex items-center justify-center select-none overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -137,7 +143,7 @@ export function TrendingShowcase({
         {/* Soft radial glow behind featured center card */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[440px] lg:w-[580px] h-[280px] sm:h-[440px] lg:h-[580px] rounded-full bg-radial from-primary/15 via-primary/5 to-transparent blur-3xl"
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-70 sm:w-110 lg:w-145 h-70 sm:h-110 lg:h-145 rounded-full bg-radial from-primary/15 via-primary/5 to-transparent blur-3xl"
         />
 
         {products.map((product, idx) => {
@@ -167,7 +173,7 @@ export function TrendingShowcase({
       </div>
 
       {/* Pagination indicators */}
-      <div className="container-lux mt-2 sm:mt-3 flex flex-col items-center gap-1.5 sm:gap-2">
+      <div className="container-lux mt-3 sm:mt-4 flex flex-col items-center gap-2 sm:gap-2.5">
         <div className="flex items-center justify-center gap-1.5 sm:gap-2">
           {products.map((p, idx) => {
             const active = idx === activeIndex;
@@ -257,12 +263,12 @@ function ShowcaseCard({
         } as React.CSSProperties
       }
       className={cn(
-        "absolute top-2 sm:top-5 left-1/2",
-        "w-[170px] sm:w-[220px] md:w-[250px] lg:w-[275px]",
+        "absolute top-2 sm:top-4 left-1/2",
+        "w-42.5 sm:w-55 md:w-62.5 lg:w-68.75",
         "transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)",
         "origin-center will-change-transform",
-        "[transform:translateX(calc(-50%_+_var(--tx-sm)))_scale(var(--sc-sm))]",
-        "sm:[transform:translateX(calc(-50%_+_var(--tx-lg)))_scale(var(--sc-lg))]",
+        "transform-[translateX(calc(-50%+var(--tx-sm)))_scale(var(--sc-sm))]",
+        "sm:transform-[translateX(calc(-50%+var(--tx-lg)))_scale(var(--sc-lg))]",
         !isVisible && "pointer-events-none opacity-0",
         !isCenter && "cursor-pointer hover:opacity-90"
       )}

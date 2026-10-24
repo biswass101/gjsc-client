@@ -37,8 +37,7 @@ export function ExclusiveAccessories() {
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <Link
-              to="/shop"
-              search={{ category: "Beauty Accessories" }}
+              to="/category/accessories"
               className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-primary hover:underline"
             >
               <span>View All Accessories</span>

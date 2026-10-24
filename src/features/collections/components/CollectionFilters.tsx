@@ -39,6 +39,7 @@ interface CollectionFiltersProps {
   availableSkinTypes: { name: string; count: number }[];
   priceBounds: { min: number; max: number };
   activeFilterCount: number;
+  filteredCount?: number;
 }
 
 export function CollectionFilterSidebar(props: CollectionFiltersProps) {
@@ -103,9 +104,11 @@ export function CollectionFilterDrawer(props: CollectionFiltersProps) {
         <div className="border-t border-border/60 p-4 bg-background/95 backdrop-blur-xs">
           <Button
             onClick={() => setOpen(false)}
-            className="w-full rounded-full bg-primary text-xs font-semibold text-primary-foreground py-2.5 shadow-sm"
+            className="w-full rounded-full bg-primary text-xs font-semibold text-primary-foreground py-2.5 shadow-sm cursor-pointer"
           >
-            Apply Filters
+            {props.filteredCount !== undefined
+              ? `View ${props.filteredCount} Results`
+              : "Apply Filters"}
           </Button>
         </div>
       </SheetContent>
@@ -251,7 +254,7 @@ function FilterBody(props: CollectionFiltersProps) {
         {/* Price Range */}
         <AccordionItem value="price" className="border-border/60">
           <AccordionTrigger className="py-2.5 text-xs font-bold text-foreground hover:no-underline">
-            <span>Price Range</span>
+            <span>Price Range (BDT)</span>
           </AccordionTrigger>
           <AccordionContent className="pb-3 pt-1 space-y-3">
             <Slider
@@ -266,14 +269,64 @@ function FilterBody(props: CollectionFiltersProps) {
               }}
               className="py-1"
             />
-            <div className="flex items-center justify-between gap-2 text-[11px]">
-              <div className="rounded border border-border px-2 py-1 font-mono text-muted-foreground">
-                {formatBDT(filters.minPrice)}
+
+            {/* Min and Max input fields */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <span className="absolute left-2 top-2 text-[10px] text-muted-foreground">৳</span>
+                <Input
+                  type="number"
+                  value={filters.minPrice}
+                  onChange={(e) =>
+                    onFilterChange({
+                      minPrice: Math.max(priceBounds.min, Number(e.target.value) || 0),
+                    })
+                  }
+                  className="h-8 pl-5 text-xs"
+                  placeholder="Min"
+                />
               </div>
-              <span className="text-muted-foreground">to</span>
-              <div className="rounded border border-border px-2 py-1 font-mono text-muted-foreground">
-                {formatBDT(filters.maxPrice)}
+              <span className="text-xs text-muted-foreground">–</span>
+              <div className="relative flex-1">
+                <span className="absolute left-2 top-2 text-[10px] text-muted-foreground">৳</span>
+                <Input
+                  type="number"
+                  value={filters.maxPrice}
+                  onChange={(e) =>
+                    onFilterChange({
+                      maxPrice: Math.min(
+                        priceBounds.max,
+                        Number(e.target.value) || priceBounds.max
+                      ),
+                    })
+                  }
+                  className="h-8 pl-5 text-xs"
+                  placeholder="Max"
+                />
               </div>
+            </div>
+
+            {/* Quick Price Presets */}
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {[
+                { label: "Under ৳2k", max: 2000 },
+                { label: "৳2k - ৳5k", min: 2000, max: 5000 },
+                { label: "Above ৳5k", min: 5000 },
+              ].map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() =>
+                    onFilterChange({
+                      minPrice: preset.min ?? priceBounds.min,
+                      maxPrice: preset.max ?? priceBounds.max,
+                    })
+                  }
+                  className="rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors"
+                >
+                  {preset.label}
+                </button>
+              ))}
             </div>
           </AccordionContent>
         </AccordionItem>

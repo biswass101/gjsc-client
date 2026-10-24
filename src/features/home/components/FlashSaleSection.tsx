@@ -5,7 +5,7 @@ import { useShop } from "@/context";
 import { formatBDT } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
-import { Flame, Heart, ShoppingBag, Star, Zap } from "lucide-react";
+import { ArrowRight, Flame, Heart, ShoppingBag, Star, Zap } from "lucide-react";
 import f1Img from "@/assets/new_products_images/i6.jpg";
 import f2Img from "@/assets/new_products_images/i10.jpg";
 import f3Img from "@/assets/new_products_images/i4.jpg";
@@ -135,9 +135,17 @@ export function FlashSaleSection() {
             </p>
           </div>
 
-          {/* Live Countdown Box */}
-          <div className="flex items-center gap-2 self-start md:self-auto">
-            <div className="flex items-center gap-2 bg-card border border-rose-500/30 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-xs">
+          {/* Live Countdown Box & Link to Offers */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-auto">
+            <Link
+              to="/offers"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-rose-600 hover:underline order-2 sm:order-1"
+            >
+              <span>View all deals</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+
+            <div className="flex items-center gap-2 bg-card border border-rose-500/30 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-xs order-1 sm:order-2">
               <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-rose-600 mr-1 flex items-center gap-1">
                 <Zap className="h-3.5 w-3.5 fill-rose-500" />
                 <span>Ends in:</span>

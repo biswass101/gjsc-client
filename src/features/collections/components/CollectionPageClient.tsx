@@ -305,6 +305,7 @@ export function CollectionPageClient({ slug }: CollectionPageClientProps) {
             availableSkinTypes={availableSkinTypes}
             priceBounds={priceBounds}
             activeFilterCount={activeFilterCount}
+            filteredCount={sortedProducts.length}
           />
 
           {/* Product Listing Main Area */}
@@ -331,6 +332,7 @@ export function CollectionPageClient({ slug }: CollectionPageClientProps) {
                   availableSkinTypes={availableSkinTypes}
                   priceBounds={priceBounds}
                   activeFilterCount={activeFilterCount}
+                  filteredCount={sortedProducts.length}
                 />
               }
             />
