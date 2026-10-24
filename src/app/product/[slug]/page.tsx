@@ -1,6 +1,28 @@
 import { notFound } from "next/navigation";
 import { ProductPageClient } from "./ProductPageClient";
-import { bySlug } from "@/lib/catalog";
+import { PRODUCTS, bySlug } from "@/lib/catalog";
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const seen = new Set<string>();
+  const params: { slug: string }[] = [];
+
+  const addSlug = (s?: string) => {
+    const trimmed = s?.trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      params.push({ slug: trimmed });
+    }
+  };
+
+  PRODUCTS.forEach((product) => {
+    addSlug(product.slug);
+    addSlug(product.id);
+  });
+
+  return params;
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
