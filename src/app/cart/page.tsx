@@ -3,14 +3,15 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Layout } from "@/components/site/Layout";
-import { ProductCard } from "@/components/site/ProductCard";
+import { Link } from "@/lib/navigation";
+import { Layout } from "@/components/layout";
+import { ProductCard } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { PRODUCTS, formatBDT } from "@/lib/catalog";
-import { useShop } from "@/lib/store";
+import { useShop } from "@/context";
 
 export default function CartPage() {
   const { lines, setQty, removeFromCart, subtotal } = useShop();
@@ -43,10 +44,14 @@ export default function CartPage() {
             <div className="space-y-6">
               {lines.map(({ product, qty, size }) => (
                 <div key={product.slug} className="surface-card flex gap-5 p-5">
-                  <img src={product.image} alt={product.name} width={900} height={900} loading="lazy" className="h-28 w-24 rounded-md object-cover" />
+                  <Link to="/product/$slug" params={{ slug: product.slug }} className="shrink-0 overflow-hidden rounded-md group">
+                    <img src={product.image} alt={product.name} width={900} height={900} loading="lazy" className="h-28 w-24 rounded-md object-cover transition-transform duration-300 group-hover:scale-105" />
+                  </Link>
                   <div className="flex-1">
                     <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{product.brand}</p>
-                    <p className="font-display text-xl">{product.name}</p>
+                    <Link to="/product/$slug" params={{ slug: product.slug }} className="font-display text-xl transition-colors hover:text-primary">
+                      {product.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">{size}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-full border border-border">

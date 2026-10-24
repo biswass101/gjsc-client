@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ShopClient } from "./ShopClient";
 import type { Metadata } from "next";
-import { LoadingScreen } from "@/components/site/LoadingScreen";
+import { LoadingScreen } from "@/components/common";
 
 export const metadata: Metadata = {
   title: "Shop All Japanese Skincare | Glorious Japan Skin Care",

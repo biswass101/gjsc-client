@@ -1,4 +1,4 @@
-import { Layout } from "@/components/site/Layout";
+import { Layout } from "@/components/layout";
 import { BLOG_POSTS } from "@/lib/catalog";
 import type { Metadata } from "next";
 
