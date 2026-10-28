@@ -95,7 +95,7 @@ const moreCollections: DropdownItem[] = [
 export function CollectionsDropdown() {
   return (
     <div className="z-50 container-lux">
-      <div className="rounded-2xl border border-border bg-background p-4 shadow-2xl">
+      <div className="rounded-xl border border-border bg-background p-4 shadow-2xl">
         <div className="grid grid-cols-12 gap-4">
           <DropdownColumn
             title="Collections"

@@ -411,7 +411,7 @@ export default function TrackPage() {
           {/* Quick Tracking Form */}
           <form
             onSubmit={handleTrackSubmit}
-            className="mt-6 sm:mt-8 mx-auto max-w-xl flex flex-col sm:flex-row items-center gap-2.5 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-sm"
+            className="mt-6 sm:mt-8 mx-auto max-w-xl flex flex-col sm:flex-row items-center gap-2.5 rounded-xl border border-border/80 bg-background/95 p-2 shadow-sm"
           >
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -489,7 +489,7 @@ export default function TrackPage() {
             {/* Left 8 Columns: Live Status & Visual Stepper Timeline */}
             <div className="lg:col-span-8 space-y-6">
               {/* Primary Live Status Banner Card */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+              <div className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-5">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -619,7 +619,7 @@ export default function TrackPage() {
               </div>
 
               {/* Vertical Detailed Journey Log Timeline */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+              <div className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
                   <h3 className="font-display text-xl font-medium flex items-center gap-2">
                     <FileText className="h-4 w-4 text-primary" />
@@ -685,7 +685,7 @@ export default function TrackPage() {
             {/* Right 4 Columns: Destination, Package Contents & WhatsApp Support */}
             <aside className="lg:col-span-4 space-y-6">
               {/* Delivery Destination & Payment Snapshot */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
                 <h3 className="font-display text-lg font-medium border-b border-border/50 pb-2.5">
                   Shipment Details
                 </h3>
@@ -725,7 +725,7 @@ export default function TrackPage() {
               </div>
 
               {/* Items in this Parcel */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
                   <h3 className="font-display text-lg font-medium">Parcel Contents</h3>
                   <span className="text-xs text-muted-foreground">
@@ -777,7 +777,7 @@ export default function TrackPage() {
               </div>
 
               {/* Priority WhatsApp Support Box */}
-              <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-cream via-background to-cream p-6 shadow-xs space-y-4 text-center sm:text-left">
+              <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-cream via-background to-cream p-6 shadow-xs space-y-4 text-center sm:text-left">
                 <div className="flex items-center gap-2.5">
                   <div className="grid h-8 w-8 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366] shrink-0">
                     <MessageSquare className="h-4 w-4" />

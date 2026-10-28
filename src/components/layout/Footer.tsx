@@ -111,7 +111,7 @@ export function Footer() {
       {/* 2. Newsletter / VIP Circle Section */}
       <div className="border-b border-border/60 py-8 sm:py-12 bg-background/50">
         <div className="container-lux">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-8 rounded-2xl sm:rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-cream to-primary/5 p-5 sm:p-8 lg:p-10 shadow-xs">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-8 rounded-lg sm:rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 via-cream to-primary/5 p-5 sm:p-8 lg:p-10 shadow-xs">
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-1.5 text-primary text-[9px] sm:text-xs font-semibold tracking-wider uppercase mb-1">
                 <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />

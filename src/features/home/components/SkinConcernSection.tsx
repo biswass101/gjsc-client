@@ -137,7 +137,7 @@ function CardGrid({
             key={item.name}
             to="/collections/skin-concern"
             search={{ q: item.name }}
-            className="group relative h-48 sm:h-56 md:h-64 lg:h-72 w-36 sm:w-auto shrink-0 snap-start overflow-hidden rounded-md sm:rounded-2xl border border-border/70 shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg focus:outline-none"
+            className="group relative h-48 sm:h-56 md:h-64 lg:h-72 w-36 sm:w-auto shrink-0 snap-start overflow-hidden rounded-md sm:rounded-lg border border-border/70 shadow-xs transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg focus:outline-none"
           >
             {/* Background Image with Zoom Effect */}
             <img

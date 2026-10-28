@@ -196,7 +196,7 @@ export function OffersToSayYes() {
                 <button
                   type="button"
                   onClick={() => handleAddBundle(deal)}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
                 >
                   <ShoppingBag className="h-3.5 w-3.5" />
                   <span>Add Bundle to Bag</span>

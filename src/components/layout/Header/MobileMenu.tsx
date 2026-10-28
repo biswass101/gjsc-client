@@ -43,12 +43,7 @@ import bShiseido from "@/assets/brands/shiseido.jpg";
 import bSkii from "@/assets/brands/sk-ii.jpg";
 import bHada from "@/assets/brands/hada-labo.jpg";
 import { cn } from "@/lib/utils";
-
-interface UserProfile {
-  name: string;
-  email: string;
-  role: "customer" | "admin";
-}
+import type { User as UserProfile } from "@/types";
 
 interface MobileMenuProps {
   user: UserProfile | null;
@@ -412,9 +407,22 @@ export function MobileMenu({
             <div className="p-4 bg-muted/20">
               {user ? (
                 <div className="space-y-2">
-                  <div className="pb-2 border-b border-border/50">
-                    <p className="text-xs font-semibold text-foreground">{user.name}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+                  <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="h-8 w-8 rounded-full object-cover border border-border shrink-0"
+                      />
+                    ) : (
+                      <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground shrink-0">
+                        {user.name[0]?.toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-foreground truncate">{user.name}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+                    </div>
                   </div>
                   <Link
                     to="/account"

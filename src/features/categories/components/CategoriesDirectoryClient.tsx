@@ -479,7 +479,7 @@ export function CategoriesDirectoryClient() {
 
         {/* Empty State */}
         {filteredCategories.length === 0 ? (
-          <div className="text-center py-20 bg-card rounded-2xl border border-border p-8">
+          <div className="text-center py-20 bg-card rounded-xl border border-border p-8">
             <Search className="mx-auto h-12 w-12 text-muted-foreground/60" />
             <h3 className="mt-4 font-display text-xl font-semibold">No Categories Found</h3>
             <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
@@ -507,7 +507,7 @@ export function CategoriesDirectoryClient() {
               return (
                 <div
                   key={item.name}
-                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md"
+                  className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md"
                 >
                   <div>
                     {/* Visual Card Banner Image */}
@@ -596,7 +596,7 @@ export function CategoriesDirectoryClient() {
         )}
 
         {/* 5. Bottom J-Beauty Assurance Banner */}
-        <div className="mt-16 rounded-3xl border border-border bg-linear-to-r from-cream via-background to-cream p-8 sm:p-12 text-center relative overflow-hidden shadow-xs">
+        <div className="mt-16 rounded-xl border border-border bg-linear-to-r from-cream via-background to-cream p-8 sm:p-12 text-center relative overflow-hidden shadow-xs">
           <div className="max-w-xl mx-auto relative z-10">
             <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-primary">
               100% AUTHENTIC JAPANESE GUARANTEE

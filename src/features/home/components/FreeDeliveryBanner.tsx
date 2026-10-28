@@ -7,7 +7,7 @@ export function FreeDeliveryBanner() {
   return (
     <section className="bg-background py-4 sm:py-6">
       <div className="container-lux">
-        <div className="relative overflow-hidden rounded-lg sm:rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/10 via-cream to-primary/5 p-4 sm:p-8 lg:p-10 shadow-xs">
+        <div className="relative overflow-hidden rounded-md sm:rounded-xl border border-primary/25 bg-gradient-to-r from-primary/10 via-cream to-primary/5 p-4 sm:p-8 lg:p-10 shadow-xs">
           {/* Subtle Decorative Background Glow */}
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
           <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
@@ -67,7 +67,7 @@ export function FreeDeliveryBanner() {
 
               <Link
                 to="/shop"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-98 text-center"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-98 text-center"
               >
                 <span>Shop Free Delivery Items</span>
                 <ArrowRight className="h-4 w-4" />

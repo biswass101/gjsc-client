@@ -135,7 +135,7 @@ export function EnhancedReviews() {
           </div>
 
           {/* Rating Summary Box: Fully responsive on mobile */}
-          <div className="flex items-center gap-3.5 bg-card border border-border rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs self-stretch sm:self-start lg:self-auto">
+          <div className="flex items-center gap-3.5 bg-card border border-border rounded-md sm:rounded-lg p-3 sm:p-4 shadow-xs self-stretch sm:self-start lg:self-auto">
             <div className="text-center pr-3.5 border-r border-border shrink-0">
               <span className="font-display text-2xl sm:text-4xl font-bold text-foreground block leading-none">
                 4.9
@@ -194,7 +194,7 @@ export function EnhancedReviews() {
             return (
               <div
                 key={rev.id}
-                className="flex flex-col justify-between rounded-md sm:rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xs transition-all duration-300 hover:shadow-md hover:border-primary/40"
+                className="flex flex-col justify-between rounded-md sm:rounded-lg border border-border bg-card p-4 sm:p-6 shadow-xs transition-all duration-300 hover:shadow-md hover:border-primary/40"
               >
                 <div>
                   {/* Top: Reviewer Info & Rating */}

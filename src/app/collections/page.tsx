@@ -93,7 +93,7 @@ export default async function CollectionsPage({ searchParams }: PageProps) {
               <Link
                 key={col.slug}
                 to={`/collections/${col.slug}`}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-4 sm:p-5 transition-all duration-300 hover:border-primary/50 hover:shadow-[var(--shadow-lift)]"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-border/80 bg-card p-4 sm:p-5 transition-all duration-300 hover:border-primary/50 hover:shadow-[var(--shadow-lift)]"
               >
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${col.gradientClass} opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none`}
@@ -133,7 +133,7 @@ export default async function CollectionsPage({ searchParams }: PageProps) {
         </div>
 
         {/* Bottom Shop All Banner */}
-        <div className="mt-14 rounded-3xl border border-border/70 bg-gradient-to-r from-primary/10 via-sakura/10 to-champagne/20 p-8 sm:p-10 text-center">
+        <div className="mt-14 rounded-xl border border-border/70 bg-gradient-to-r from-primary/10 via-sakura/10 to-champagne/20 p-8 sm:p-10 text-center">
           <p className="eyebrow text-xs">Full Catalog</p>
           <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold">
             Looking for something specific?

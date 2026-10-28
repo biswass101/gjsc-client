@@ -407,7 +407,7 @@ export function ShopClient() {
 
             {/* Results Grid / List */}
             {sortedProducts.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-10 sm:p-16 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-card p-10 sm:p-16 text-center">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground mb-4">
                   <Sparkles className="h-6 w-6" />
                 </div>

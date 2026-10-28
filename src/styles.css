@@ -11,13 +11,14 @@
  */
 
 @theme inline {
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-  --radius-2xl: 40px;
-  --radius-3xl: 48px;
-  --radius-4xl: 56px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
 
   --font-display: var(--font-cormorant), "Playfair Display", Georgia, serif;
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -78,7 +79,7 @@
 
 /* Imperial Gold — the single, default brand theme */
 :root {
-  --radius: 16px;
+  --radius: 8px;
 
   /* Brand Palette - Imperial Gold (Classic Champagne & Ivory Gold) */
   --gold: oklch(0.722 0.090 58.0);

@@ -13,7 +13,7 @@ export default function ComingSoonPage() {
   return (
     <Layout>
       <div className="container-lux py-24 sm:py-32 flex flex-col items-center justify-center text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-6 shadow-sm">
+        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary mb-6 shadow-sm">
           <Sparkles className="h-8 w-8" />
         </div>
 

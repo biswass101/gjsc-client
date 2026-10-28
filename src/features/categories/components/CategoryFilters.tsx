@@ -44,7 +44,7 @@ interface CategoryFiltersProps {
 export function CategoryFilterSidebar(props: CategoryFiltersProps) {
   return (
     <aside className="hidden lg:block w-64 shrink-0">
-      <div className="sticky top-24 rounded-2xl border border-border/80 bg-card p-5 shadow-xs space-y-5">
+      <div className="sticky top-24 rounded-xl border border-border/80 bg-card p-5 shadow-xs space-y-5">
         <FilterHeader
           activeCount={props.activeFilterCount}
           onReset={props.onResetFilters}

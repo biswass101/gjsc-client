@@ -21,7 +21,7 @@ export function CollectionFrequentlySearched({
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/60 p-3.5 sm:p-4 my-4 backdrop-blur-xs">
+    <div className="rounded-xl border border-border/70 bg-card/60 p-3.5 sm:p-4 my-4 backdrop-blur-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-border/40">
         <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
           <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/15 text-primary">

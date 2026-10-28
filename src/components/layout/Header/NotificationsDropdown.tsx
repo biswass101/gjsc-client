@@ -68,7 +68,7 @@ export function NotificationsDropdown({
       </button>
 
       {isOpen && (
-        <div className="fixed left-2 right-2 top-28 z-50 overflow-hidden rounded-2xl border border-border bg-popover shadow-[var(--shadow-lift)] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
+        <div className="fixed left-2 right-2 top-28 z-50 overflow-hidden rounded-xl border border-border bg-popover shadow-[var(--shadow-lift)] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">Notifications</span>
             {unreadCount > 0 && (

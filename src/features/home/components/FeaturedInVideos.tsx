@@ -332,7 +332,7 @@ export function FeaturedInVideos() {
             >
               <article
                 className={cn(
-                  "relative flex flex-col justify-between overflow-hidden rounded-md sm:rounded-2xl bg-black border transition-all duration-500 shadow-sm",
+                  "relative flex flex-col justify-between overflow-hidden rounded-md sm:rounded-lg bg-black border transition-all duration-500 shadow-sm",
                   isCenter
                     ? "border-primary/70 shadow-2xl ring-1 ring-primary/40"
                     : "border-border/60 hover:border-primary/50"
@@ -401,7 +401,7 @@ export function FeaturedInVideos() {
                     </p>
 
                     {/* Tagged Product Pill (Highlighted on Center Card) */}
-                    <div className="mt-2 flex items-center justify-between rounded-xl bg-white/15 backdrop-blur-md border border-white/25 p-1.5 text-[10px]">
+                    <div className="mt-2 flex items-center justify-between rounded-md bg-white/15 backdrop-blur-md border border-white/25 p-1.5 text-[10px]">
                       <div className="flex items-center gap-1.5 truncate">
                         <ShoppingBag className="h-3 w-3 text-primary shrink-0" />
                         <span className="font-medium text-white truncate">{video.product.name}</span>
@@ -462,7 +462,7 @@ export function FeaturedInVideos() {
           onClick={() => setActiveModalVideo(null)}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto overscroll-contain rounded-2xl bg-card border border-border shadow-2xl"
+            className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto overscroll-contain rounded-xl bg-card border border-border shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -532,13 +532,13 @@ export function FeaturedInVideos() {
                   <h3 className="mt-2.5 font-display text-sm sm:text-base font-bold leading-snug">
                     {activeModalVideo.title}
                   </h3>
-                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-2.5 rounded-xl border border-border/50">
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-2.5 rounded-lg border border-border/50">
                     "{activeModalVideo.caption}"
                   </p>
                 </div>
 
                 {/* Tagged Product Box */}
-                <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-2.5">
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
                   <span className="text-[9px] font-semibold uppercase tracking-wider text-primary block">
                     Featured Product in Video
                   </span>

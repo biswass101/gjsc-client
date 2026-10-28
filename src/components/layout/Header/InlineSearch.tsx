@@ -134,7 +134,7 @@ export function InlineSearch() {
 
       {/* Dropdown — fixed on mobile so it can't overflow the header */}
       {open && (
-        <div className="fixed left-2 right-2 top-16 z-50 overflow-hidden rounded-2xl border border-border bg-popover shadow-[var(--shadow-lift)] sm:absolute sm:left-0 sm:right-0 sm:top-full sm:mt-2">
+        <div className="fixed left-2 right-2 top-16 z-50 overflow-hidden rounded-xl border border-border bg-popover shadow-[var(--shadow-lift)] sm:absolute sm:left-0 sm:right-0 sm:top-full sm:mt-2">
           {/* ---- AI mode ---- */}
           {aiMode && (
             <div className="p-4">

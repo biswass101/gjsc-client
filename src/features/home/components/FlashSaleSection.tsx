@@ -145,7 +145,7 @@ export function FlashSaleSection() {
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
 
-            <div className="flex items-center gap-2 bg-card border border-rose-500/30 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-xs order-1 sm:order-2">
+            <div className="flex items-center gap-2 bg-card border border-rose-500/30 rounded-md sm:rounded-lg p-2.5 sm:p-3 shadow-xs order-1 sm:order-2">
               <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-rose-600 mr-1 flex items-center gap-1">
                 <Zap className="h-3.5 w-3.5 fill-rose-500" />
                 <span>Ends in:</span>
@@ -277,7 +277,7 @@ export function FlashSaleSection() {
                   <button
                     type="button"
                     onClick={() => handleClaim(item)}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-rose-600 py-1.5 sm:py-1.5 text-[11px] sm:text-[11.5px] font-semibold text-white shadow-xs transition-all hover:bg-rose-700 active:scale-[0.98]"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-md bg-rose-600 py-1.5 sm:py-1.5 text-[11px] sm:text-[11.5px] font-semibold text-white shadow-xs transition-all hover:bg-rose-700 active:scale-[0.98]"
                   >
                     <ShoppingBag className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     <span>Claim Deal</span>

@@ -25,7 +25,7 @@ export function CategoryProductGrid({
 }: CategoryProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/60 p-10 sm:p-16 text-center my-6">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-card/60 p-10 sm:p-16 text-center my-6">
         <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary mb-3">
           <PackageSearch className="h-7 w-7" strokeWidth={1.5} />
         </div>

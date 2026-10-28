@@ -2,14 +2,9 @@
 
 import { useRef, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { User, Settings, LogOut } from "lucide-react";
+import { User as UserIcon, Settings, LogOut } from "lucide-react";
 import { toast } from "sonner";
-
-interface User {
-  name: string;
-  email: string;
-  role: "customer" | "admin";
-}
+import type { User } from "@/types";
 
 interface UserDropdownProps {
   user: User | null;
@@ -52,16 +47,24 @@ export function UserDropdown({ user, onLogout }: UserDropdownProps) {
         className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-secondary"
       >
         {user ? (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
-            {user.name[0]?.toUpperCase()}
-          </span>
+          user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-7 w-7 rounded-full object-cover border border-border"
+            />
+          ) : (
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              {user.name[0]?.toUpperCase()}
+            </span>
+          )
         ) : (
-          <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
+          <UserIcon className="h-[18px] w-[18px]" strokeWidth={1.5} />
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-border bg-popover shadow-[var(--shadow-lift)]">
+        <div className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-border bg-popover shadow-[var(--shadow-lift)]">
           {user ? (
             <>
               <div className="border-b border-border px-4 py-3">
@@ -77,7 +80,7 @@ export function UserDropdown({ user, onLogout }: UserDropdownProps) {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] transition-colors hover:bg-secondary"
                 >
-                  <User className="h-3.5 w-3.5" strokeWidth={1.5} /> My Account
+                  <UserIcon className="h-3.5 w-3.5" strokeWidth={1.5} /> My Account
                 </Link>
                 {user.role === "admin" && (
                   <Link
@@ -103,7 +106,7 @@ export function UserDropdown({ user, onLogout }: UserDropdownProps) {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] transition-colors hover:bg-secondary"
               >
-                <User className="h-3.5 w-3.5" strokeWidth={1.5} /> Sign In
+                <UserIcon className="h-3.5 w-3.5" strokeWidth={1.5} /> Sign In
               </Link>
             </div>
           )}

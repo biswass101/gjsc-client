@@ -17,7 +17,7 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
         </div>
 
         {/* Hero Card Banner */}
-        <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
+        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
           {/* Background Banner with Gradient */}
           <div className="relative h-44 sm:h-56 md:h-64 w-full overflow-hidden">
             <img
@@ -35,7 +35,7 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
               {/* Left Column: Brand Logo + Details */}
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
                 {/* Brand Logo / Avatar */}
-                <div className="relative h-24 w-24 sm:h-28 sm:w-28 overflow-hidden rounded-2xl border-2 border-background bg-card shadow-md shrink-0">
+                <div className="relative h-24 w-24 sm:h-28 sm:w-28 overflow-hidden rounded-xl border-2 border-background bg-card shadow-md shrink-0">
                   <img
                     src={meta.image}
                     alt={meta.name}

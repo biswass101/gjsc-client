@@ -214,7 +214,7 @@ export function BogoSection() {
                   <button
                     type="button"
                     onClick={() => handleClaim(item)}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-[11.5px] font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-md bg-primary py-1.5 sm:py-1.5 text-[11px] sm:text-[11.5px] font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.98]"
                   >
                     <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     <span>Claim BOGO Offer</span>

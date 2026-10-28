@@ -75,7 +75,7 @@ export function TopCategories() {
         <div
           ref={scrollContainerRef}
           onScroll={checkScrollability}
-          className="overflow-x-auto scrollbar-hide scroll-smooth rounded-lg sm:rounded-2xl lg:rounded-4xl"
+          className="overflow-x-auto scrollbar-hide scroll-smooth rounded-md sm:rounded-lg"
         >
           <div className="flex gap-2.5 sm:gap-5 lg:gap-7 px-1 sm:px-2 pt-2 sm:pt-3 pb-4 sm:pb-5">
             {TOP_CATEGORIES.map((c, i) => {

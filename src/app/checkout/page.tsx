@@ -261,7 +261,7 @@ export default function CheckoutPage() {
     return (
       <Layout>
         <div className="container-lux py-12 sm:py-16">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm text-center">
+          <div className="mx-auto max-w-2xl rounded-xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm text-center">
             {/* Success icon */}
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-10 w-10" />
@@ -412,7 +412,7 @@ export default function CheckoutPage() {
         </p>
 
         {lines.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-border/80 bg-card p-12 text-center max-w-lg mx-auto space-y-4">
+          <div className="mt-10 rounded-xl border border-border/80 bg-card p-12 text-center max-w-lg mx-auto space-y-4">
             <p className="font-display text-2xl font-medium">Your shopping bag is empty</p>
             <p className="text-xs text-muted-foreground">
               Please add at least one Japanese skincare product to proceed with checkout.
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
             {/* Left 7 Columns: Checkout Details Form */}
             <div className="lg:col-span-7 space-y-6">
               {/* Step 1: Contact Information */}
-              <section className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+              <section className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -522,7 +522,7 @@ export default function CheckoutPage() {
               </section>
 
               {/* Step 2: Delivery Location & Address (Bangladesh Specific) */}
-              <section className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+              <section className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
                 <div className="flex items-center gap-2 border-b border-border/50 pb-3">
                   <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                     2
@@ -709,7 +709,7 @@ export default function CheckoutPage() {
               </section>
 
               {/* Step 3: Payment Options (Bangladesh Tailored) */}
-              <section className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+              <section className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
                 <div className="flex items-center gap-2 border-b border-border/50 pb-3">
                   <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                     3
@@ -932,7 +932,7 @@ export default function CheckoutPage() {
               </section>
 
               {/* Step 4: Japanese Gift Wrapping Add-on */}
-              <section className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+              <section className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
                 <div className="flex items-start gap-3">
                   <Checkbox
                     id="gift"
@@ -966,7 +966,7 @@ export default function CheckoutPage() {
 
             {/* Right 5 Columns: Sticky Order Summary Sidebar */}
             <aside className="lg:col-span-5 sticky top-24 space-y-4">
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-sm">
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
                   <h2 className="font-display text-xl font-medium">Order Summary</h2>
                   <span className="text-xs font-semibold text-muted-foreground">

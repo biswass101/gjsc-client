@@ -43,7 +43,7 @@ export function Content() {
       </div>
 
       {/* Trust badges - commented out
-      <div className="mt-2.5 sm:mt-8 lg:mt-12 flex flex-wrap gap-x-1.5 sm:gap-x-6 lg:gap-x-8 gap-y-1 sm:gap-y-3 lg:gap-y-4 rounded-lg sm:rounded-2xl border border-border/50 bg-background/40 p-1.5 sm:p-4 lg:p-5 text-[7px] sm:text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.1em] backdrop-blur-md">
+      <div className="mt-2.5 sm:mt-8 lg:mt-12 flex flex-wrap gap-x-1.5 sm:gap-x-6 lg:gap-x-8 gap-y-1 sm:gap-y-3 lg:gap-y-4 rounded-md sm:rounded-xl border border-border/50 bg-background/40 p-1.5 sm:p-4 lg:p-5 text-[7px] sm:text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.1em] backdrop-blur-md">
         <span className="flex items-center gap-0.5 sm:gap-1.5 lg:gap-2">
           <span className="flex h-4 w-4 sm:h-6 sm:w-6 lg:h-8 lg:w-8 items-center justify-center rounded-full bg-primary/10 shrink-0">
             <ShieldCheck className="h-2 w-2 sm:h-3 sm:w-3 lg:h-4 lg:w-4 text-primary" strokeWidth={1.5} />
