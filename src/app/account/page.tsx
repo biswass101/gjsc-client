@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import {
   AlertCircle,
   ArrowRight,
   Bell,
   Box,
+  Camera,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -35,6 +36,7 @@ import {
   Trash2,
   Truck,
   User,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "@/lib/navigation";
@@ -187,17 +189,111 @@ const INITIAL_ADDRESSES: SavedAddress[] = [
   },
 ];
 
+const PRESET_AVATARS = [
+  {
+    id: "sakura",
+    label: "Sakura Radiance",
+    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    id: "matcha",
+    label: "Kyoto Calm",
+    url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    id: "dewy",
+    label: "Dewy Glow",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    id: "zen",
+    label: "Tokyo Zen",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+  },
+];
+
 export default function AccountPage() {
   const navigate = useNavigate();
-  const { user, logout, wishlist, addToCart } = useShop();
+  const { user, logout, wishlist, addToCart, updateUserProfile } = useShop();
 
   const [activeTab, setActiveTab] = useState("overview");
 
   // Profile Information State
   const [name, setName] = useState(user?.name || "Nusrat Jahan");
   const [email, setEmail] = useState(user?.email || "nusrat.jahan@gmail.com");
-  const [phone, setPhone] = useState("01712-849201");
+  const [phone, setPhone] = useState(user?.phone || "01712-849201");
+  const [avatar, setAvatar] = useState<string | undefined>(user?.avatar);
+  const [tempAvatar, setTempAvatar] = useState<string | undefined>(user?.avatar);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      if (user.phone) setPhone(user.phone);
+      setAvatar(user.avatar);
+      setTempAvatar(user.avatar);
+    }
+  }, [user]);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file size exceeds 5MB limit. Please choose a smaller image.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setTempAvatar(result);
+      toast.success("Photo selected! Click 'Save Changes' to update your profile.");
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read image file.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setTempAvatar(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    toast.info("Photo removed. Remember to click 'Save Changes' to apply.");
+  };
+
+  const handleCancelEditProfile = () => {
+    setIsEditingProfile(false);
+    setTempAvatar(avatar);
+    setName(user?.name || "Nusrat Jahan");
+    setEmail(user?.email || "nusrat.jahan@gmail.com");
+    setPhone(user?.phone || "01712-849201");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAvatar(tempAvatar);
+    updateUserProfile({
+      name,
+      email,
+      phone,
+      avatar: tempAvatar,
+    });
+    setIsEditingProfile(false);
+    toast.success("Profile & photo updated successfully! 🌸");
+  };
 
   // Address Book State
   const [addresses, setAddresses] = useState<SavedAddress[]>(INITIAL_ADDRESSES);
@@ -243,11 +339,6 @@ export default function AccountPage() {
     return orders.filter((o) => o.status === orderFilter);
   }, [orders, orderFilter]);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsEditingProfile(false);
-    toast.success("Profile updated successfully!");
-  };
 
   const handleOpenAddressModal = (existing?: SavedAddress) => {
     if (existing) {
@@ -392,22 +483,62 @@ export default function AccountPage() {
         <div className="container-lux py-8 sm:py-12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 place-items-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary font-display text-2xl font-bold shadow-xs">
-                {name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase() || "NJ"}
+              <div className="relative shrink-0">
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={name}
+                    className="h-16 w-16 rounded-full object-cover border-2 border-primary/40 shadow-xs"
+                  />
+                ) : (
+                  <div className="grid h-16 w-16 place-items-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary font-display text-2xl font-bold shadow-xs">
+                    {name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase() || "NJ"}
+                  </div>
+                )}
+                {user?.authProvider === "google" && (
+                  <div
+                    title="Google Verified Account"
+                    className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-background border border-border shadow-xs"
+                  >
+                    <svg className="h-3 w-3" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
 
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="eyebrow text-primary">Customer Sanctuary</span>
                   <span className="text-muted-foreground/40">•</span>
                   <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
                     🌸 VIP Ritual Member
                   </span>
+                  {user?.authProvider === "google" && (
+                    <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300 inline-flex items-center gap-1">
+                      <Check className="h-2.5 w-2.5" /> Google Account
+                    </span>
+                  )}
                 </div>
                 <h1 className="mt-1 font-display text-2xl sm:text-3xl font-medium tracking-tight text-foreground">
                   Hello, {name}
@@ -461,7 +592,7 @@ export default function AccountPage() {
         >
           {/* Navigation Sidebar (3 cols) */}
           <aside className="lg:col-span-3">
-            <div className="rounded-2xl border border-border/80 bg-card p-3 shadow-xs sticky top-24">
+            <div className="rounded-xl border border-border/80 bg-card p-3 shadow-xs sticky top-24">
               <TabsList className="flex flex-row lg:flex-col h-auto w-full gap-1 bg-transparent p-0 overflow-x-auto justify-start">
                 <TabsTrigger
                   value="overview"
@@ -540,7 +671,7 @@ export default function AccountPage() {
             {/* ========================================================= */}
             <TabsContent value="overview" className="m-0 space-y-6">
               {/* Active Parcel Alert Banner */}
-              <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-cream via-secondary/20 to-cream p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="rounded-xl border border-primary/30 bg-gradient-to-r from-cream via-secondary/20 to-cream p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3.5">
                   <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/20 text-primary shrink-0 mt-0.5">
                     <Truck className="h-5 w-5" />
@@ -571,98 +702,269 @@ export default function AccountPage() {
                 </Button>
               </div>
 
-              {/* Personal Details Card */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+              {/* Personal Details & Profile Photo Card */}
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
-                  <h3 className="font-display text-xl font-medium">Customer Profile</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingProfile(!isEditingProfile)}
-                    className="rounded-full text-xs h-8 px-3 gap-1.5"
-                  >
-                    <Edit2 className="h-3 w-3" />
-                    {isEditingProfile ? "Cancel" : "Edit Profile"}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display text-xl font-medium">Customer Profile</h3>
+                    {user?.authProvider === "google" && (
+                      <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300">
+                        Google Linked
+                      </span>
+                    )}
+                  </div>
+                  {!isEditingProfile ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingProfile(true)}
+                      className="rounded-full text-xs h-8 px-3 gap-1.5"
+                    >
+                      <Edit2 className="h-3 w-3" />
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCancelEditProfile}
+                      className="rounded-full text-xs h-8 px-3 gap-1.5 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                      Cancel
+                    </Button>
+                  )}
                 </div>
 
                 {isEditingProfile ? (
-                  <form onSubmit={handleSaveProfile} className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="prof-name" className="text-xs font-semibold">
-                        Full Name
+                  <form onSubmit={handleSaveProfile} className="mt-5 space-y-5">
+                    {/* Profile Photo Editor Section */}
+                    <div className="rounded-xl border border-border/70 bg-secondary/20 p-4">
+                      <Label className="text-xs font-semibold text-foreground block mb-3">
+                        Profile Photo
                       </Label>
-                      <Input
-                        id="prof-name"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="mt-1 h-9 rounded-full text-xs"
-                      />
+
+                      <div className="flex flex-col sm:flex-row items-center gap-5">
+                        {/* Live Avatar Preview */}
+                        <div className="relative group shrink-0">
+                          {tempAvatar ? (
+                            <img
+                              src={tempAvatar}
+                              alt="Preview"
+                              className="h-20 w-20 rounded-full object-cover border-2 border-primary/50 shadow-sm"
+                            />
+                          ) : (
+                            <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-dashed border-border bg-muted/60 text-muted-foreground">
+                              <User className="h-8 w-8 stroke-[1.5]" />
+                            </div>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            title="Click to change photo"
+                            className="absolute inset-0 grid place-items-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          >
+                            <Camera className="h-5 w-5" />
+                          </button>
+                        </div>
+
+                        {/* Photo Actions & File upload */}
+                        <div className="space-y-2 text-center sm:text-left flex-1">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            className="hidden"
+                            id="profile-photo-input"
+                          />
+
+                          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="rounded-full text-xs h-8 px-3 gap-1.5"
+                            >
+                              <Camera className="h-3.5 w-3.5 text-primary" />
+                              {tempAvatar ? "Change Photo" : "Upload Photo"}
+                            </Button>
+
+                            {tempAvatar && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRemovePhoto}
+                                className="rounded-full text-xs h-8 px-3 gap-1.5 text-rose hover:bg-rose/10 hover:text-rose"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Remove Photo
+                              </Button>
+                            )}
+                          </div>
+
+                          <p className="text-[11px] text-muted-foreground">
+                            Upload JPG, PNG or WEBP from your device (Max 5MB), or choose a curated avatar below.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Curated J-Beauty Avatar Presets */}
+                      <div className="mt-4 pt-3 border-t border-border/50">
+                        <span className="text-[11px] font-medium text-muted-foreground block mb-2">
+                          Or select a curated Japanese ritual avatar:
+                        </span>
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          {PRESET_AVATARS.map((preset) => {
+                            const isSelected = tempAvatar === preset.url;
+                            return (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                onClick={() => setTempAvatar(preset.url)}
+                                className={cn(
+                                  "group flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs transition-all",
+                                  isSelected
+                                    ? "border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/40"
+                                    : "border-border/70 bg-card hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                <img
+                                  src={preset.url}
+                                  alt={preset.label}
+                                  className="h-5 w-5 rounded-full object-cover"
+                                />
+                                <span className="text-[11px]">{preset.label}</span>
+                                {isSelected && <Check className="h-3 w-3 text-primary" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <Label htmlFor="prof-phone" className="text-xs font-semibold">
-                        Mobile Phone Number
-                      </Label>
-                      <Input
-                        id="prof-phone"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="mt-1 h-9 rounded-full text-xs"
-                      />
+                    {/* Form Fields */}
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <Label htmlFor="prof-name" className="text-xs font-semibold">
+                          Full Name
+                        </Label>
+                        <Input
+                          id="prof-name"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="mt-1 h-9 rounded-full text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="prof-phone" className="text-xs font-semibold">
+                          Mobile Phone Number
+                        </Label>
+                        <Input
+                          id="prof-phone"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="mt-1 h-9 rounded-full text-xs"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <Label htmlFor="prof-email" className="text-xs font-semibold">
+                          Email Address
+                        </Label>
+                        <Input
+                          id="prof-email"
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="mt-1 h-9 rounded-full text-xs"
+                        />
+                      </div>
                     </div>
 
-                    <div className="sm:col-span-2">
-                      <Label htmlFor="prof-email" className="text-xs font-semibold">
-                        Email Address
-                      </Label>
-                      <Input
-                        id="prof-email"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="mt-1 h-9 rounded-full text-xs"
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2 flex justify-end">
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelEditProfile}
+                        className="rounded-full text-xs px-4"
+                      >
+                        Cancel
+                      </Button>
                       <Button type="submit" size="sm" className="rounded-full text-xs px-5">
                         Save Changes
                       </Button>
                     </div>
                   </form>
                 ) : (
-                  <dl className="mt-4 grid gap-4 text-xs sm:grid-cols-2">
-                    <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
-                      <dt className="text-muted-foreground font-medium">Full Name</dt>
-                      <dd className="font-semibold text-foreground text-sm mt-0.5">{name}</dd>
+                  <>
+                    <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-xl border border-border/60 bg-secondary/15 p-4">
+                      <div className="relative shrink-0">
+                        {avatar ? (
+                          <img
+                            src={avatar}
+                            alt={name}
+                            className="h-14 w-14 rounded-full object-cover border-2 border-primary/30"
+                          />
+                        ) : (
+                          <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary font-display text-xl font-bold border border-primary/30">
+                            {name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase() || "NJ"}
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground text-sm">{name}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <Mail className="h-3.5 w-3.5 text-primary" /> {email}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5 text-primary" /> {phone}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
-                      <dt className="text-muted-foreground font-medium">Email Address</dt>
-                      <dd className="font-semibold text-foreground text-sm mt-0.5">{email}</dd>
-                    </div>
+                    <dl className="mt-4 grid gap-4 text-xs sm:grid-cols-2">
+                      <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
+                        <dt className="text-muted-foreground font-medium">Full Name</dt>
+                        <dd className="font-semibold text-foreground text-sm mt-0.5">{name}</dd>
+                      </div>
 
-                    <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
-                      <dt className="text-muted-foreground font-medium">Primary Contact</dt>
-                      <dd className="font-semibold text-foreground text-sm mt-0.5">{phone}</dd>
-                    </div>
+                      <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
+                        <dt className="text-muted-foreground font-medium">Email Address</dt>
+                        <dd className="font-semibold text-foreground text-sm mt-0.5">{email}</dd>
+                      </div>
 
-                    <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
-                      <dt className="text-muted-foreground font-medium">Default Delivery Hub</dt>
-                      <dd className="font-semibold text-foreground text-sm mt-0.5">
-                        Dhanmondi, Dhaka Metropolitan
-                      </dd>
-                    </div>
-                  </dl>
+                      <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
+                        <dt className="text-muted-foreground font-medium">Primary Contact</dt>
+                        <dd className="font-semibold text-foreground text-sm mt-0.5">{phone}</dd>
+                      </div>
+
+                      <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
+                        <dt className="text-muted-foreground font-medium">Default Delivery Hub</dt>
+                        <dd className="font-semibold text-foreground text-sm mt-0.5">
+                          Dhanmondi, Dhaka Metropolitan
+                        </dd>
+                      </div>
+                    </dl>
+                  </>
                 )}
               </div>
 
               {/* Skin Diagnostics Summary */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
                   <div>
                     <h3 className="font-display text-xl font-medium">Your Japanese Skin Profile</h3>
@@ -731,7 +1033,7 @@ export default function AccountPage() {
               </div>
 
               {filteredOrders.length === 0 ? (
-                <div className="rounded-2xl border border-border/80 bg-card p-10 text-center space-y-3">
+                <div className="rounded-xl border border-border/80 bg-card p-10 text-center space-y-3">
                   <Package className="mx-auto h-10 w-10 text-muted-foreground/40" />
                   <p className="font-display text-lg font-medium">No orders found</p>
                   <p className="text-xs text-muted-foreground">
@@ -743,7 +1045,7 @@ export default function AccountPage() {
                   {filteredOrders.map((order) => (
                     <div
                       key={order.id}
-                      className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4"
+                      className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4"
                     >
                       {/* Order Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-3">
@@ -885,7 +1187,7 @@ export default function AccountPage() {
                   <div
                     key={addr.id}
                     className={cn(
-                      "rounded-2xl border p-5 shadow-xs space-y-3 relative flex flex-col justify-between",
+                      "rounded-xl border p-5 shadow-xs space-y-3 relative flex flex-col justify-between",
                       addr.isDefault
                         ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                         : "border-border/80 bg-card",
@@ -978,7 +1280,7 @@ export default function AccountPage() {
               </div>
 
               {wishlistProducts.length === 0 ? (
-                <div className="rounded-2xl border border-border/80 bg-card p-12 text-center space-y-3">
+                <div className="rounded-xl border border-border/80 bg-card p-12 text-center space-y-3">
                   <Heart className="mx-auto h-12 w-12 text-muted-foreground/30 stroke-[1.5]" />
                   <p className="font-display text-xl font-medium">Your wishlist is currently empty</p>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
@@ -1001,7 +1303,7 @@ export default function AccountPage() {
             {/* TAB 5: SKINCARE DIAGNOSTICS & PROFILE */}
             {/* ========================================================= */}
             <TabsContent value="skincare" className="m-0 space-y-6">
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
                 <div>
                   <span className="eyebrow text-primary">Tokyo Skin Consultation</span>
                   <h3 className="font-display text-2xl font-medium tracking-tight mt-0.5">
@@ -1093,8 +1395,55 @@ export default function AccountPage() {
             {/* TAB 6: SETTINGS & SECURITY */}
             {/* ========================================================= */}
             <TabsContent value="settings" className="m-0 space-y-6">
+              {/* Account Profile & Avatar Overview Card */}
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative shrink-0">
+                    {avatar ? (
+                      <img
+                        src={avatar}
+                        alt={name}
+                        className="h-14 w-14 rounded-full object-cover border border-border"
+                      />
+                    ) : (
+                      <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary font-bold text-base">
+                        {name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")
+                          .toUpperCase() || "NJ"}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-base text-foreground">{name}</p>
+                      {user?.authProvider === "google" && (
+                        <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300">
+                          Google Linked
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{email} • {phone}</p>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setActiveTab("overview");
+                    setIsEditingProfile(true);
+                  }}
+                  className="rounded-full text-xs h-8 px-4 gap-1.5 shrink-0"
+                >
+                  <Camera className="h-3.5 w-3.5 text-primary" />
+                  Change Profile Photo & Info
+                </Button>
+              </div>
               {/* Notifications Card */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
                 <h3 className="font-display text-xl font-medium border-b border-border/50 pb-2.5">
                   Notification Preferences
                 </h3>
@@ -1137,7 +1486,7 @@ export default function AccountPage() {
               </div>
 
               {/* Password Management */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
                 <h3 className="font-display text-xl font-medium border-b border-border/50 pb-2.5">
                   Change Password
                 </h3>
@@ -1200,7 +1549,7 @@ export default function AccountPage() {
               </div>
 
               {/* Account Privacy & Actions */}
-              <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs flex items-center justify-between">
+              <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs flex items-center justify-between">
                 <div>
                   <h4 className="font-semibold text-sm text-foreground">Sign Out of All Sessions</h4>
                   <p className="text-xs text-muted-foreground mt-0.5">

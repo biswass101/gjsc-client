@@ -58,7 +58,7 @@ export function PhilosophySection() {
           <div className="relative lg:col-span-5">
             <div className="relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
               {/* Main Image with Luxury Framing */}
-              <div className="relative overflow-hidden rounded-lg sm:rounded-3xl border border-primary/20 shadow-lg bg-card">
+              <div className="relative overflow-hidden rounded-md sm:rounded-xl border border-primary/20 shadow-lg bg-card">
                 <img
                   src={story.src}
                   alt="Japanese skincare ritual with sakura petals"
@@ -80,7 +80,7 @@ export function PhilosophySection() {
               </div>
 
               {/* Floating Verification Badge - Responsive positioning */}
-              <div className="absolute -bottom-3 right-2 sm:-right-3 sm:-bottom-4 rounded-md sm:rounded-2xl border border-border bg-card/95 p-2.5 sm:p-4 shadow-xl backdrop-blur-md max-w-[180px] sm:max-w-[210px]">
+              <div className="absolute -bottom-3 right-2 sm:-right-3 sm:-bottom-4 rounded-md sm:rounded-lg border border-border bg-card/95 p-2.5 sm:p-4 shadow-xl backdrop-blur-md max-w-[180px] sm:max-w-[210px]">
                 <div className="flex items-center gap-2">
                   <div className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 shadow-xs">
                     <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -121,7 +121,7 @@ export function PhilosophySection() {
               {PILLARS.map((p) => (
                 <div
                   key={p.title}
-                  className="rounded-md sm:rounded-2xl border border-border/80 bg-card/60 p-3 sm:p-4 shadow-xs transition-all duration-300 hover:border-primary/50 hover:bg-card"
+                  className="rounded-md sm:rounded-lg border border-border/80 bg-card/60 p-3 sm:p-4 shadow-xs transition-all duration-300 hover:border-primary/50 hover:bg-card"
                 >
                   <div className="flex items-center justify-between">
                     <div className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-primary/15 text-primary">
@@ -141,7 +141,7 @@ export function PhilosophySection() {
             </div>
 
             {/* Japanese 4-Step Layering Process Strip */}
-            <div className="rounded-md sm:rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-4">
+            <div className="rounded-md sm:rounded-lg border border-primary/20 bg-primary/5 p-3 sm:p-4">
               <span className="text-[9px] sm:text-xs uppercase tracking-wider font-semibold text-primary block mb-2">
                 The 4-Step Japanese Layering Ritual
               </span>
@@ -162,14 +162,14 @@ export function PhilosophySection() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
               <Link
                 to="/collections/j-beauty"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-98 text-center"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-98 text-center"
               >
                 <span>Discover The Rituals</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/about"
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-foreground hover:border-primary transition-colors text-center"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-foreground hover:border-primary transition-colors text-center"
               >
                 <span>Read Full Story</span>
               </Link>

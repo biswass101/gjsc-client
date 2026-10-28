@@ -328,7 +328,7 @@ export function OffersPageClient() {
         </div>
 
         {sortedProducts.length === 0 ? (
-          <div className="text-center py-20 bg-card rounded-2xl border border-border p-8">
+          <div className="text-center py-20 bg-card rounded-xl border border-border p-8">
             <Percent className="mx-auto h-12 w-12 text-muted-foreground/60" />
             <h3 className="mt-4 font-display text-xl font-semibold">No Deals In This Filter</h3>
             <p className="mt-1 text-xs text-muted-foreground">

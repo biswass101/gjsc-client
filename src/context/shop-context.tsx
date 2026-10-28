@@ -25,6 +25,8 @@ export interface ShopContextType {
   toggleWishlist: (slug: string) => void;
   addRecent: (slug: string) => void;
   login: (email: string, password: string) => User;
+  loginWithGoogle: (demoGoogleUser?: Partial<User>) => User;
+  updateUserProfile: (updates: Partial<User>) => void;
   logout: () => void;
   markRead: (id: string) => void;
   markAllRead: () => void;
@@ -116,6 +118,43 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     return newUser;
   }, []);
 
+  const loginWithGoogle = useCallback((custom?: Partial<User>): User => {
+    const googleUser: User = {
+      name: custom?.name || "Nusrat Jahan",
+      email: custom?.email || "nusrat.jahan.tokyo@gmail.com",
+      role: "customer",
+      avatar:
+        custom?.avatar ||
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      authProvider: "google",
+      phone: custom?.phone || "01712-849201",
+    };
+    setUser(googleUser);
+    setNotifications((prev) => [
+      {
+        id: `login-google-${Date.now()}`,
+        title: "Google Sign-In Successful",
+        body: `Signed in as ${googleUser.email} via Google Account`,
+        time: "just now",
+        read: false,
+        type: "system",
+      },
+      ...prev,
+    ]);
+    return googleUser;
+  }, []);
+
+  const updateUserProfile = useCallback((updates: Partial<User>) => {
+    setUser((prev) => {
+      const base: User = prev ?? {
+        name: updates.name || "Nusrat Jahan",
+        email: updates.email || "nusrat.jahan@gmail.com",
+        role: "customer",
+      };
+      return { ...base, ...updates };
+    });
+  }, []);
+
   const logout = useCallback(() => setUser(null), []);
 
   const markRead = useCallback((id: string) => {
@@ -153,6 +192,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     toggleWishlist,
     addRecent,
     login,
+    loginWithGoogle,
+    updateUserProfile,
     logout,
     markRead,
     markAllRead,

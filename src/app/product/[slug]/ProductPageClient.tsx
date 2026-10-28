@@ -836,7 +836,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
       {/* "Complete the Ritual" / "Frequently Bought Together" Bundle Card */}
       {companionProduct && (
         <section className="container-lux pb-12">
-          <div className="overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-r from-cream via-background to-cream p-6 sm:p-8 shadow-xs">
+          <div className="overflow-hidden rounded-xl border border-border/80 bg-gradient-to-r from-cream via-background to-cream p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-5">
               <div>
                 <span className="eyebrow text-primary">Synergistic Skincare Routine</span>
@@ -1047,7 +1047,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 rounded-2xl border border-border/70 bg-secondary/30 p-6 space-y-4">
+              <div className="lg:col-span-5 rounded-xl border border-border/70 bg-secondary/30 p-6 space-y-4">
                 <h4 className="font-display text-lg font-semibold">Morning vs Evening Ritual</h4>
                 <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
                   <div className="border-l-2 border-primary pl-3">
@@ -1143,7 +1143,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
           <TabsContent value="reviews" className="mt-8 space-y-8">
             <div className="grid gap-8 lg:grid-cols-12">
               {/* Rating Summary Breakdown Card */}
-              <div className="lg:col-span-4 rounded-2xl border border-border/80 bg-cream p-6 space-y-6">
+              <div className="lg:col-span-4 rounded-xl border border-border/80 bg-cream p-6 space-y-6">
                 <div>
                   <h4 className="font-display text-xl font-semibold">Customer Ratings</h4>
                   <div className="mt-3 flex items-baseline gap-3">
@@ -1398,7 +1398,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
           {/* Tab 4: Shipping & Authenticity */}
           <TabsContent value="shipping" className="mt-8">
             <div className="grid gap-6 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border/70 bg-card p-6 space-y-4">
+              <div className="rounded-xl border border-border/70 bg-card p-6 space-y-4">
                 <div className="flex items-center gap-2 text-primary font-semibold text-sm">
                   <Truck className="h-4 w-4" /> Nationwide Delivery Details
                 </div>
@@ -1418,7 +1418,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border/70 bg-card p-6 space-y-4">
+              <div className="rounded-xl border border-border/70 bg-card p-6 space-y-4">
                 <div className="flex items-center gap-2 text-primary font-semibold text-sm">
                   <ShieldCheck className="h-4 w-4" /> Authenticity & Return Guarantee
                 </div>

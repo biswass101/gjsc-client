@@ -207,7 +207,7 @@ export function BrandsDirectoryClient() {
       {/* 3. Brands Directory Sections */}
       <main className="container-lux py-10 sm:py-16">
         {totalMatching === 0 ? (
-          <div className="text-center py-20 bg-card rounded-2xl border border-border p-8">
+          <div className="text-center py-20 bg-card rounded-xl border border-border p-8">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <Search className="h-6 w-6 text-muted-foreground" />
             </div>

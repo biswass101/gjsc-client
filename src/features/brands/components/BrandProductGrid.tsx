@@ -24,7 +24,7 @@ export function BrandProductGrid({
 }: BrandProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="text-center py-16 px-4 rounded-2xl border border-border/80 bg-card">
+      <div className="text-center py-16 px-4 rounded-xl border border-border/80 bg-card">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted">
           <PackageSearch className="h-6 w-6 text-muted-foreground" />
         </div>

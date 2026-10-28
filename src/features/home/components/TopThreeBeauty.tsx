@@ -121,7 +121,7 @@ export function TopThreeBeauty() {
                 <div
                   key={item.slug}
                   className={cn(
-                    "relative flex flex-col justify-between rounded-2xl border transition-all duration-500 bg-card",
+                    "relative flex flex-col justify-between rounded-lg sm:rounded-xl border transition-all duration-500 bg-card",
                     "w-[85vw] max-w-[310px] sm:max-w-[330px] md:w-full md:max-w-none shrink-0 snap-center mx-auto",
                     isFirst
                       ? "md:scale-105 z-20 border-2 border-primary/70 shadow-xl shadow-primary/15 ring-3 ring-primary/10 p-4 sm:p-5 order-1 md:order-2"
@@ -163,7 +163,7 @@ export function TopThreeBeauty() {
                     {/* Compact Product Image Area */}
                     <div
                       className={cn(
-                        "relative w-full overflow-hidden rounded-xl bg-cream/70 group mb-2.5",
+                        "relative w-full overflow-hidden rounded-md sm:rounded-lg bg-cream/70 group mb-2.5",
                         isFirst ? "aspect-[16/9]" : "aspect-[16/8.5]"
                       )}
                     >

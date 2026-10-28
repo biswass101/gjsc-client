@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
+  ChevronRight,
   Clock,
   ExternalLink,
   Eye,
@@ -35,9 +36,45 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useShop } from "@/context";
 import { cn } from "@/lib/utils";
 
+function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+      />
+    </svg>
+  );
+}
+
+const GOOGLE_ACCOUNTS = [
+  {
+    name: "Nusrat Jahan",
+    email: "nusrat.jahan.tokyo@gmail.com",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    name: "Naeem Biswas",
+    email: "naeem.biswas@gmail.com",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+  },
+];
+
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { user, login, logout, wishlist } = useShop();
+  const { user, login, loginWithGoogle, logout, wishlist } = useShop();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -61,7 +98,48 @@ export default function AuthPage() {
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
 
+  // Google OAuth State
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState("");
+  const [isCustomGoogleOpen, setIsCustomGoogleOpen] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleSelectGoogleAccount = (acc: { name: string; email: string; avatar: string }) => {
+    setIsGoogleLoading(true);
+    setTimeout(() => {
+      loginWithGoogle(acc);
+      setIsGoogleLoading(false);
+      setIsGoogleModalOpen(false);
+      toast.success(`Connected with Google as ${acc.name}!`, {
+        description: `Signed in with ${acc.email}`,
+      });
+      navigate({ to: "/account" });
+    }, 450);
+  };
+
+  const handleCustomGoogleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customGoogleEmail) return;
+    setIsGoogleLoading(true);
+    setTimeout(() => {
+      const namePart = customGoogleEmail.split("@")[0] ?? "Google User";
+      const name = namePart.replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      loginWithGoogle({
+        name,
+        email: customGoogleEmail,
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      });
+      setIsGoogleLoading(false);
+      setIsGoogleModalOpen(false);
+      setIsCustomGoogleOpen(false);
+      toast.success(`Connected with Google as ${name}!`, {
+        description: `Signed in with ${customGoogleEmail}`,
+      });
+      navigate({ to: "/account" });
+    }, 450);
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,15 +233,31 @@ export default function AuthPage() {
     return (
       <Layout>
         <div className="container-lux py-12 sm:py-20">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm text-center">
+          <div className="mx-auto max-w-2xl rounded-xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm text-center">
             {/* User Avatar */}
-            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary font-display text-2xl font-bold shadow-xs">
-              {initials || "GJ"}
-            </div>
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="mx-auto h-20 w-20 rounded-full object-cover border-2 border-primary/30 shadow-xs"
+              />
+            ) : (
+              <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary font-display text-2xl font-bold shadow-xs">
+                {initials || "GJ"}
+              </div>
+            )}
 
-            <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
               <span className="eyebrow text-primary">Member Portal</span>
               <span className="text-muted-foreground/40">•</span>
+              {user.authProvider === "google" && (
+                <>
+                  <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                    <GoogleIcon className="h-2.5 w-2.5" /> Google Account
+                  </span>
+                  <span className="text-muted-foreground/40">•</span>
+                </>
+              )}
               <span
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
@@ -265,7 +359,7 @@ export default function AuthPage() {
   return (
     <Layout>
       <div className="container-lux py-10 sm:py-16">
-        <div className="mx-auto max-w-5xl overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm grid lg:grid-cols-12">
+        <div className="mx-auto max-w-5xl overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm grid lg:grid-cols-12">
           {/* Left Column: Luxury J-Beauty Branding & Membership Perks (5 cols) */}
           <div className="lg:col-span-5 bg-gradient-to-br from-cream via-secondary/20 to-cream p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border/60">
             <div className="space-y-6">
@@ -345,7 +439,7 @@ export default function AuthPage() {
             </div>
 
             {/* Social Proof Testimonial Card */}
-            <div className="mt-8 rounded-2xl border border-border/70 bg-background/80 p-4 backdrop-blur-xs">
+            <div className="mt-8 rounded-lg border border-border/70 bg-background/80 p-4 backdrop-blur-xs">
               <div className="flex items-center gap-1 text-amber-500 mb-1.5">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-3 w-3 fill-current" />
@@ -416,6 +510,29 @@ export default function AuthPage() {
                       >
                         Admin Panel
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Google OAuth Quick Button */}
+                  <div className="space-y-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsGoogleModalOpen(true)}
+                      disabled={isLoading || isGoogleLoading}
+                      className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-primary/40 cursor-pointer"
+                    >
+                      <GoogleIcon className="h-4 w-4" />
+                      <span>Continue with Google</span>
+                    </Button>
+
+                    <div className="relative my-2 text-center">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/60" />
+                      </div>
+                      <span className="relative bg-card px-3 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                        Or with email & password
+                      </span>
                     </div>
                   </div>
 
@@ -533,6 +650,29 @@ export default function AuthPage() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       Join Glorious Japan Club for member-only pricing and rewards.
                     </p>
+                  </div>
+
+                  {/* Google OAuth Quick Button */}
+                  <div className="space-y-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsGoogleModalOpen(true)}
+                      disabled={isLoading || isGoogleLoading}
+                      className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-primary/40 cursor-pointer"
+                    >
+                      <GoogleIcon className="h-4 w-4" />
+                      <span>Sign Up with Google</span>
+                    </Button>
+
+                    <div className="relative my-2 text-center">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/60" />
+                      </div>
+                      <span className="relative bg-card px-3 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                        Or create with email
+                      </span>
+                    </div>
                   </div>
 
                   <form onSubmit={handleRegister} className="space-y-4">
@@ -750,6 +890,112 @@ export default function AuthPage() {
                 </Button>
               </div>
             </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Google Account OAuth Dialog */}
+      <Dialog open={isGoogleModalOpen} onOpenChange={setIsGoogleModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-xl p-6">
+          <DialogHeader className="text-center sm:text-center pb-2">
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-secondary/80 mb-2 border border-border/80">
+              <GoogleIcon className="h-6 w-6" />
+            </div>
+            <DialogTitle className="font-display text-xl font-medium">
+              Sign in with Google
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-1">
+              Choose an account to continue to <strong>Glorious Japan Skin Care</strong>
+            </DialogDescription>
+          </DialogHeader>
+
+          {isGoogleLoading ? (
+            <div className="py-10 text-center space-y-3">
+              <RefreshCw className="h-7 w-7 animate-spin text-primary mx-auto" />
+              <p className="text-xs font-semibold text-foreground">
+                Connecting to Google securely...
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Authenticating credentials with Google Identity Services.
+              </p>
+            </div>
+          ) : isCustomGoogleOpen ? (
+            <form onSubmit={handleCustomGoogleSubmit} className="mt-3 space-y-4">
+              <div>
+                <Label htmlFor="custom-google-email" className="text-xs font-semibold">
+                  Google Account Email
+                </Label>
+                <div className="relative mt-1.5">
+                  <Input
+                    id="custom-google-email"
+                    type="email"
+                    required
+                    value={customGoogleEmail}
+                    onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                    placeholder="name@gmail.com"
+                    className="rounded-full pl-9 text-xs h-10"
+                  />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-xs"
+                  onClick={() => setIsCustomGoogleOpen(false)}
+                >
+                  ← Back to accounts
+                </Button>
+                <Button type="submit" size="sm" className="rounded-full text-xs px-5">
+                  Sign in
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {GOOGLE_ACCOUNTS.map((acc) => (
+                <button
+                  key={acc.email}
+                  type="button"
+                  onClick={() => handleSelectGoogleAccount(acc)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-card hover:bg-secondary/40 hover:border-primary/40 transition-all text-left group cursor-pointer"
+                >
+                  <img
+                    src={acc.avatar}
+                    alt={acc.name}
+                    className="h-9 w-9 rounded-full object-cover border border-border shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {acc.name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground truncate">{acc.email}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => setIsCustomGoogleOpen(true)}
+                className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-border hover:border-primary/50 hover:bg-secondary/20 transition-all text-left text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary/80 shrink-0">
+                  <UserIcon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <span>Use another Google account</span>
+              </button>
+
+              <div className="pt-3 text-center">
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  To continue, Google will share your name, email address, language preference, and
+                  profile picture with Glorious Japan.
+                </p>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
