@@ -57,12 +57,7 @@ export const CATEGORY_DEFINITIONS: CategoryMeta[] = [
       "Experience Japan's famous hair ceremony. Infused with pure Oshima island camellia seed oil, royal jelly, and hydrolyzed silk peptides, our Japanese shampoos, hair masks, and repair elixirs mend split ends, tame humidity frizz, and restore mirror-like gloss from scalp to tip.",
     metaDescription:
       "Buy genuine Japanese hair care in Bangladesh: Tsubaki, Fino, &honey, and Oshima Camellia oils for smooth, healthy hair.",
-    subcategories: [
-      "All",
-      "Hair Oil & Serum",
-      "Hair Mask & Treatment",
-      "Scalp Care",
-    ],
+    subcategories: ["All", "Hair Oil & Serum", "Hair Mask & Treatment", "Scalp Care"],
     matchedCategories: ["Hair Care", "Hair"],
     aliases: ["hair-care", "hair care", "haircare", "hair"],
   },
@@ -75,13 +70,7 @@ export const CATEGORY_DEFINITIONS: CategoryMeta[] = [
       "Turn your daily shower into a calming onsen ritual. Our Japanese body washes, Hinoki cypress milks, and ceramide lotions lock in moisture for 72 hours, soothe dry skin, and leave a faint, comforting whisper of Japanese botanicals.",
     metaDescription:
       "Authentic Japanese body care in Bangladesh. Hinoki body lotions, Bouncia foam soaps, and Curel ceramide washes delivered to your door.",
-    subcategories: [
-      "All",
-      "Body Lotion & Milk",
-      "Body Soap & Wash",
-      "Body Scrub",
-      "Hand Care",
-    ],
+    subcategories: ["All", "Body Lotion & Milk", "Body Soap & Wash", "Body Scrub", "Hand Care"],
     matchedCategories: ["Body Care", "Body"],
     aliases: ["body-care", "body care", "bodycare", "body"],
   },
@@ -113,13 +102,7 @@ export const CATEGORY_DEFINITIONS: CategoryMeta[] = [
       "Formulated to the world's most stringent Japanese safety standards, our baby essentials are 100% fragrance-free, hypoallergenic, and enriched with biomimetic ceramides and chamomile. Designed for newborns, toddlers, and sensitive family members.",
     metaDescription:
       "Gentle Japanese baby care products in Bangladesh: Pigeon, Mama & Kids, and Wakodo baby lotion, washes, and barrier balms.",
-    subcategories: [
-      "All",
-      "Baby Lotion & Milk",
-      "Baby Wash & Foam",
-      "Baby Powder",
-      "Barrier Balm",
-    ],
+    subcategories: ["All", "Baby Lotion & Milk", "Baby Wash & Foam", "Baby Powder", "Barrier Balm"],
     matchedCategories: ["Baby Care", "Baby"],
     aliases: ["baby-care", "baby care", "babycare", "baby"],
   },
@@ -132,12 +115,7 @@ export const CATEGORY_DEFINITIONS: CategoryMeta[] = [
       "Elevate your ritual with handcrafted beauty tools. Discover authentic Japanese jade rollers, natural Konjac charcoal cleansing sponges, 100% pure unbleached cotton pads from Hiroshima, and pure mulberry silk sleep bands.",
     metaDescription:
       "Authentic Japanese skincare tools and accessories in Bangladesh: jade rollers, Konjac sponges, silk scrunchies, and cotton pads.",
-    subcategories: [
-      "All",
-      "Facial Rollers & Gua Sha",
-      "Cotton & Sponges",
-      "Silk Hair Care",
-    ],
+    subcategories: ["All", "Facial Rollers & Gua Sha", "Cotton & Sponges", "Silk Hair Care"],
     matchedCategories: ["Beauty Accessories", "Accessories"],
     aliases: ["accessories", "beauty-accessories", "beauty accessories", "tools"],
   },
@@ -150,12 +128,7 @@ export const CATEGORY_DEFINITIONS: CategoryMeta[] = [
       "The perfect gift of radiant skin. Elegantly presented in Japanese gift boxes, our curated sets bring together full 4-step daily rituals and TSA-friendly travel miniatures to pamper yourself or someone special.",
     metaDescription:
       "Luxury Japanese skincare gift sets and travel kits in Bangladesh. Curated discovery boxes and holiday bundles.",
-    subcategories: [
-      "All",
-      "Full Ritual Sets",
-      "Travel Discovery Kits",
-      "Hydration Bundles",
-    ],
+    subcategories: ["All", "Full Ritual Sets", "Travel Discovery Kits", "Hydration Bundles"],
     matchedCategories: ["Gift Sets", "Travel Kits"],
     aliases: ["gift-sets", "gift sets", "gifts", "travel-kits", "travel kits"],
   },
@@ -208,9 +181,7 @@ export function getCategoryMeta(slug: string): CategoryMeta {
   if (found) return found;
 
   // Fallback dynamic definition for subcategories like "serum", "cleanser", etc.
-  const cleanTitle = slug
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const cleanTitle = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return {
     slug: normalized,
@@ -224,4 +195,3 @@ export function getCategoryMeta(slug: string): CategoryMeta {
     aliases: [normalized],
   };
 }
-

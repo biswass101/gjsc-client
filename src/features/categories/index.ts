@@ -7,4 +7,3 @@ export * from "./components/CategoryActiveFilters";
 export * from "./components/CategoryProductGrid";
 export * from "./components/CategoryBreadcrumb";
 export * from "./data/categoryMetadata";
-

@@ -47,8 +47,7 @@ export function CollectionFrequentlySearched({
       {/* Query Pills */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
         {items.map((item) => {
-          const isSelected =
-            activeSearchQuery.trim().toLowerCase() === item.trim().toLowerCase();
+          const isSelected = activeSearchQuery.trim().toLowerCase() === item.trim().toLowerCase();
 
           return (
             <button
@@ -65,7 +64,7 @@ export function CollectionFrequentlySearched({
                 "group inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all cursor-pointer",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/30"
-                  : "border border-border/80 bg-background text-foreground/85 hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+                  : "border border-border/80 bg-background text-foreground/85 hover:border-primary/50 hover:bg-primary/5 hover:text-primary",
               )}
             >
               <Search
@@ -73,7 +72,7 @@ export function CollectionFrequentlySearched({
                   "h-3 w-3 transition-colors",
                   isSelected
                     ? "text-primary-foreground"
-                    : "text-muted-foreground group-hover:text-primary"
+                    : "text-muted-foreground group-hover:text-primary",
                 )}
               />
               <span>{item}</span>
@@ -85,4 +84,3 @@ export function CollectionFrequentlySearched({
     </div>
   );
 }
-

@@ -15,4 +15,3 @@ export interface Notification {
   read: boolean;
   type: "order" | "promo" | "system";
 }
-

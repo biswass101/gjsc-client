@@ -1,11 +1,12 @@
-export type BadgeType = "New" | "Best Seller" | "Trending" | "Flash Sale";
+export type BadgeType = "New" | "Best Seller" | "Trending" | "Flash Sale" | "Exclusive";
 
-export type ProductType = "pre-order-japan" | "shein";
+export type ProductType = "in-stock" | "pre-order-japan" | "shein";
 
 export interface Product {
   id: string;
   slug: string;
   name: string;
+  japaneseName?: string | undefined;
   brand: string;
   category: string;
   price: number;
@@ -13,6 +14,7 @@ export interface Product {
   rating: number;
   reviews: number;
   image: string;
+  images?: string[] | undefined;
   short: string;
   description: string;
   ingredients: string[];
@@ -24,10 +26,15 @@ export interface Product {
   badge?: BadgeType | undefined;
   sizes: string[];
   type?: ProductType | undefined;
+  origin?: string | undefined;
+  texture?: string | undefined;
+  pao?: string | undefined;
+  spf?: string | undefined;
+  barcode?: string | undefined;
+  sku?: string | undefined;
 }
 
 export interface CategoryGroup {
   label: string;
   categories: string[];
 }
-

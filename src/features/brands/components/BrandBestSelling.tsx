@@ -9,10 +9,7 @@ interface BrandBestSellingProps {
   products: Product[];
 }
 
-export function BrandBestSelling({
-  brandName,
-  products,
-}: BrandBestSellingProps) {
+export function BrandBestSelling({ brandName, products }: BrandBestSellingProps) {
   // Select top best selling products for this brand
   const topSellers = products
     .filter((p) => p.badge === "Best Seller" || p.rating >= 4.6 || p.badge === "Trending")
@@ -60,4 +57,3 @@ export function BrandBestSelling({
     </section>
   );
 }
-

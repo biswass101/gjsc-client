@@ -11,39 +11,9 @@ import {
 } from "react";
 import { PRODUCTS } from "@/lib/catalog";
 import type { Product, CartLine, User, Notification } from "@/types";
+import { DEMO_NOTIFICATIONS, ShopContextType } from "./shop-types";
 
-export interface ShopContextType {
-  cart: CartLine[];
-  wishlist: string[];
-  recent: string[];
-  user: User | null;
-  notifications: Notification[];
-  addToCart: (slug: string, qty?: number, size?: string) => void;
-  setQty: (slug: string, qty: number) => void;
-  removeFromCart: (slug: string) => void;
-  clearCart: () => void;
-  toggleWishlist: (slug: string) => void;
-  addRecent: (slug: string) => void;
-  login: (email: string, password: string) => User;
-  loginWithGoogle: (demoGoogleUser?: Partial<User>) => User;
-  updateUserProfile: (updates: Partial<User>) => void;
-  logout: () => void;
-  markRead: (id: string) => void;
-  markAllRead: () => void;
-  cartOpen: boolean;
-  setCartOpen: (open: boolean) => void;
-  subtotal: number;
-  count: number;
-  lines: { product: Product; qty: number; size: string }[];
-}
-
-const DEMO_NOTIFICATIONS: Notification[] = [
-  { id: "n1", title: "Order Confirmed", body: "Your order #GJ-2026-4821 has been confirmed and is being prepared.", time: "2 min ago", read: false, type: "order" },
-  { id: "n2", title: "Flash Sale — 30% Off!", body: "Limited-time deals on serums and essences. Ends midnight.", time: "1 hr ago", read: false, type: "promo" },
-  { id: "n3", title: "Order Shipped", body: "Your Sakura Radiance Serum is on its way. Expected in 2 days.", time: "3 hr ago", read: false, type: "order" },
-  { id: "n4", title: "New Arrivals", body: "6 new products from the Yuzu collection just landed.", time: "1 day ago", read: true, type: "promo" },
-  { id: "n5", title: "System Update", body: "We've improved our checkout for a smoother experience.", time: "2 days ago", read: true, type: "system" },
-];
+export type { ShopContextType };
 
 const ShopContext = createContext<ShopContextType | null>(null);
 const STORAGE_KEY = "gjsc-shop-v2";
@@ -89,14 +59,22 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setQty = useCallback((slug: string, qty: number) => {
-    setCart((c) => (qty <= 0 ? c.filter((l) => l.slug !== slug) : c.map((l) => (l.slug === slug ? { ...l, qty } : l))));
+    setCart((c) =>
+      qty <= 0
+        ? c.filter((l) => l.slug !== slug)
+        : c.map((l) => (l.slug === slug ? { ...l, qty } : l)),
+    );
   }, []);
 
-  const removeFromCart = useCallback((slug: string) => setCart((c) => c.filter((l) => l.slug !== slug)), []);
+  const removeFromCart = useCallback(
+    (slug: string) => setCart((c) => c.filter((l) => l.slug !== slug)),
+    [],
+  );
   const clearCart = useCallback(() => setCart([]), []);
 
   const toggleWishlist = useCallback(
-    (slug: string) => setWishlist((w) => (w.includes(slug) ? w.filter((s) => s !== slug) : [...w, slug])),
+    (slug: string) =>
+      setWishlist((w) => (w.includes(slug) ? w.filter((s) => s !== slug) : [...w, slug])),
     [],
   );
 
@@ -112,7 +90,14 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     const newUser: User = { name, email, role };
     setUser(newUser);
     setNotifications((prev) => [
-      { id: `login-${Date.now()}`, title: "Welcome back!", body: `Signed in as ${email}`, time: "just now", read: false, type: "system" },
+      {
+        id: `login-${Date.now()}`,
+        title: "Welcome back!",
+        body: `Signed in as ${email}`,
+        time: "just now",
+        read: false,
+        type: "system",
+      },
       ...prev,
     ]);
     return newUser;
@@ -212,4 +197,3 @@ export function useShop() {
   if (!ctx) throw new Error("useShop must be used inside ShopProvider");
   return ctx;
 }
-
