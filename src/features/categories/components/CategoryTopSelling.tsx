@@ -9,10 +9,7 @@ interface CategoryTopSellingProps {
   products: Product[];
 }
 
-export function CategoryTopSelling({
-  categoryTitle,
-  products,
-}: CategoryTopSellingProps) {
+export function CategoryTopSelling({ categoryTitle, products }: CategoryTopSellingProps) {
   // Select up to 4 top products (prioritize Best Seller badge or high ratings/reviews)
   const topSellers = products
     .filter((p) => p.badge === "Best Seller" || p.rating >= 4.5 || p.badge === "Trending")
@@ -37,7 +34,8 @@ export function CategoryTopSelling({
               Top Selling in {categoryTitle}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground hidden sm:block">
-              Most-loved Japanese formulas with verified customer satisfaction and five-star reviews.
+              Most-loved Japanese formulas with verified customer satisfaction and five-star
+              reviews.
             </p>
           </div>
 
@@ -57,4 +55,3 @@ export function CategoryTopSelling({
     </section>
   );
 }
-

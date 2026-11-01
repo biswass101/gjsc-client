@@ -168,6 +168,87 @@
   }
 }
 
+/* =============================================================
+   CUSTOM LUXURY SCROLLBARS (Global + Utilities)
+   ============================================================= */
+
+/* Universal thin, rounded custom scrollbar for all browsers */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.65 0.05 58 / 28%) transparent;
+}
+
+/* Chrome, Edge, Safari, Opera webkit scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.65 0.05 58 / 26%);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.65 0.09 58 / 55%);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode scrollbars */
+.dark * {
+  scrollbar-color: oklch(0.75 0.04 60 / 26%) transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.75 0.04 60 / 24%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.75 0.08 58 / 50%);
+}
+
+/* Specialized ultra-sleek scrollbar for admin sidebars, tables & modals */
+.custom-scrollbar,
+.admin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.65 0.05 58 / 26%) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar,
+.admin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track,
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: oklch(0.65 0.05 58 / 24%);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.15s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

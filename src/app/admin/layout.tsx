@@ -24,9 +24,9 @@ export default function AdminLayout({
   const [quickDiscountOpen, setQuickDiscountOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground antialiased selection:bg-primary/20">
-      {/* Desktop Persistent Sidebar */}
-      <div className="hidden lg:flex shrink-0">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground antialiased selection:bg-primary/20">
+      {/* Desktop Persistent Sidebar - locked to screen height */}
+      <div className="hidden lg:flex shrink-0 h-screen sticky top-0">
         <AdminSidebar
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed(!collapsed)}
@@ -35,7 +35,7 @@ export default function AdminLayout({
 
       {/* Mobile Drawer Sidebar */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-[270px]">
+        <SheetContent side="left" className="p-0 w-[270px] h-full flex flex-col">
           <AdminSidebar
             collapsed={false}
             onToggleCollapse={() => setMobileMenuOpen(false)}
@@ -45,7 +45,7 @@ export default function AdminLayout({
       </Sheet>
 
       {/* Main Admin Content Canvas */}
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+      <div className="flex flex-1 flex-col h-screen min-w-0 overflow-hidden">
         <AdminHeader
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
@@ -54,7 +54,7 @@ export default function AdminLayout({
           onOpenQuickNewDiscount={() => setQuickDiscountOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto min-w-0 custom-scrollbar">
           {children}
         </main>
       </div>

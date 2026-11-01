@@ -7,4 +7,3 @@ export * from "./components/BrandBestSelling";
 export * from "./components/BrandFilters";
 export * from "./components/BrandActiveFilters";
 export * from "./components/BrandProductGrid";
-

@@ -86,7 +86,7 @@ export function CategoryHero({
                       "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all active:scale-95",
                       isSelected
                         ? "bg-primary text-primary-foreground shadow-xs font-semibold ring-1 ring-primary"
-                        : "bg-card border border-border/80 text-foreground hover:border-primary/50 hover:bg-secondary/60"
+                        : "bg-card border border-border/80 text-foreground hover:border-primary/50 hover:bg-secondary/60",
                     )}
                   >
                     {sub}
@@ -100,4 +100,3 @@ export function CategoryHero({
     </div>
   );
 }
-

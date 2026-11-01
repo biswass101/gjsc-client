@@ -11,4 +11,3 @@ export interface CartProductLine {
   qty: number;
   size: string;
 }
-

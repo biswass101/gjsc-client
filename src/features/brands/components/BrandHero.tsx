@@ -36,11 +36,7 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
                 {/* Brand Logo / Avatar */}
                 <div className="relative h-24 w-24 sm:h-28 sm:w-28 overflow-hidden rounded-xl border-2 border-background bg-card shadow-md shrink-0">
-                  <img
-                    src={meta.image}
-                    alt={meta.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={meta.image} alt={meta.name} className="h-full w-full object-cover" />
                   <span className="absolute bottom-1 right-1 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-semibold text-foreground border border-border/60">
                     {meta.kanji}
                   </span>
@@ -123,4 +119,3 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
     </div>
   );
 }
-

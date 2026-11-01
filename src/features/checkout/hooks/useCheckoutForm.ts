@@ -1,0 +1,208 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useShop } from "@/context";
+import type { DeliveryZone, PaymentMethod, OrderConfirmationData } from "../types";
+import { VALID_COUPONS } from "../data/checkoutConstants";
+
+export function useCheckoutForm() {
+  const { lines, subtotal, clearCart, user } = useShop();
+
+  // Contact info
+  const [fullName, setFullName] = useState(user?.name ?? "");
+  const [phone, setPhone] = useState("");
+  const [altPhone, setAltPhone] = useState("");
+  const [email, setEmail] = useState(user?.email ?? "");
+
+  // Shipping destination
+  const [zone, setZone] = useState<DeliveryZone>("dhaka_metro");
+  const [division, setDivision] = useState("Dhaka");
+  const [cityDistrict, setCityDistrict] = useState("Dhaka");
+  const [area, setArea] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
+
+  // Payment
+  const [payment, setPayment] = useState<PaymentMethod>("cod");
+  const [bkashPhone, setBkashPhone] = useState("");
+  const [bkashTrxId, setBkashTrxId] = useState("");
+  const [nagadPhone, setNagadPhone] = useState("");
+  const [nagadTrxId, setNagadTrxId] = useState("");
+
+  // Add-ons & Promo
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  // Submission State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderSummaryData, setOrderSummaryData] = useState<OrderConfirmationData | null>(null);
+
+  // Dynamic Shipping Calculation based on Bangladesh zones
+  const baseShippingFee = useMemo(() => {
+    if (subtotal === 0) return 0;
+    if (subtotal >= 5000) return 0; // Free delivery above ৳5,000 threshold
+    if (appliedCoupon === "FREESHIP") return 0;
+
+    switch (zone) {
+      case "dhaka_metro":
+        return 80;
+      case "dhaka_suburbs":
+        return 100;
+      case "outside_dhaka":
+        return 130;
+      default:
+        return 80;
+    }
+  }, [subtotal, zone, appliedCoupon]);
+
+  // Coupon Discount Calculation
+  const couponDiscount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    const rule = VALID_COUPONS[appliedCoupon];
+    if (!rule) return 0;
+    if (rule.type === "percent") {
+      return Math.round((subtotal * rule.value) / 100);
+    }
+    if (rule.type === "fixed") {
+      return Math.min(rule.value, subtotal);
+    }
+    return 0;
+  }, [appliedCoupon, subtotal]);
+
+  const giftFee = giftWrap ? 150 : 0;
+  const grandTotal = Math.max(0, subtotal - couponDiscount + baseShippingFee + giftFee);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = couponInput.trim().toUpperCase();
+    if (!clean) return;
+    if (VALID_COUPONS[clean]) {
+      setAppliedCoupon(clean);
+      setCouponInput("");
+      toast.success("Coupon code applied successfully!", {
+        description: VALID_COUPONS[clean]?.label,
+      });
+    } else {
+      toast.error("Invalid coupon code", {
+        description: "Please check your code or try 'GLORIOUS10' for 10% off.",
+      });
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info("Coupon removed");
+  };
+
+  const handlePlaceOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (lines.length === 0) {
+      toast.error("Your shopping bag is empty");
+      return;
+    }
+
+    // Phone validation for BD numbers (11 digits, starts with 01)
+    const cleanPhone = phone.replace(/[\s-]/g, "");
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      toast.error("Invalid Bangladeshi mobile number", {
+        description: "Please provide a valid 11-digit mobile number (e.g., 017XXXXXXXX).",
+      });
+      return;
+    }
+
+    if (payment === "bkash" && (!bkashPhone.trim() || !bkashTrxId.trim())) {
+      toast.error("bKash payment details required", {
+        description: "Please provide your bKash mobile number and the Transaction ID (TrxID).",
+      });
+      return;
+    }
+
+    if (payment === "nagad" && (!nagadPhone.trim() || !nagadTrxId.trim())) {
+      toast.error("Nagad payment details required", {
+        description: "Please provide your Nagad mobile number and the Transaction ID (TrxID).",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const generatedId = `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    setTimeout(() => {
+      setOrderSummaryData({
+        orderId: generatedId,
+        total: grandTotal,
+        shippingFee: baseShippingFee,
+        discount: couponDiscount,
+        zone,
+        address: `${streetAddress}, ${area ? area + ", " : ""}${cityDistrict}, ${division}`,
+        phone: cleanPhone,
+        payment,
+        date: new Date().toLocaleDateString("en-BD", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        items: [...lines],
+      });
+      clearCart();
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 600);
+  };
+
+  return {
+    lines,
+    subtotal,
+    user,
+    fullName,
+    setFullName,
+    phone,
+    setPhone,
+    altPhone,
+    setAltPhone,
+    email,
+    setEmail,
+    zone,
+    setZone,
+    division,
+    setDivision,
+    cityDistrict,
+    setCityDistrict,
+    area,
+    setArea,
+    streetAddress,
+    setStreetAddress,
+    deliveryNote,
+    setDeliveryNote,
+    payment,
+    setPayment,
+    bkashPhone,
+    setBkashPhone,
+    bkashTrxId,
+    setBkashTrxId,
+    nagadPhone,
+    setNagadPhone,
+    nagadTrxId,
+    setNagadTrxId,
+    giftWrap,
+    setGiftWrap,
+    giftMessage,
+    setGiftMessage,
+    couponInput,
+    setCouponInput,
+    appliedCoupon,
+    isSubmitting,
+    orderSummaryData,
+    baseShippingFee,
+    couponDiscount,
+    grandTotal,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+    handlePlaceOrder,
+  };
+}
+
