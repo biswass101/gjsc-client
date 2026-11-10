@@ -1,4 +1,11 @@
 import type { Product, CartLine, User, Notification } from "@/types";
+import type {
+  GoogleAuthPayload,
+  FacebookAuthPayload,
+  UserProfileUpdatePayload,
+} from "@/lib/api/auth";
+
+export type ProfileUpdateInput = UserProfileUpdatePayload;
 
 export interface ShopContextType {
   cart: CartLine[];
@@ -12,10 +19,13 @@ export interface ShopContextType {
   clearCart: () => void;
   toggleWishlist: (slug: string) => void;
   addRecent: (slug: string) => void;
-  login: (email: string, password: string) => User;
-  loginWithGoogle: (demoGoogleUser?: Partial<User>) => User;
-  updateUserProfile: (updates: Partial<User>) => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<User>;
+  registerUser?: (name: string, email: string, password: string, phone?: string) => Promise<User>;
+  loginWithGoogle: (payload: GoogleAuthPayload) => Promise<User>;
+  loginWithFacebook: (payload: FacebookAuthPayload) => Promise<User>;
+  updateUserProfile: (updates: ProfileUpdateInput) => Promise<void> | void;
+  refreshUserProfile?: () => Promise<User | null>;
+  logout: () => void | Promise<void>;
   markRead: (id: string) => void;
   markAllRead: () => void;
   cartOpen: boolean;
@@ -23,6 +33,7 @@ export interface ShopContextType {
   subtotal: number;
   count: number;
   lines: { product: Product; qty: number; size: string }[];
+  isAuthLoading?: boolean;
 }
 
 export const DEMO_NOTIFICATIONS: Notification[] = [

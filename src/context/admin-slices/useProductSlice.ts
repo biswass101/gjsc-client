@@ -1,10 +1,51 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { AdminProduct } from "@/types";
 import { generateInitialProducts } from "../admin-seed";
 import type { AddActivityLogFn } from "./types";
+import { adminApi } from "@/lib/api";
 
 export function useProductSlice(addActivityLog: AddActivityLogFn) {
   const [products, setProducts] = useState<AdminProduct[]>(generateInitialProducts);
+
+  useEffect(() => {
+    adminApi
+      .getProducts({ limit: 100 })
+      .then((res) => {
+        if (res?.products && res.products.length > 0) {
+          const formatted: AdminProduct[] = res.products.map((p: any) => ({
+            id: String(p.id),
+            slug: p.slug,
+            name: p.name,
+            japaneseName: p.japaneseName || undefined,
+            brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
+            category: p.categoryName || p.category?.name || p.category || "Skincare",
+            price: Number(p.price),
+            compareAt: p.compareAt ? Number(p.compareAt) : undefined,
+            stock: Number(p.stock),
+            sku: p.sku || `GJ-${p.slug?.slice(0, 4).toUpperCase()}`,
+            image: p.image,
+            images: p.images || [p.image],
+            rating: Number(p.rating || 5),
+            reviews: Number(p.reviewsCount || 0),
+            salesCount: Number(p.salesCount || 0),
+            badge: p.badge || undefined,
+            short: p.short || "",
+            description: p.description || "",
+            sizes: p.sizes || ["Standard"],
+            skinTypes: p.skinTypes || [],
+            concerns: p.concerns || [],
+            ingredients: p.ingredients || [],
+            benefits: p.benefits || [],
+            howTo: p.howTo || "",
+            origin: p.origin || "Tokyo, Japan",
+            status: p.stock > 0 ? "Published" : "Out of Stock",
+            createdAt: p.createdAt ? p.createdAt.slice(0, 10) : new Date().toISOString().slice(0, 10),
+          }));
+          setProducts(formatted);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const addProduct = useCallback(
     (input: Omit<AdminProduct, "id" | "slug" | "createdAt" | "salesCount">): AdminProduct => {

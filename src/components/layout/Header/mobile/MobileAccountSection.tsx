@@ -24,6 +24,7 @@ export function MobileAccountSection({
               <img
                 src={user.avatar}
                 alt={user.name}
+                referrerPolicy="no-referrer"
                 className="h-8 w-8 rounded-full object-cover border border-border shrink-0"
               />
             ) : (

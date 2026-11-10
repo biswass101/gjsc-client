@@ -1,5 +1,6 @@
 "use client";
 
+import { RefreshCw } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -9,7 +10,8 @@ import {
   AuthLoginForm,
   AuthRegisterForm,
   AuthResetPasswordDialog,
-  AuthGoogleModal,
+  GoogleIcon,
+  FacebookIcon,
 } from "@/features/auth";
 
 export default function AuthPage() {
@@ -44,22 +46,46 @@ export default function AuthPage() {
     setResetEmail,
     resetSent,
     setResetSent,
-    isGoogleModalOpen,
-    setIsGoogleModalOpen,
     isGoogleLoading,
-    customGoogleEmail,
-    setCustomGoogleEmail,
-    isCustomGoogleOpen,
-    setIsCustomGoogleOpen,
+    isFacebookLoading,
+    completingOAuthProvider,
     isLoading,
-    handleSelectGoogleAccount,
-    handleCustomGoogleSubmit,
+    handleGoogleSignIn,
+    handleFacebookSignIn,
     handleLogin,
     handleRegister,
     handleLogout,
     handleFillDemo,
     handleResetPassword,
   } = useAuthForm();
+
+  // Completing server-side verification after returning from Google/Facebook OAuth
+  if (completingOAuthProvider) {
+    const isGoogle = completingOAuthProvider === "google";
+    return (
+      <Layout>
+        <div className="container-lux py-20 sm:py-28">
+          <div className="mx-auto max-w-md rounded-xl border border-border/80 bg-card p-8 sm:p-10 shadow-sm text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-border bg-secondary/40">
+              {isGoogle ? (
+                <GoogleIcon className="h-7 w-7" />
+              ) : (
+                <FacebookIcon className="h-7 w-7" />
+              )}
+            </div>
+            <div className="flex items-center justify-center gap-2 text-foreground font-display text-2xl font-medium">
+              <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+              <span>Completing {isGoogle ? "Google" : "Facebook"} Sign-In</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Verifying your {isGoogle ? "Google" : "Facebook"} credentials and preparing your
+              member sanctuary...
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   // Logged-in profile hub
   if (user) {
@@ -114,8 +140,10 @@ export default function AuthPage() {
                     onRememberMeChange={setRememberMe}
                     isLoading={isLoading}
                     isGoogleLoading={isGoogleLoading}
+                    isFacebookLoading={isFacebookLoading}
                     onFillDemo={handleFillDemo}
-                    onOpenGoogleModal={() => setIsGoogleModalOpen(true)}
+                    onGoogleSignIn={handleGoogleSignIn}
+                    onFacebookSignIn={handleFacebookSignIn}
                     onOpenResetPassword={() => setIsResetOpen(true)}
                     onSwitchToRegister={() => setActiveTab("register")}
                     onSubmit={handleLogin}
@@ -139,7 +167,9 @@ export default function AuthPage() {
                     onNewsletterChange={setNewsletter}
                     isLoading={isLoading}
                     isGoogleLoading={isGoogleLoading}
-                    onOpenGoogleModal={() => setIsGoogleModalOpen(true)}
+                    isFacebookLoading={isFacebookLoading}
+                    onGoogleSignIn={handleGoogleSignIn}
+                    onFacebookSignIn={handleFacebookSignIn}
                     onSwitchToLogin={() => setActiveTab("login")}
                     onSubmit={handleRegister}
                   />
@@ -163,19 +193,6 @@ export default function AuthPage() {
           setResetEmail("");
         }}
         onSubmit={handleResetPassword}
-      />
-
-      {/* Google Account OAuth Dialog */}
-      <AuthGoogleModal
-        isOpen={isGoogleModalOpen}
-        onOpenChange={setIsGoogleModalOpen}
-        isLoading={isGoogleLoading}
-        isCustomGoogleOpen={isCustomGoogleOpen}
-        onSetIsCustomGoogleOpen={setIsCustomGoogleOpen}
-        customGoogleEmail={customGoogleEmail}
-        onCustomGoogleEmailChange={setCustomGoogleEmail}
-        onSelectAccount={handleSelectGoogleAccount}
-        onCustomGoogleSubmit={handleCustomGoogleSubmit}
       />
     </Layout>
   );

@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GoogleIcon } from "./GoogleIcon";
+import { FacebookIcon } from "./FacebookIcon";
 
 export interface AuthRegisterFormProps {
   regName: string;
@@ -32,7 +33,9 @@ export interface AuthRegisterFormProps {
   onNewsletterChange: (val: boolean) => void;
   isLoading: boolean;
   isGoogleLoading: boolean;
-  onOpenGoogleModal: () => void;
+  isFacebookLoading: boolean;
+  onGoogleSignIn: () => void;
+  onFacebookSignIn: () => void;
   onSwitchToLogin: () => void;
   onSubmit: (e: React.FormEvent) => void;
 }
@@ -52,7 +55,9 @@ export function AuthRegisterForm({
   onNewsletterChange,
   isLoading,
   isGoogleLoading,
-  onOpenGoogleModal,
+  isFacebookLoading,
+  onGoogleSignIn,
+  onFacebookSignIn,
   onSwitchToLogin,
   onSubmit,
 }: AuthRegisterFormProps) {
@@ -65,17 +70,36 @@ export function AuthRegisterForm({
         </p>
       </div>
 
-      {/* Google OAuth Quick Button */}
-      <div className="space-y-3">
+      {/* Social OAuth Buttons */}
+      <div className="space-y-2.5">
         <Button
           type="button"
           variant="outline"
-          onClick={onOpenGoogleModal}
-          disabled={isLoading || isGoogleLoading}
+          onClick={onGoogleSignIn}
+          disabled={isLoading || isGoogleLoading || isFacebookLoading}
           className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-primary/40 cursor-pointer"
         >
-          <GoogleIcon className="h-4 w-4" />
-          <span>Sign Up with Google</span>
+          {isGoogleLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+          ) : (
+            <GoogleIcon className="h-4 w-4" />
+          )}
+          <span>{isGoogleLoading ? "Connecting to Google..." : "Sign Up with Google"}</span>
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onFacebookSignIn}
+          disabled={isLoading || isGoogleLoading || isFacebookLoading}
+          className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-[#1877F2]/40 cursor-pointer"
+        >
+          {isFacebookLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin text-[#1877F2]" />
+          ) : (
+            <FacebookIcon className="h-4 w-4" />
+          )}
+          <span>{isFacebookLoading ? "Connecting to Facebook..." : "Sign Up with Facebook"}</span>
         </Button>
 
         <div className="relative my-2 text-center">
@@ -197,7 +221,7 @@ export function AuthRegisterForm({
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
-              Create Account & Claim 500 Pts
+              Create Account & Start Earning Pts
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           )}

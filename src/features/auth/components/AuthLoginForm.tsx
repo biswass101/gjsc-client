@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GoogleIcon } from "./GoogleIcon";
+import { FacebookIcon } from "./FacebookIcon";
 
 export interface AuthLoginFormProps {
   loginEmail: string;
@@ -18,8 +19,10 @@ export interface AuthLoginFormProps {
   onRememberMeChange: (val: boolean) => void;
   isLoading: boolean;
   isGoogleLoading: boolean;
+  isFacebookLoading: boolean;
   onFillDemo: (type: "customer" | "admin") => void;
-  onOpenGoogleModal: () => void;
+  onGoogleSignIn: () => void;
+  onFacebookSignIn: () => void;
   onOpenResetPassword: () => void;
   onSwitchToRegister: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -36,8 +39,10 @@ export function AuthLoginForm({
   onRememberMeChange,
   isLoading,
   isGoogleLoading,
+  isFacebookLoading,
   onFillDemo,
-  onOpenGoogleModal,
+  onGoogleSignIn,
+  onFacebookSignIn,
   onOpenResetPassword,
   onSwitchToRegister,
   onSubmit,
@@ -51,41 +56,62 @@ export function AuthLoginForm({
         </p>
       </div>
 
-      {/* One-Click Demo Credentials Chip Bar */}
-      <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
-          <KeyRound className="h-3.5 w-3.5 text-primary" />
-          Quick Testing Demos:
-        </span>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onFillDemo("customer")}
-            className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10.5px] font-medium text-foreground hover:border-primary hover:text-primary transition-colors cursor-pointer"
-          >
-            Customer
-          </button>
-          <button
-            type="button"
-            onClick={() => onFillDemo("admin")}
-            className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10.5px] font-medium text-purple-600 dark:text-purple-400 hover:border-purple-500 transition-colors cursor-pointer"
-          >
-            Admin Panel
-          </button>
+      {/* One-Click Demo Credentials Chip Bar (Development Only) */}
+      {process.env.NODE_ENV !== "production" && (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+            <KeyRound className="h-3.5 w-3.5 text-primary" />
+            Quick Testing Demos:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onFillDemo("customer")}
+              className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10.5px] font-medium text-foreground hover:border-primary hover:text-primary transition-colors cursor-pointer"
+            >
+              Customer
+            </button>
+            <button
+              type="button"
+              onClick={() => onFillDemo("admin")}
+              className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10.5px] font-medium text-purple-600 dark:text-purple-400 hover:border-purple-500 transition-colors cursor-pointer"
+            >
+              Admin Panel
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Google OAuth Quick Button */}
-      <div className="space-y-3">
+      {/* Social OAuth Buttons */}
+      <div className="space-y-2.5">
         <Button
           type="button"
           variant="outline"
-          onClick={onOpenGoogleModal}
-          disabled={isLoading || isGoogleLoading}
+          onClick={onGoogleSignIn}
+          disabled={isLoading || isGoogleLoading || isFacebookLoading}
           className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-primary/40 cursor-pointer"
         >
-          <GoogleIcon className="h-4 w-4" />
-          <span>Continue with Google</span>
+          {isGoogleLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+          ) : (
+            <GoogleIcon className="h-4 w-4" />
+          )}
+          <span>{isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}</span>
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onFacebookSignIn}
+          disabled={isLoading || isGoogleLoading || isFacebookLoading}
+          className="w-full rounded-full py-5 text-xs font-semibold border-border/80 bg-background hover:bg-secondary/60 transition-all flex items-center justify-center gap-2.5 shadow-2xs hover:border-[#1877F2]/40 cursor-pointer"
+        >
+          {isFacebookLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin text-[#1877F2]" />
+          ) : (
+            <FacebookIcon className="h-4 w-4" />
+          )}
+          <span>{isFacebookLoading ? "Connecting to Facebook..." : "Continue with Facebook"}</span>
         </Button>
 
         <div className="relative my-2 text-center">
@@ -193,7 +219,7 @@ export function AuthLoginForm({
             onClick={onSwitchToRegister}
             className="font-semibold text-primary hover:underline cursor-pointer"
           >
-            Create an account for 500 Pts
+            Create account & earn up to 500 Pts
           </button>
         </p>
       </div>

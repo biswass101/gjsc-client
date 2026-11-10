@@ -1,11 +1,15 @@
 "use client";
 
-import { LogOut, Package, Sparkles, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LogOut, MapPin, Package, Sparkles, Star } from "lucide-react";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
+import { customerApi, tokenStorage, type CustomerDashboardResponse } from "@/lib/api";
+import { formatBDT } from "@/lib/catalog";
 import { GoogleIcon } from "./GoogleIcon";
+import { FacebookIcon } from "./FacebookIcon";
 
 export interface AuthMemberHubProps {
   user: User;
@@ -14,12 +18,36 @@ export interface AuthMemberHubProps {
 }
 
 export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubProps) {
+  const [dashboard, setDashboard] = useState<CustomerDashboardResponse | null>(null);
+
+  useEffect(() => {
+    if (!tokenStorage.get()) return;
+    let cancelled = false;
+    customerApi
+      .getDashboard()
+      .then((res) => {
+        if (!cancelled) setDashboard(res);
+      })
+      .catch(() => {
+        /* fallback gracefully */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user.email]);
+
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  const availablePoints = dashboard?.points.availablePoints;
+  const bdtValue = dashboard?.points.bdtValue ?? 0;
+  const activeOrders = dashboard?.stats.activeOrders;
+  const tierLabel = dashboard?.loyalty.currentTier.badgeLabel || "Sakura Petal Member";
+  const resolvedWishlistCount = dashboard?.stats.wishlistCount ?? wishlistCount;
 
   return (
     <div className="container-lux py-12 sm:py-20">
@@ -29,6 +57,7 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
           <img
             src={user.avatar}
             alt={user.name}
+            referrerPolicy="no-referrer"
             className="mx-auto h-20 w-20 rounded-full object-cover border-2 border-primary/30 shadow-xs"
           />
         ) : (
@@ -48,6 +77,14 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
               <span className="text-muted-foreground/40">•</span>
             </>
           )}
+          {user.authProvider === "facebook" && (
+            <>
+              <span className="rounded-full bg-[#1877F2]/10 border border-[#1877F2]/25 px-2 py-0.5 text-[10px] font-semibold text-[#1877F2] flex items-center gap-1">
+                <FacebookIcon className="h-2.5 w-2.5" /> Facebook Account
+              </span>
+              <span className="text-muted-foreground/40">•</span>
+            </>
+          )}
           <span
             className={cn(
               "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
@@ -56,7 +93,7 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
                 : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
             )}
           >
-            {user.role === "admin" ? "🛡️ Verified Admin" : "🌸 VIP Ritual Member"}
+            {user.role === "admin" ? "🛡️ Verified Admin" : `🌸 ${tierLabel}`}
           </span>
         </div>
 
@@ -64,17 +101,25 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
           Welcome Back, {user.name}
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{user.email}</p>
+        {user.address && (
+          <p className="mt-1.5 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span>{user.address}</span>
+          </p>
+        )}
 
-        {/* Quick Balance / Stats Grid */}
+        {/* Quick Balance / Stats Grid (Real Backend Data) */}
         <div className="mt-8 grid grid-cols-3 gap-3 text-left">
           <div className="rounded-xl border border-border/70 bg-secondary/30 p-4">
             <span className="text-[11px] text-muted-foreground flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-primary" />
               Ritual Points
             </span>
-            <p className="mt-1 text-lg font-bold text-foreground">500 Pts</p>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {availablePoints !== undefined ? `${availablePoints.toLocaleString("en-US")} Pts` : "—"}
+            </p>
             <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-              Worth ৳200
+              {availablePoints !== undefined ? `Worth ${formatBDT(bdtValue)}` : "Loading..."}
             </p>
           </div>
 
@@ -83,9 +128,11 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
               <Package className="h-3 w-3 text-primary" />
               Active Orders
             </span>
-            <p className="mt-1 text-lg font-bold text-foreground">1 Active</p>
-            <Link to="/track" className="text-[10px] text-primary hover:underline font-medium">
-              Track parcel →
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {activeOrders !== undefined ? `${activeOrders} Active` : "—"}
+            </p>
+            <Link to="/account" className="text-[10px] text-primary hover:underline font-medium">
+              View orders →
             </Link>
           </div>
 
@@ -94,7 +141,7 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
               <Star className="h-3 w-3 text-primary" />
               Saved Wishlist
             </span>
-            <p className="mt-1 text-lg font-bold text-foreground">{wishlistCount} Items</p>
+            <p className="mt-1 text-lg font-bold text-foreground">{resolvedWishlistCount} Items</p>
             <Link to="/wishlist" className="text-[10px] text-primary hover:underline font-medium">
               View saved →
             </Link>
@@ -141,4 +188,3 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
     </div>
   );
 }
-

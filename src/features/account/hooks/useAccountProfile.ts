@@ -1,30 +1,72 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { User } from "@/types";
+import { apiClient, tokenStorage } from "@/lib/api";
+import type { ProfileUpdateInput } from "@/context/shop-types";
+
+async function resizeAvatarDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSize = 360;
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const width = Math.max(1, Math.round(img.width * scale));
+        const height = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(reader.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = () => resolve(reader.result as string);
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read image file."));
+    reader.readAsDataURL(file);
+  });
+}
 
 export function useAccountProfile(
   user: User | null,
-  updateUserProfile: (updates: Partial<User>) => void,
+  updateUserProfile: (updates: ProfileUpdateInput) => Promise<void> | void,
+  onProfileMutated?: () => void,
 ) {
-  const [name, setName] = useState(user?.name || "Nusrat Jahan");
-  const [email, setEmail] = useState(user?.email || "nusrat.jahan@gmail.com");
-  const [phone, setPhone] = useState(user?.phone || "01712-849201");
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [address, setAddress] = useState(user?.address || "");
   const [avatar, setAvatar] = useState<string | undefined>(user?.avatar);
   const [tempAvatar, setTempAvatar] = useState<string | undefined>(user?.avatar);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setName(user.name);
-      setEmail(user.email);
-      if (user.phone) setPhone(user.phone);
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setAddress(user.address || "");
       setAvatar(user.avatar);
       setTempAvatar(user.avatar);
+    } else {
+      setName("");
+      setEmail("");
+      setPhone("");
+      setAddress("");
+      setAvatar(undefined);
+      setTempAvatar(undefined);
     }
   }, [user]);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -38,16 +80,28 @@ export function useAccountProfile(
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setTempAvatar(result);
+    try {
+      if (tokenStorage.get()) {
+        try {
+          const formData = new FormData();
+          formData.append("image", file);
+          const uploaded = await apiClient.upload<{ url: string }>("/uploads/image", formData);
+          if (uploaded?.url && !uploaded.url.startsWith("data:")) {
+            setTempAvatar(uploaded.url);
+            toast.success("Photo uploaded! Click 'Save Changes' to apply.");
+            return;
+          }
+        } catch {
+          /* fall through to compressed data URL */
+        }
+      }
+
+      const compressed = await resizeAvatarDataUrl(file);
+      setTempAvatar(compressed);
       toast.success("Photo selected! Click 'Save Changes' to update your profile.");
-    };
-    reader.onerror = () => {
-      toast.error("Failed to read image file.");
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      toast.error("Failed to process image file.");
+    }
   };
 
   const handleRemovePhoto = () => {
@@ -61,25 +115,36 @@ export function useAccountProfile(
   const handleCancelEditProfile = () => {
     setIsEditingProfile(false);
     setTempAvatar(avatar);
-    setName(user?.name || "Nusrat Jahan");
-    setEmail(user?.email || "nusrat.jahan@gmail.com");
-    setPhone(user?.phone || "01712-849201");
+    setName(user?.name || "");
+    setEmail(user?.email || "");
+    setPhone(user?.phone || "");
+    setAddress(user?.address || "");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAvatar(tempAvatar);
-    updateUserProfile({
-      name,
-      email,
-      phone,
-      avatar: tempAvatar,
-    });
-    setIsEditingProfile(false);
-    toast.success("Profile & photo updated successfully! 🌸");
+    setIsSavingProfile(true);
+    try {
+      await updateUserProfile({
+        name,
+        phone: phone.trim() ? phone.trim() : null,
+        address: address.trim() ? address.trim() : null,
+        avatar: tempAvatar ?? null,
+      });
+      setAvatar(tempAvatar);
+      setIsEditingProfile(false);
+      toast.success("Profile updated successfully!");
+      onProfileMutated?.();
+    } catch (err: any) {
+      toast.error("Failed to update profile", {
+        description: err?.message || "Please try again.",
+      });
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   return {
@@ -89,16 +154,18 @@ export function useAccountProfile(
     setEmail,
     phone,
     setPhone,
+    address,
+    setAddress,
     avatar,
     tempAvatar,
     setTempAvatar,
     fileInputRef,
     isEditingProfile,
     setIsEditingProfile,
+    isSavingProfile,
     handlePhotoUpload,
     handleRemovePhoto,
     handleCancelEditProfile,
     handleSaveProfile,
   };
 }
-

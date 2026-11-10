@@ -1,11 +1,68 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { AdminOrder, AdminCustomer, AdminOrderTimelineEvent } from "@/types";
 import { INITIAL_ORDERS, INITIAL_CUSTOMERS } from "../admin-seed";
 import type { AddActivityLogFn } from "./types";
+import { adminApi } from "@/lib/api";
 
 export function useOrderSlice(addActivityLog: AddActivityLogFn) {
   const [orders, setOrders] = useState<AdminOrder[]>(INITIAL_ORDERS);
   const [customers, setCustomers] = useState<AdminCustomer[]>(INITIAL_CUSTOMERS);
+
+  // Sync orders with backend MySQL database on mount
+  useEffect(() => {
+    adminApi
+      .getOrders()
+      .then((res) => {
+        if (res?.orders && res.orders.length > 0) {
+          const formatted: AdminOrder[] = res.orders.map((o: any) => ({
+            id: o.orderNumber,
+            customerName: o.customerName,
+            customerEmail: o.customerEmail,
+            customerPhone: o.customerPhone,
+            date: (o.createdAt || "").slice(0, 10),
+            dateFormatted: new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }),
+            total: Number(o.total),
+            subtotal: Number(o.subtotal),
+            shippingFee: Number(o.deliveryFee),
+            discount: Number(o.discountAmount || 0),
+            paymentMethod: o.paymentMethod,
+            paymentStatus: o.paymentStatus,
+            fulfillmentStatus: o.fulfillmentStatus,
+            deliveryZone: o.deliveryZone,
+            address: o.address,
+            city: o.city,
+            area: o.area,
+            division: o.division,
+            courier: o.courier || "None",
+            consignmentId: o.consignmentId || undefined,
+            timeline: (o.timeline || []).map((t: any, idx: number) => ({
+              id: `tl-${idx}`,
+              title: t.title,
+              description: t.description,
+              time: t.time,
+              by: "System",
+            })),
+            items: (o.items || []).map((it: any) => ({
+              name: it.name,
+              brand: it.brand,
+              size: it.size,
+              price: Number(it.price),
+              qty: Number(it.qty),
+              image: it.image,
+              slug: it.slug,
+            })),
+          }));
+          setOrders(formatted);
+        }
+      })
+      .catch(() => {
+        /* fallback to INITIAL_ORDERS */
+      });
+  }, []);
 
   const addOrder = useCallback(
     (input: Omit<AdminOrder, "id" | "timeline" | "date" | "dateFormatted">): AdminOrder => {
@@ -64,6 +121,7 @@ export function useOrderSlice(addActivityLog: AddActivityLogFn) {
         }),
       );
       addActivityLog("Updated Order Status", orderId, `New status: ${status}`);
+      adminApi.updateOrderStatus(orderId, { fulfillmentStatus: status, notes: note }).catch(() => {});
     },
     [addActivityLog],
   );
@@ -108,6 +166,7 @@ export function useOrderSlice(addActivityLog: AddActivityLogFn) {
         }),
       );
       addActivityLog("Assigned Courier", orderId, `${courier} (${consignmentId || "Pending"})`);
+      adminApi.assignCourier(orderId, { courier, consignmentId }).catch(() => {});
     },
     [addActivityLog],
   );

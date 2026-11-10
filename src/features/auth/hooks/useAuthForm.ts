@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@/lib/navigation";
 import { useShop } from "@/context";
-import type { GoogleAccount } from "../types";
+import {
+  clearOAuthState,
+  consumeAndVerifyOAuthState,
+  getOAuthProviderFromState,
+  type OAuthProvider,
+} from "@/lib/oauth/state";
+import { getGoogleRedirectUri, redirectToGoogleOAuth } from "@/lib/oauth/google";
+import { getFacebookRedirectUri, redirectToFacebookOAuth } from "@/lib/oauth/facebook";
+
+// Module-level deduplication so React StrictMode double-effects never reuse single-use OAuth codes
+const processedOAuthCallbacks = new Set<string>();
 
 export function useAuthForm() {
   const navigate = useNavigate();
-  const { user, login, loginWithGoogle, logout, wishlist } = useShop();
+  const { user, login, registerUser, loginWithGoogle, loginWithFacebook, logout, wishlist } =
+    useShop();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -32,51 +43,125 @@ export function useAuthForm() {
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
 
-  // Google OAuth State
-  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+  // OAuth & Loading States
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [customGoogleEmail, setCustomGoogleEmail] = useState("");
-  const [isCustomGoogleOpen, setIsCustomGoogleOpen] = useState(false);
-
+  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
+  const [completingOAuthProvider, setCompletingOAuthProvider] =
+    useState<OAuthProvider | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSelectGoogleAccount = (acc: GoogleAccount) => {
-    setIsGoogleLoading(true);
-    setTimeout(() => {
-      loginWithGoogle(acc);
-      setIsGoogleLoading(false);
-      setIsGoogleModalOpen(false);
-      toast.success(`Connected with Google as ${acc.name}!`, {
-        description: `Signed in with ${acc.email}`,
+  // Handle traditional OAuth 2.0 Authorization Code return (?code=...&state=...)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    const oauthError = params.get("error");
+    const oauthErrorDesc =
+      params.get("error_description") || params.get("error_message");
+
+    if (!code && !oauthError) return;
+
+    const detectedProvider = getOAuthProviderFromState(state);
+    const dedupeKey = `${detectedProvider || "unknown"}:${code || oauthError || state || ""}`;
+    if (processedOAuthCallbacks.has(dedupeKey)) {
+      return;
+    }
+    processedOAuthCallbacks.add(dedupeKey);
+
+    // Immediately clean OAuth query parameters (and Facebook's #_=_ fragment) from the URL
+    window.history.replaceState({}, "", "/auth");
+
+    if (oauthError) {
+      clearOAuthState();
+      const label = detectedProvider === "facebook" ? "Facebook" : "Google";
+      if (oauthError === "access_denied") {
+        toast.info(`${label} sign-in was cancelled.`);
+      } else {
+        toast.error(`${label} Sign-In Failed`, {
+          description: oauthErrorDesc || oauthError,
+        });
+      }
+      return;
+    }
+
+    if (!code) return;
+
+    const { valid, provider } = consumeAndVerifyOAuthState(state);
+    if (!valid || !provider) {
+      toast.error("Sign-In Verification Failed", {
+        description:
+          "Security validation failed (invalid or expired OAuth state). Please try again.",
       });
-      navigate({ to: "/account" });
-    }, 450);
+      return;
+    }
+
+    const providerLabel = provider === "google" ? "Google" : "Facebook";
+    setCompletingOAuthProvider(provider);
+    if (provider === "google") {
+      setIsGoogleLoading(true);
+    } else {
+      setIsFacebookLoading(true);
+    }
+
+    void (async () => {
+      try {
+        const authenticatedUser =
+          provider === "google"
+            ? await loginWithGoogle({
+                code,
+                redirectUri: getGoogleRedirectUri(),
+              })
+            : await loginWithFacebook({
+                code,
+                redirectUri: getFacebookRedirectUri(),
+              });
+
+        toast.success(`Signed in with ${providerLabel} as ${authenticatedUser.name}!`, {
+          description: `Authenticated as ${authenticatedUser.email}`,
+        });
+        navigate({ to: authenticatedUser.role === "admin" ? "/admin" : "/account" });
+      } catch (err: any) {
+        toast.error(`${providerLabel} Sign-In Failed`, {
+          description:
+            err?.message || `Could not verify your ${providerLabel} account. Please try again.`,
+        });
+        setCompletingOAuthProvider(null);
+      } finally {
+        setIsGoogleLoading(false);
+        setIsFacebookLoading(false);
+      }
+    })();
+  }, [loginWithGoogle, loginWithFacebook, navigate]);
+
+  const handleGoogleSignIn = () => {
+    const clientId = process.env["NEXT_PUBLIC_GOOGLE_CLIENT_ID"];
+    if (!clientId) {
+      toast.error("Google Sign-In Not Configured", {
+        description: "Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID environment configuration.",
+      });
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    redirectToGoogleOAuth(clientId);
   };
 
-  const handleCustomGoogleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customGoogleEmail) return;
-    setIsGoogleLoading(true);
-    setTimeout(() => {
-      const namePart = customGoogleEmail.split("@")[0] ?? "Google User";
-      const name = namePart.replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-      loginWithGoogle({
-        name,
-        email: customGoogleEmail,
-        avatar:
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+  const handleFacebookSignIn = () => {
+    const appId = process.env["NEXT_PUBLIC_FACEBOOK_APP_ID"];
+    if (!appId) {
+      toast.error("Facebook Login Not Configured", {
+        description: "Missing NEXT_PUBLIC_FACEBOOK_APP_ID environment configuration.",
       });
-      setIsGoogleLoading(false);
-      setIsGoogleModalOpen(false);
-      setIsCustomGoogleOpen(false);
-      toast.success(`Connected with Google as ${name}!`, {
-        description: `Signed in with ${customGoogleEmail}`,
-      });
-      navigate({ to: "/account" });
-    }, 450);
+      return;
+    }
+
+    setIsFacebookLoading(true);
+    redirectToFacebookOAuth(appId);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail || !loginPass) {
       toast.error("Please enter both email and password.");
@@ -84,8 +169,8 @@ export function useAuthForm() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      const u = login(loginEmail, loginPass);
+    try {
+      const u = await login(loginEmail, loginPass);
       setIsLoading(false);
       toast.success(`Welcome back, ${u.name}!`, {
         description:
@@ -99,10 +184,15 @@ export function useAuthForm() {
       } else {
         navigate({ to: "/account" });
       }
-    }, 400);
+    } catch (err: any) {
+      setIsLoading(false);
+      toast.error("Login Failed", {
+        description: err?.message || "Invalid email or password",
+      });
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regEmail || !regPass) {
       toast.error("Please fill in all required fields.");
@@ -119,14 +209,21 @@ export function useAuthForm() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      const u = login(regEmail, regPass);
+    try {
+      const u = registerUser
+        ? await registerUser(regName, regEmail, regPass, cleanPhone)
+        : await login(regEmail, regPass);
       setIsLoading(false);
       toast.success(`Account created! Welcome, ${regName || u.name}`, {
         description: "You've received 500 Welcome Ritual Points in your account.",
       });
       navigate({ to: "/account" });
-    }, 400);
+    } catch (err: any) {
+      setIsLoading(false);
+      toast.error("Registration Failed", {
+        description: err?.message || "Could not create account",
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -138,13 +235,13 @@ export function useAuthForm() {
 
   const handleFillDemo = (type: "customer" | "admin") => {
     if (type === "customer") {
-      setLoginEmail("nusrat.jahan@gmail.com");
-      setLoginPass("sakura2026");
+      setLoginEmail("customer@gloriousjapan.com");
+      setLoginPass("CustomerPass123!");
       toast.info("Customer credentials loaded");
     } else {
       setLoginEmail("admin@gloriousjapan.com");
-      setLoginPass("adminPass2026");
-      toast.info("Admin credentials loaded");
+      setLoginPass("AdminPassword123!");
+      toast.info("Admin credentials loaded (admin@gloriousjapan.com)");
     }
   };
 
@@ -188,16 +285,12 @@ export function useAuthForm() {
     setResetEmail,
     resetSent,
     setResetSent,
-    isGoogleModalOpen,
-    setIsGoogleModalOpen,
     isGoogleLoading,
-    customGoogleEmail,
-    setCustomGoogleEmail,
-    isCustomGoogleOpen,
-    setIsCustomGoogleOpen,
+    isFacebookLoading,
+    completingOAuthProvider,
     isLoading,
-    handleSelectGoogleAccount,
-    handleCustomGoogleSubmit,
+    handleGoogleSignIn,
+    handleFacebookSignIn,
     handleLogin,
     handleRegister,
     handleLogout,
@@ -205,4 +298,3 @@ export function useAuthForm() {
     handleResetPassword,
   };
 }
-

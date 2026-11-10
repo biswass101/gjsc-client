@@ -24,6 +24,8 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
     onEmailChange,
     phone,
     onPhoneChange,
+    address,
+    onAddressChange,
     avatar,
     tempAvatar,
     onSelectPresetAvatar,
@@ -31,9 +33,12 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
     onPhotoUpload,
     onRemovePhoto,
     isEditingProfile,
+    isSavingProfile,
     onStartEditProfile,
     onCancelEditProfile,
     onSaveProfile,
+    hasPassword,
+    isUpdatingPassword,
     currentPass,
     onCurrentPassChange,
     newPass,
@@ -47,6 +52,7 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
     onNotifWhatsappChange,
     notifPromos,
     onNotifPromosChange,
+    isSavingNotifications,
     onSignOut,
   } = props;
 
@@ -69,6 +75,8 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
         onEmailChange={onEmailChange}
         phone={phone}
         onPhoneChange={onPhoneChange}
+        address={address}
+        onAddressChange={onAddressChange}
         avatar={avatar}
         tempAvatar={tempAvatar}
         onSelectPresetAvatar={onSelectPresetAvatar}
@@ -76,12 +84,15 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
         onPhotoUpload={onPhotoUpload}
         onRemovePhoto={onRemovePhoto}
         isEditingProfile={isEditingProfile}
+        isSavingProfile={isSavingProfile}
         onStartEditProfile={onStartEditProfile}
         onCancelEditProfile={onCancelEditProfile}
         onSaveProfile={onSaveProfile}
       />
 
       <AccountPasswordSettings
+        hasPassword={hasPassword}
+        isUpdatingPassword={isUpdatingPassword}
         currentPass={currentPass}
         onCurrentPassChange={onCurrentPassChange}
         newPass={newPass}
@@ -98,6 +109,7 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
         onNotifWhatsappChange={onNotifWhatsappChange}
         notifPromos={notifPromos}
         onNotifPromosChange={onNotifPromosChange}
+        isSavingNotifications={isSavingNotifications}
         onSignOut={onSignOut}
       />
     </div>

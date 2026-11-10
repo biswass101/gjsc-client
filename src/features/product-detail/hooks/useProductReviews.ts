@@ -1,12 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import type { UserReview, ReviewReply } from "../types";
 import { INITIAL_REVIEWS } from "../data/initialReviews";
+import { feedbackApi } from "@/lib/api";
 
-export function useProductReviews() {
+export function useProductReviews(productSlug?: string) {
   const [reviewsList, setReviewsList] = useState<UserReview[]>(INITIAL_REVIEWS);
+
+  useEffect(() => {
+    if (productSlug) {
+      feedbackApi
+        .getProductReviews(productSlug)
+        .then((res) => {
+          if (res?.reviews && res.reviews.length > 0) {
+            const formatted: UserReview[] = res.reviews.map((r: any) => ({
+              id: String(r.id),
+              name: r.name,
+              rating: r.rating,
+              date: new Date(r.createdAt || Date.now()).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }),
+              verified: r.verified,
+              skinType: r.skinType || "Combination",
+              title: r.title,
+              comment: r.comment,
+              helpfulCount: r.helpfulCount || 0,
+              adminReply: r.adminReply || undefined,
+              replies: r.replies || [],
+            }));
+            setReviewsList(formatted);
+          }
+        })
+        .catch(() => {
+          /* keep initial reviews fallback */
+        });
+    }
+  }, [productSlug]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewName, setReviewName] = useState("");
@@ -31,6 +64,11 @@ export function useProductReviews() {
     );
     setHelpfulClicked((prev) => ({ ...prev, [reviewId]: true }));
     toast.success("Thank you for your feedback!");
+
+    const numericId = Number(reviewId);
+    if (!isNaN(numericId)) {
+      feedbackApi.voteHelpful(numericId).catch(() => {});
+    }
   };
 
   const handleSubmitReview = (e: React.FormEvent) => {
@@ -58,6 +96,18 @@ export function useProductReviews() {
     toast.success("Review submitted!", {
       description: "Thank you for sharing your Japanese ritual experience with our community.",
     });
+
+    if (productSlug) {
+      const reviewPayload: any = {
+        productSlug,
+        name: newRev.name,
+        rating: newRev.rating,
+        title: newRev.title,
+        comment: newRev.comment,
+      };
+      if (newRev.skinType) reviewPayload.skinType = newRev.skinType;
+      feedbackApi.submitReview(reviewPayload).catch(() => {});
+    }
   };
 
   const handleStartReply = (reviewId: string) => {

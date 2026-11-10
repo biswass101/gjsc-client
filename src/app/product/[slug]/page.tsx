@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductPageClient } from "./ProductPageClient";
 import { PRODUCTS, bySlug } from "@/lib/catalog";
+import { catalogApi } from "@/lib/api";
 
 export const dynamicParams = true;
 
@@ -46,9 +47,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = bySlug(slug);
+  let product = bySlug(slug);
+
+  if (!product) {
+    try {
+      const res = await catalogApi.getProductBySlug(slug);
+      if (res?.product) {
+        product = {
+          ...res.product,
+          brand: (res.product as any).brandName || (res.product as any).brand?.name || res.product.brand || "Authentic Japan",
+          category: (res.product as any).categoryName || (res.product as any).category?.name || res.product.category || "Skincare",
+        };
+      }
+    } catch {
+      /* fallback to notFound */
+    }
+  }
+
   if (!product) {
     notFound();
   }
+
   return <ProductPageClient product={product} />;
 }
