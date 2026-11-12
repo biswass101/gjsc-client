@@ -1,6 +1,8 @@
 "use client";
 
+import type { User } from "@/types";
 import { AccountProfileSettings, type AccountProfileSettingsProps } from "./AccountProfileSettings";
+import { AccountConnectedAccounts } from "./AccountConnectedAccounts";
 import {
   AccountPasswordSettings,
   type AccountPasswordSettingsProps,
@@ -14,10 +16,21 @@ export interface AccountSettingsTabProps
   extends
     AccountProfileSettingsProps,
     AccountPasswordSettingsProps,
-    AccountNotificationSettingsProps {}
+    AccountNotificationSettingsProps {
+  user?: User | undefined;
+  isConnectingGoogle?: boolean | undefined;
+  isConnectingFacebook?: boolean | undefined;
+  onConnectGoogle?: (() => void) | undefined;
+  onConnectFacebook?: (() => void) | undefined;
+}
 
 export function AccountSettingsTab(props: AccountSettingsTabProps) {
   const {
+    user,
+    isConnectingGoogle,
+    isConnectingFacebook,
+    onConnectGoogle,
+    onConnectFacebook,
     name,
     onNameChange,
     email,
@@ -56,6 +69,14 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
     onSignOut,
   } = props;
 
+  const focusPasswordInput = () => {
+    const el = document.getElementById("new-pass");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="border-b border-border/50 pb-4">
@@ -63,8 +84,8 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
           Profile, Password & Security
         </h2>
         <p className="text-xs text-muted-foreground">
-          Update personal information, change security credentials, and manage notification
-          preferences.
+          Update personal information, connect login providers, change security credentials, and
+          manage notification preferences.
         </p>
       </div>
 
@@ -89,6 +110,17 @@ export function AccountSettingsTab(props: AccountSettingsTabProps) {
         onCancelEditProfile={onCancelEditProfile}
         onSaveProfile={onSaveProfile}
       />
+
+      {user && onConnectGoogle && onConnectFacebook && (
+        <AccountConnectedAccounts
+          user={user}
+          isConnectingGoogle={isConnectingGoogle}
+          isConnectingFacebook={isConnectingFacebook}
+          onConnectGoogle={onConnectGoogle}
+          onConnectFacebook={onConnectFacebook}
+          onSetPasswordClick={focusPasswordInput}
+        />
+      )}
 
       <AccountPasswordSettings
         hasPassword={hasPassword}

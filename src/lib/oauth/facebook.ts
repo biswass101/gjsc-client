@@ -1,4 +1,4 @@
-import { createAndSaveOAuthState } from "./state";
+import { createAndSaveOAuthState, type OAuthMode } from "./state";
 
 export function getFacebookRedirectUri(): string {
   if (typeof window === "undefined") return "";
@@ -8,11 +8,11 @@ export function getFacebookRedirectUri(): string {
 /**
  * Redirects the browser to Meta/Facebook's official OAuth 2.0 Login Dialog.
  * After verification, Facebook redirects back to `/auth?code=...&state=facebook_...`
- * for server-side authorization code exchange.
+ * for server-side authorization code exchange (or linking when `mode === "link"`).
  */
-export function redirectToFacebookOAuth(appId: string): void {
+export function redirectToFacebookOAuth(appId: string, mode: OAuthMode = "login"): void {
   const redirectUri = getFacebookRedirectUri();
-  const state = createAndSaveOAuthState("facebook");
+  const state = createAndSaveOAuthState("facebook", mode);
   const scopes =
     process.env["NEXT_PUBLIC_FACEBOOK_OAUTH_SCOPES"] || "email,public_profile";
 

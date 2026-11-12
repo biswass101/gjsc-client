@@ -1,10 +1,12 @@
 export type OAuthProvider = "google" | "facebook";
+export type OAuthMode = "login" | "link";
 
 const OAUTH_STATE_KEY = "gjsc_oauth_state";
 const STATE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 interface StoredOAuthState {
   provider: OAuthProvider;
+  mode?: OAuthMode | undefined;
   state: string;
   createdAt: number;
 }
@@ -56,10 +58,14 @@ export function clearOAuthState(): void {
   }
 }
 
-export function createAndSaveOAuthState(provider: OAuthProvider): string {
-  const state = `${provider}_${generateRandomToken()}`;
+export function createAndSaveOAuthState(
+  provider: OAuthProvider,
+  mode: OAuthMode = "login",
+): string {
+  const state = `${provider}_${mode}_${generateRandomToken()}`;
   const payload: StoredOAuthState = {
     provider,
+    mode,
     state,
     createdAt: Date.now(),
   };
@@ -68,7 +74,7 @@ export function createAndSaveOAuthState(provider: OAuthProvider): string {
 }
 
 export function getOAuthProviderFromState(
-  state: string | null | undefined
+  state: string | null | undefined,
 ): OAuthProvider | null {
   if (state?.startsWith("google_")) return "google";
   if (state?.startsWith("facebook_")) return "facebook";
@@ -85,15 +91,19 @@ export function getOAuthProviderFromState(
   return null;
 }
 
-export function consumeAndVerifyOAuthState(
-  returnedState: string | null | undefined
-): { valid: boolean; provider: OAuthProvider | null } {
+export function consumeAndVerifyOAuthState(returnedState: string | null | undefined): {
+  valid: boolean;
+  provider: OAuthProvider | null;
+  mode: OAuthMode;
+} {
   const detected = getOAuthProviderFromState(returnedState);
   const raw = readStorage();
   clearOAuthState();
 
+  const fallbackMode: OAuthMode = returnedState?.includes("_link_") ? "link" : "login";
+
   if (!returnedState || !raw) {
-    return { valid: false, provider: detected };
+    return { valid: false, provider: detected, mode: fallbackMode };
   }
 
   try {
@@ -104,14 +114,16 @@ export function consumeAndVerifyOAuthState(
       parsed.state === returnedState &&
       isFresh &&
       (parsed.provider === "google" || parsed.provider === "facebook");
+    const mode: OAuthMode = parsed.mode === "link" ? "link" : fallbackMode;
     return {
       valid,
       provider:
         parsed.provider === "google" || parsed.provider === "facebook"
           ? parsed.provider
           : detected,
+      mode,
     };
   } catch {
-    return { valid: false, provider: detected };
+    return { valid: false, provider: detected, mode: fallbackMode };
   }
 }

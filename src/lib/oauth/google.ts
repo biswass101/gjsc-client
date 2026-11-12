@@ -1,4 +1,4 @@
-import { createAndSaveOAuthState } from "./state";
+import { createAndSaveOAuthState, type OAuthMode } from "./state";
 
 export function getGoogleRedirectUri(): string {
   if (typeof window === "undefined") return "";
@@ -8,11 +8,11 @@ export function getGoogleRedirectUri(): string {
 /**
  * Redirects the browser to Google's official OAuth 2.0 Account Chooser & Consent page.
  * After verification, Google redirects back to `/auth?code=...&state=google_...`
- * for server-side authorization code exchange.
+ * for server-side authorization code exchange (or linking when `mode === "link"`).
  */
-export function redirectToGoogleOAuth(clientId: string): void {
+export function redirectToGoogleOAuth(clientId: string, mode: OAuthMode = "login"): void {
   const redirectUri = getGoogleRedirectUri();
-  const state = createAndSaveOAuthState("google");
+  const state = createAndSaveOAuthState("google", mode);
   const scopes =
     process.env["NEXT_PUBLIC_GOOGLE_OAUTH_SCOPES"] ||
     "openid email profile https://www.googleapis.com/auth/user.addresses.read";

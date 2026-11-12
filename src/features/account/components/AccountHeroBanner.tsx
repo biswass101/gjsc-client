@@ -46,7 +46,7 @@ export function AccountHeroBanner({
                   {initials}
                 </div>
               )}
-              {user?.authProvider === "google" && (
+              {(user?.linkedProviders?.includes("google") || user?.authProvider === "google") && (
                 <div
                   title="Google Verified Account"
                   className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-background border border-border shadow-xs"
@@ -71,7 +71,10 @@ export function AccountHeroBanner({
                   </svg>
                 </div>
               )}
-              {user?.authProvider === "facebook" && (
+              {!user?.linkedProviders?.includes("google") &&
+                user?.authProvider !== "google" &&
+                (user?.linkedProviders?.includes("facebook") ||
+                  user?.authProvider === "facebook") && (
                 <div
                   title="Facebook Verified Account"
                   className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-background border border-border shadow-xs"

@@ -1,3 +1,5 @@
+export type AuthProviderName = "email" | "google" | "facebook";
+
 export interface User {
   name: string;
   email: string;
@@ -5,8 +7,10 @@ export interface User {
   avatar?: string | undefined;
   phone?: string | undefined;
   address?: string | undefined;
-  authProvider?: "email" | "google" | "facebook" | undefined;
+  authProvider?: AuthProviderName | undefined;
+  linkedProviders?: AuthProviderName[] | undefined;
   hasPassword?: boolean | undefined;
+  isPlaceholderEmail?: boolean | undefined;
   skinType?: string | null | undefined;
   skinConcerns?: string[] | undefined;
   notifSms?: boolean | undefined;

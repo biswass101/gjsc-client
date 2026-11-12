@@ -21,6 +21,10 @@ const ShopContext = createContext<ShopContextType | null>(null);
 const STORAGE_KEY = "gjsc-shop-v2";
 
 function normalizeAuthUser(raw: any): User {
+  const provider = (raw.authProvider ?? "email") as "email" | "google" | "facebook";
+  const linkedProviders = Array.isArray(raw.linkedProviders)
+    ? (raw.linkedProviders as ("email" | "google" | "facebook")[])
+    : [provider];
   return {
     name: raw.name,
     email: raw.email,
@@ -28,8 +32,10 @@ function normalizeAuthUser(raw: any): User {
     avatar: raw.avatar ?? undefined,
     phone: raw.phone ?? undefined,
     address: raw.address ?? undefined,
-    authProvider: raw.authProvider ?? "email",
+    authProvider: provider,
+    linkedProviders,
     hasPassword: raw.hasPassword,
+    isPlaceholderEmail: Boolean(raw.isPlaceholderEmail),
     skinType: raw.skinType ?? null,
     skinConcerns: Array.isArray(raw.skinConcerns) ? raw.skinConcerns : [],
     notifSms: raw.notifSms,
@@ -265,7 +271,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     async (payload: GoogleAuthPayload): Promise<User> => {
       const res = await authApi.loginWithGoogle(payload);
 
-      const authedUser = normalizeAuthUser({ ...res.user, authProvider: "google" });
+      const authedUser = normalizeAuthUser(res.user);
       setUser(authedUser);
 
       if (cart.length > 0) {
@@ -299,7 +305,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     async (payload: FacebookAuthPayload): Promise<User> => {
       const res = await authApi.loginWithFacebook(payload);
 
-      const authedUser = normalizeAuthUser({ ...res.user, authProvider: "facebook" });
+      const authedUser = normalizeAuthUser(res.user);
       setUser(authedUser);
 
       if (cart.length > 0) {

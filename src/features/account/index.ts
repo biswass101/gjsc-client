@@ -9,6 +9,7 @@ export * from "./components/AccountAddressesTab";
 export * from "./components/AccountWishlistTab";
 export * from "./components/AccountSkincareTab";
 export * from "./components/AccountSettingsTab";
+export * from "./components/AccountConnectedAccounts";
 export * from "./components/AccountProfileSettings";
 export * from "./components/AccountPasswordSettings";
 export * from "./components/AccountNotificationSettings";

@@ -49,6 +49,7 @@ export default function AuthPage() {
     isGoogleLoading,
     isFacebookLoading,
     completingOAuthProvider,
+    completingOAuthMode,
     isLoading,
     handleGoogleSignIn,
     handleFacebookSignIn,
@@ -62,6 +63,7 @@ export default function AuthPage() {
   // Completing server-side verification after returning from Google/Facebook OAuth
   if (completingOAuthProvider) {
     const isGoogle = completingOAuthProvider === "google";
+    const isLinking = completingOAuthMode === "link";
     return (
       <Layout>
         <div className="container-lux py-20 sm:py-28">
@@ -75,11 +77,16 @@ export default function AuthPage() {
             </div>
             <div className="flex items-center justify-center gap-2 text-foreground font-display text-2xl font-medium">
               <RefreshCw className="h-5 w-5 animate-spin text-primary" />
-              <span>Completing {isGoogle ? "Google" : "Facebook"} Sign-In</span>
+              <span>
+                {isLinking
+                  ? `Connecting ${isGoogle ? "Google" : "Facebook"} Account`
+                  : `Completing ${isGoogle ? "Google" : "Facebook"} Sign-In`}
+              </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Verifying your {isGoogle ? "Google" : "Facebook"} credentials and preparing your
-              member sanctuary...
+              {isLinking
+                ? `Linking your verified ${isGoogle ? "Google" : "Facebook"} credentials to your unified member profile...`
+                : `Verifying your ${isGoogle ? "Google" : "Facebook"} credentials and preparing your member sanctuary...`}
             </p>
           </div>
         </div>

@@ -95,6 +95,10 @@ export default function AccountPage() {
     confirmPass,
     setConfirmPass,
     isUpdatingPassword,
+    isConnectingGoogle,
+    isConnectingFacebook,
+    handleConnectGoogle,
+    handleConnectFacebook,
     wishlistProducts,
     handleBuyAgain,
     handleChangePassword,
@@ -226,6 +230,11 @@ export default function AccountPage() {
             {/* 6. Settings & Security */}
             <TabsContent value="settings" className="m-0 space-y-6">
               <AccountSettingsTab
+                user={user}
+                isConnectingGoogle={isConnectingGoogle}
+                isConnectingFacebook={isConnectingFacebook}
+                onConnectGoogle={handleConnectGoogle}
+                onConnectFacebook={handleConnectFacebook}
                 name={name}
                 onNameChange={setName}
                 email={email}

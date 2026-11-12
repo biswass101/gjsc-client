@@ -71,6 +71,14 @@ export const authApi = {
     return res;
   },
 
+  async linkGoogle(data: GoogleAuthPayload): Promise<{ user: User; message: string }> {
+    return apiClient.post<{ user: User; message: string }>('/auth/link/google', data);
+  },
+
+  async linkFacebook(data: FacebookAuthPayload): Promise<{ user: User; message: string }> {
+    return apiClient.post<{ user: User; message: string }>('/auth/link/facebook', data);
+  },
+
   async getProfile(): Promise<User> {
     return apiClient.get<User>('/auth/me');
   },

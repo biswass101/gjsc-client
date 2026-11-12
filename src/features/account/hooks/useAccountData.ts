@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { useNavigate } from "@/lib/navigation";
 import { useShop } from "@/context";
 import { PRODUCTS, formatBDT } from "@/lib/catalog";
+import { redirectToGoogleOAuth } from "@/lib/oauth/google";
+import { redirectToFacebookOAuth } from "@/lib/oauth/facebook";
 import type { BuyerOrder, FulfillmentStatus, Product } from "@/types";
 import {
   authApi,
@@ -17,6 +19,21 @@ import { useAccountAddresses } from "./useAccountAddresses";
 import { useAccountProfile } from "./useAccountProfile";
 
 export type OrderFilterValue = "all" | "Active" | "Delivered" | "Cancelled";
+
+const ACCOUNT_TAB_VALUES = [
+  "overview",
+  "orders",
+  "addresses",
+  "wishlist",
+  "skincare",
+  "settings",
+] as const;
+
+type AccountTabValue = (typeof ACCOUNT_TAB_VALUES)[number];
+
+function isValidAccountTab(tab: string | null): tab is AccountTabValue {
+  return Boolean(tab && (ACCOUNT_TAB_VALUES as readonly string[]).includes(tab));
+}
 
 function formatOrderDate(value: string | Date | undefined): string {
   if (!value) return "—";
@@ -114,7 +131,7 @@ export function useAccountData() {
   const { user, isAuthLoading, logout, wishlist, addToCart, updateUserProfile, refreshUserProfile } =
     useShop();
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTabState] = useState<AccountTabValue>("overview");
   const [dashboard, setDashboard] = useState<CustomerDashboardResponse | null>(null);
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
 
@@ -137,11 +154,43 @@ export function useAccountData() {
   const [notifPromos, setNotifPromos] = useState<boolean>(user?.notifPromos ?? true);
   const [isSavingNotifications, setIsSavingNotifications] = useState(false);
 
-  // Security password state
+  // Security password & OAuth linking state
   const [currentPass, setCurrentPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
+  const [isConnectingFacebook, setIsConnectingFacebook] = useState(false);
+
+  // Sync active tab with URL ?tab= query parameter so page reloads stay on the selected section
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncFromUrl = () => {
+      const tab = new URLSearchParams(window.location.search).get("tab");
+      setActiveTabState(isValidAccountTab(tab) ? tab : "overview");
+    };
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
+
+  const setActiveTab = useCallback((nextTab: string) => {
+    const resolvedTab: AccountTabValue = isValidAccountTab(nextTab) ? nextTab : "overview";
+    setActiveTabState(resolvedTab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (resolvedTab === "overview") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", resolvedTab);
+      }
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${url.pathname}${url.search}${url.hash}`,
+      );
+    }
+  }, []);
 
   const loadAccountData = useCallback(async () => {
     if (!tokenStorage.get() || !user) {
@@ -357,6 +406,30 @@ export function useAccountData() {
     navigate({ to: "/auth" });
   };
 
+  const handleConnectGoogle = () => {
+    const clientId = process.env["NEXT_PUBLIC_GOOGLE_CLIENT_ID"];
+    if (!clientId) {
+      toast.error("Google Sign-In Not Configured", {
+        description: "Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID environment configuration.",
+      });
+      return;
+    }
+    setIsConnectingGoogle(true);
+    redirectToGoogleOAuth(clientId, "link");
+  };
+
+  const handleConnectFacebook = () => {
+    const appId = process.env["NEXT_PUBLIC_FACEBOOK_APP_ID"];
+    if (!appId) {
+      toast.error("Facebook Login Not Configured", {
+        description: "Missing NEXT_PUBLIC_FACEBOOK_APP_ID environment configuration.",
+      });
+      return;
+    }
+    setIsConnectingFacebook(true);
+    redirectToFacebookOAuth(appId, "link");
+  };
+
   const handleDownloadInvoice = (orderId: string) => {
     const order = orders.find((o) => o.id === orderId) || selectedOrderReceipt;
     if (!order) {
@@ -490,6 +563,10 @@ export function useAccountData() {
     confirmPass,
     setConfirmPass,
     isUpdatingPassword,
+    isConnectingGoogle,
+    isConnectingFacebook,
+    handleConnectGoogle,
+    handleConnectFacebook,
     wishlistProducts,
     handleBuyAgain,
     handleChangePassword,

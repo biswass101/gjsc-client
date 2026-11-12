@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@/lib/navigation";
 import { useShop } from "@/context";
+import { authApi, tokenStorage } from "@/lib/api";
 import {
   clearOAuthState,
   consumeAndVerifyOAuthState,
   getOAuthProviderFromState,
+  type OAuthMode,
   type OAuthProvider,
 } from "@/lib/oauth/state";
 import { getGoogleRedirectUri, redirectToGoogleOAuth } from "@/lib/oauth/google";
@@ -18,8 +20,16 @@ const processedOAuthCallbacks = new Set<string>();
 
 export function useAuthForm() {
   const navigate = useNavigate();
-  const { user, login, registerUser, loginWithGoogle, loginWithFacebook, logout, wishlist } =
-    useShop();
+  const {
+    user,
+    login,
+    registerUser,
+    loginWithGoogle,
+    loginWithFacebook,
+    refreshUserProfile,
+    logout,
+    wishlist,
+  } = useShop();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -48,6 +58,7 @@ export function useAuthForm() {
   const [isFacebookLoading, setIsFacebookLoading] = useState(false);
   const [completingOAuthProvider, setCompletingOAuthProvider] =
     useState<OAuthProvider | null>(null);
+  const [completingOAuthMode, setCompletingOAuthMode] = useState<OAuthMode>("login");
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle traditional OAuth 2.0 Authorization Code return (?code=...&state=...)
@@ -88,7 +99,7 @@ export function useAuthForm() {
 
     if (!code) return;
 
-    const { valid, provider } = consumeAndVerifyOAuthState(state);
+    const { valid, provider, mode } = consumeAndVerifyOAuthState(state);
     if (!valid || !provider) {
       toast.error("Sign-In Verification Failed", {
         description:
@@ -98,6 +109,7 @@ export function useAuthForm() {
     }
 
     const providerLabel = provider === "google" ? "Google" : "Facebook";
+    setCompletingOAuthMode(mode);
     setCompletingOAuthProvider(provider);
     if (provider === "google") {
       setIsGoogleLoading(true);
@@ -107,6 +119,33 @@ export function useAuthForm() {
 
     void (async () => {
       try {
+        if (mode === "link") {
+          if (!tokenStorage.get()) {
+            toast.error("Please sign in first", {
+              description: "Sign into your account before connecting another login method.",
+            });
+            setCompletingOAuthProvider(null);
+            return;
+          }
+          const res =
+            provider === "google"
+              ? await authApi.linkGoogle({
+                  code,
+                  redirectUri: getGoogleRedirectUri(),
+                })
+              : await authApi.linkFacebook({
+                  code,
+                  redirectUri: getFacebookRedirectUri(),
+                });
+          await refreshUserProfile?.();
+          toast.success(`${providerLabel} Account Connected!`, {
+            description:
+              res.message || `${providerLabel} Sign-In is now unified with your profile.`,
+          });
+          navigate({ to: "/account", search: { tab: "settings" } });
+          return;
+        }
+
         const authenticatedUser =
           provider === "google"
             ? await loginWithGoogle({
@@ -123,17 +162,25 @@ export function useAuthForm() {
         });
         navigate({ to: authenticatedUser.role === "admin" ? "/admin" : "/account" });
       } catch (err: any) {
-        toast.error(`${providerLabel} Sign-In Failed`, {
-          description:
-            err?.message || `Could not verify your ${providerLabel} account. Please try again.`,
-        });
+        toast.error(
+          mode === "link"
+            ? `Could not connect ${providerLabel}`
+            : `${providerLabel} Sign-In Failed`,
+          {
+            description:
+              err?.message || `Could not verify your ${providerLabel} account. Please try again.`,
+          },
+        );
         setCompletingOAuthProvider(null);
+        if (mode === "link" && tokenStorage.get()) {
+          navigate({ to: "/account", search: { tab: "settings" } });
+        }
       } finally {
         setIsGoogleLoading(false);
         setIsFacebookLoading(false);
       }
     })();
-  }, [loginWithGoogle, loginWithFacebook, navigate]);
+  }, [loginWithGoogle, loginWithFacebook, refreshUserProfile, navigate]);
 
   const handleGoogleSignIn = () => {
     const clientId = process.env["NEXT_PUBLIC_GOOGLE_CLIENT_ID"];
@@ -215,7 +262,8 @@ export function useAuthForm() {
         : await login(regEmail, regPass);
       setIsLoading(false);
       toast.success(`Account created! Welcome, ${regName || u.name}`, {
-        description: "You've received 500 Welcome Ritual Points in your account.",
+        description:
+          "You've unlocked +100 Welcome Ritual Points (complete onboarding for up to 500 Pts).",
       });
       navigate({ to: "/account" });
     } catch (err: any) {
@@ -288,6 +336,7 @@ export function useAuthForm() {
     isGoogleLoading,
     isFacebookLoading,
     completingOAuthProvider,
+    completingOAuthMode,
     isLoading,
     handleGoogleSignIn,
     handleFacebookSignIn,

@@ -49,6 +49,13 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
   const tierLabel = dashboard?.loyalty.currentTier.badgeLabel || "Sakura Petal Member";
   const resolvedWishlistCount = dashboard?.stats.wishlistCount ?? wishlistCount;
 
+  const linkedProviders =
+    user.linkedProviders && user.linkedProviders.length > 0
+      ? user.linkedProviders
+      : user.authProvider
+      ? [user.authProvider]
+      : [];
+
   return (
     <div className="container-lux py-12 sm:py-20">
       <div className="mx-auto max-w-2xl rounded-xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm text-center">
@@ -69,18 +76,18 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
         <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
           <span className="eyebrow text-primary">Member Portal</span>
           <span className="text-muted-foreground/40">•</span>
-          {user.authProvider === "google" && (
+          {linkedProviders.includes("google") && (
             <>
               <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <GoogleIcon className="h-2.5 w-2.5" /> Google Account
+                <GoogleIcon className="h-2.5 w-2.5" /> Google
               </span>
               <span className="text-muted-foreground/40">•</span>
             </>
           )}
-          {user.authProvider === "facebook" && (
+          {linkedProviders.includes("facebook") && (
             <>
               <span className="rounded-full bg-[#1877F2]/10 border border-[#1877F2]/25 px-2 py-0.5 text-[10px] font-semibold text-[#1877F2] flex items-center gap-1">
-                <FacebookIcon className="h-2.5 w-2.5" /> Facebook Account
+                <FacebookIcon className="h-2.5 w-2.5" /> Facebook
               </span>
               <span className="text-muted-foreground/40">•</span>
             </>
@@ -100,7 +107,11 @@ export function AuthMemberHub({ user, wishlistCount, onLogout }: AuthMemberHubPr
         <h1 className="mt-2 font-display text-3xl sm:text-4xl font-normal tracking-tight text-foreground">
           Welcome Back, {user.name}
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{user.email}</p>
+        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+          {user.isPlaceholderEmail
+            ? "Facebook login connected (verify email in Settings to unify across email providers)"
+            : user.email}
+        </p>
         {user.address && (
           <p className="mt-1.5 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
