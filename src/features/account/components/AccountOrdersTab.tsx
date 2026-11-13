@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { formatBDT } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import type { BuyerOrder } from "../types";
+import type { OrderFilterValue } from "../hooks/useAccountData";
 
 export interface AccountOrdersTabProps {
   orders: BuyerOrder[];
-  orderFilter: "all" | "In Transit" | "Delivered";
-  onOrderFilterChange: (filter: "all" | "In Transit" | "Delivered") => void;
+  orderFilter: OrderFilterValue;
+  onOrderFilterChange: (filter: OrderFilterValue) => void;
   onViewReceipt: (order: BuyerOrder) => void;
   onBuyAgain: (order: BuyerOrder) => void;
 }
@@ -22,8 +23,13 @@ export function AccountOrdersTab({
   onViewReceipt,
   onBuyAgain,
 }: AccountOrdersTabProps) {
-  const filteredOrders =
-    orderFilter === "all" ? orders : orders.filter((o) => o.status === orderFilter);
+  const filteredOrders = orders.filter((o) => {
+    if (orderFilter === "all") return true;
+    if (orderFilter === "Active") {
+      return o.status !== "Delivered" && o.status !== "Cancelled";
+    }
+    return o.status === orderFilter;
+  });
 
   return (
     <div className="space-y-5">
@@ -38,8 +44,8 @@ export function AccountOrdersTab({
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-border/60 p-1 bg-secondary/30">
-          {(["all", "In Transit", "Delivered"] as const).map((filter) => (
+        <div className="flex items-center gap-1.5 rounded-full border border-border/60 p-1 bg-secondary/30 flex-wrap">
+          {(["all", "Active", "Delivered", "Cancelled"] as const).map((filter) => (
             <button
               key={filter}
               type="button"
@@ -51,7 +57,7 @@ export function AccountOrdersTab({
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {filter === "all" ? "All Orders" : filter}
+              {filter === "all" ? "All Orders" : filter === "Active" ? "In Progress" : filter}
             </button>
           ))}
         </div>
@@ -62,8 +68,15 @@ export function AccountOrdersTab({
           <Package className="h-8 w-8 text-muted-foreground mx-auto" />
           <h4 className="font-display text-lg font-medium">No Orders Found</h4>
           <p className="text-xs text-muted-foreground">
-            You don't have any orders matching the "{orderFilter}" filter.
+            {orders.length === 0
+              ? "You haven't placed any orders yet. Discover authentic Tokyo beauty in our shop!"
+              : `You don't have any orders matching the "${orderFilter}" filter.`}
           </p>
+          {orders.length === 0 && (
+            <Button asChild size="sm" className="rounded-full text-xs mt-1 cursor-pointer">
+              <Link to="/shop">Browse Products</Link>
+            </Button>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
@@ -73,7 +86,7 @@ export function AccountOrdersTab({
               className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3 text-xs">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className="font-display font-bold text-sm text-foreground">
                     #{order.id}
                   </span>
@@ -87,6 +100,8 @@ export function AccountOrdersTab({
                       "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
                       order.status === "Delivered"
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : order.status === "Cancelled"
+                        ? "bg-rose/10 text-rose"
                         : "bg-primary/10 text-primary",
                     )}
                   >
@@ -100,12 +115,16 @@ export function AccountOrdersTab({
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-11 rounded-md border border-border bg-cream overflow-hidden shrink-0">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                        />
+                      <div className="h-12 w-11 rounded-md border border-border bg-cream overflow-hidden shrink-0 grid place-items-center">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                        )}
                       </div>
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -159,7 +178,7 @@ export function AccountOrdersTab({
                   </Button>
 
                   <Button size="sm" asChild className="rounded-full text-xs gap-1.5 cursor-pointer">
-                    <Link to="/track">
+                    <Link to={`/track?orderId=${encodeURIComponent(order.id)}`}>
                       <Truck className="h-3.5 w-3.5" />
                       Track
                     </Link>

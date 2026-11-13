@@ -58,7 +58,7 @@ export function AccountOrderDetailModal({
               </p>
             </div>
             <Button size="sm" asChild className="rounded-full text-xs h-8 cursor-pointer">
-              <Link to="/track">
+              <Link to={`/track?orderId=${encodeURIComponent(order.id)}`}>
                 Track Live
                 <ExternalLink className="h-3 w-3 ml-1" />
               </Link>
@@ -76,8 +76,12 @@ export function AccountOrderDetailModal({
                 className="flex items-center justify-between gap-3 p-2 rounded-lg bg-secondary/10"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-9 rounded-md border border-border overflow-hidden bg-cream shrink-0">
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                  <div className="h-10 w-9 rounded-md border border-border overflow-hidden bg-cream shrink-0 grid place-items-center">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground truncate max-w-[240px]">
@@ -100,18 +104,41 @@ export function AccountOrderDetailModal({
 
           {/* Price Breakdown */}
           <div className="space-y-1.5 text-muted-foreground">
+            {order.address && (
+              <div className="flex justify-between gap-4">
+                <span className="shrink-0">Delivery Address</span>
+                <span className="font-medium text-foreground text-right">
+                  {[order.address, order.area, order.city].filter(Boolean).join(", ")}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span>Payment Method</span>
-              <span className="font-medium text-foreground">{order.paymentMethod}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Standard Express Shipping</span>
-              <span className="font-medium text-emerald-600 dark:text-emerald-400 font-semibold">
-                FREE
+              <span className="font-medium text-foreground">
+                {order.paymentMethod}
+                {order.paymentStatus ? ` (${order.paymentStatus})` : ""}
               </span>
             </div>
+            <div className="flex justify-between">
+              <span>Express Shipping</span>
+              {order.shippingFee === 0 ? (
+                <span className="font-medium text-emerald-600 dark:text-emerald-400 font-semibold">
+                  FREE
+                </span>
+              ) : (
+                <span className="font-medium text-foreground">
+                  {formatBDT(order.shippingFee ?? 0)}
+                </span>
+              )}
+            </div>
+            {(order.discountAmount ?? 0) > 0 && (
+              <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                <span>Discount Applied</span>
+                <span className="font-semibold">-{formatBDT(order.discountAmount ?? 0)}</span>
+              </div>
+            )}
             <div className="flex justify-between pt-1 border-t border-border/40 text-sm font-semibold text-foreground">
-              <span>Total Paid:</span>
+              <span>Order Total:</span>
               <span className="font-display text-primary">{formatBDT(order.total)}</span>
             </div>
           </div>

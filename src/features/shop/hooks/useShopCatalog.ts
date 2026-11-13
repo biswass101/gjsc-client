@@ -2,11 +2,32 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { PRODUCTS } from "@/lib/catalog";
 import type { ShopFilterState, ShopSortOption } from "../types";
+import type { Product } from "@/types";
+import { catalogApi } from "@/lib/api";
 
 export const PER_PAGE = 12;
 
 export function useShopCatalog(priceBounds: { min: number; max: number }) {
   const searchParams = useSearchParams();
+  const [liveProducts, setLiveProducts] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    catalogApi
+      .getProducts({ limit: 100 })
+      .then((res) => {
+        if (res?.products && res.products.length > 0) {
+          const formatted = res.products.map((p: any) => ({
+            ...p,
+            brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
+            category: p.categoryName || p.category?.name || p.category || "Skincare",
+          }));
+          setLiveProducts(formatted);
+        }
+      })
+      .catch(() => {
+        /* fallback to PRODUCTS */
+      });
+  }, []);
 
   const [filters, setFilters] = useState<ShopFilterState>(() => {
     const paramCategory = searchParams?.get("category");
@@ -105,7 +126,7 @@ export function useShopCatalog(priceBounds: { min: number; max: number }) {
   }, [filters, priceBounds]);
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return liveProducts.filter((product) => {
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase().trim();
         const matchesName = product.name.toLowerCase().includes(q);

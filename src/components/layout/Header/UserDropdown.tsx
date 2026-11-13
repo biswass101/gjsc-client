@@ -51,6 +51,7 @@ export function UserDropdown({ user, onLogout }: UserDropdownProps) {
             <img
               src={user.avatar}
               alt={user.name}
+              referrerPolicy="no-referrer"
               className="h-7 w-7 rounded-full object-cover border border-border"
             />
           ) : (

@@ -13,6 +13,8 @@ export interface AccountProfileSettingsProps {
   onEmailChange: (val: string) => void;
   phone: string;
   onPhoneChange: (val: string) => void;
+  address?: string | undefined;
+  onAddressChange?: ((val: string) => void) | undefined;
   avatar?: string | undefined;
   tempAvatar?: string | undefined;
   onSelectPresetAvatar: (url: string) => void;
@@ -20,6 +22,7 @@ export interface AccountProfileSettingsProps {
   onPhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemovePhoto: () => void;
   isEditingProfile: boolean;
+  isSavingProfile?: boolean | undefined;
   onStartEditProfile: () => void;
   onCancelEditProfile: () => void;
   onSaveProfile: (e: React.FormEvent) => void;
@@ -29,9 +32,11 @@ export function AccountProfileSettings({
   name,
   onNameChange,
   email,
-  onEmailChange,
+  onEmailChange: _onEmailChange,
   phone,
   onPhoneChange,
+  address,
+  onAddressChange,
   avatar,
   tempAvatar,
   onSelectPresetAvatar,
@@ -39,11 +44,12 @@ export function AccountProfileSettings({
   onPhotoUpload,
   onRemovePhoto,
   isEditingProfile,
+  isSavingProfile,
   onStartEditProfile,
   onCancelEditProfile,
   onSaveProfile,
 }: AccountProfileSettingsProps) {
-  const displayAvatar = tempAvatar || avatar;
+  const displayAvatar = isEditingProfile ? tempAvatar : avatar;
   return (
     <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-5">
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
@@ -70,6 +76,7 @@ export function AccountProfileSettings({
             <img
               src={displayAvatar}
               alt={name}
+              referrerPolicy="no-referrer"
               className="h-20 w-20 rounded-full object-cover border-2 border-primary/40 shadow-xs"
             />
           ) : (
@@ -168,11 +175,14 @@ export function AccountProfileSettings({
             <Input
               id="prof-email"
               type="email"
-              disabled={!isEditingProfile}
+              disabled
+              readOnly
               value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              className="mt-1.5 rounded-full text-xs"
+              className="mt-1.5 rounded-full text-xs bg-muted/40"
             />
+            <p className="mt-1 text-[10.5px] text-muted-foreground">
+              Linked to your login credentials.
+            </p>
           </div>
 
           <div className="sm:col-span-2">
@@ -184,9 +194,26 @@ export function AccountProfileSettings({
               disabled={!isEditingProfile}
               value={phone}
               onChange={(e) => onPhoneChange(e.target.value)}
+              placeholder="e.g. 017XXXXXXXX"
               className="mt-1.5 rounded-full text-xs"
             />
           </div>
+
+          {onAddressChange && (
+            <div className="sm:col-span-2">
+              <Label htmlFor="prof-address" className="text-xs font-semibold">
+                Primary Address
+              </Label>
+              <Input
+                id="prof-address"
+                disabled={!isEditingProfile}
+                value={address ?? ""}
+                onChange={(e) => onAddressChange(e.target.value)}
+                placeholder="Street, area, city (auto-filled when shared by Google/Facebook)"
+                className="mt-1.5 rounded-full text-xs"
+              />
+            </div>
+          )}
         </div>
 
         {isEditingProfile && (
@@ -200,8 +227,13 @@ export function AccountProfileSettings({
             >
               Cancel
             </Button>
-            <Button type="submit" size="sm" className="rounded-full text-xs px-6 cursor-pointer">
-              Save Changes
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isSavingProfile}
+              className="rounded-full text-xs px-6 cursor-pointer"
+            >
+              {isSavingProfile ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         )}

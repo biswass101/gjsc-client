@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Droplets, Sparkles } from "lucide-react";
+import { Check, Droplets, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AVAILABLE_SKIN_TYPES, AVAILABLE_SKIN_CONCERNS } from "../data/accountConstants";
@@ -11,6 +11,7 @@ export interface AccountSkincareTabProps {
   concerns: string[];
   onToggleConcern: (concern: string) => void;
   onSaveProfile: () => void;
+  isSaving?: boolean | undefined;
 }
 
 export function AccountSkincareTab({
@@ -19,6 +20,7 @@ export function AccountSkincareTab({
   concerns,
   onToggleConcern,
   onSaveProfile,
+  isSaving,
 }: AccountSkincareTabProps) {
   return (
     <div className="space-y-6">
@@ -107,16 +109,36 @@ export function AccountSkincareTab({
         <h4 className="font-semibold text-foreground flex items-center gap-2">
           🌸 Your Customized 4-Step Tokyo Ritual
         </h4>
-        <p className="text-muted-foreground leading-relaxed">
-          Based on your <strong>{skinType}</strong> profile and focus on{" "}
-          <strong>{concerns.join(", ")}</strong>, our dermatological algorithm prioritizes fermented
-          sake koji toners, ceramide barrier creams, and SPF50+ lightweight watery essences.
-        </p>
+        {skinType ? (
+          <p className="text-muted-foreground leading-relaxed">
+            Based on your <strong>{skinType}</strong> profile
+            {concerns.length > 0 ? (
+              <>
+                {" "}
+                and focus on <strong>{concerns.join(", ")}</strong>
+              </>
+            ) : (
+              " (select 1+ concern above to unlock +150 Ritual Points)"
+            )}
+            , our dermatological algorithm prioritizes fermented sake koji toners, ceramide barrier
+            creams, and SPF50+ lightweight watery essences.
+          </p>
+        ) : (
+          <p className="text-muted-foreground leading-relaxed">
+            Select your primary skin type and at least 1 concern above, then click Save to store
+            your diagnostics profile in your account and earn <strong>+150 Ritual Points</strong>.
+          </p>
+        )}
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={onSaveProfile} className="rounded-full text-xs px-6 cursor-pointer">
-          Save Skincare Profile
+        <Button
+          onClick={onSaveProfile}
+          disabled={isSaving}
+          className="rounded-full text-xs px-6 cursor-pointer gap-2"
+        >
+          {isSaving && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+          {isSaving ? "Saving..." : "Save Skincare Profile"}
         </Button>
       </div>
     </div>

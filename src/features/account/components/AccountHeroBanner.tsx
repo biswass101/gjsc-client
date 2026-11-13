@@ -9,16 +9,24 @@ export interface AccountHeroBannerProps {
   user: User | null;
   name: string;
   avatar?: string | undefined;
+  tierLabel?: string | undefined;
+  availablePoints?: number | undefined;
 }
 
-export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps) {
+export function AccountHeroBanner({
+  user,
+  name,
+  avatar,
+  tierLabel,
+  availablePoints,
+}: AccountHeroBannerProps) {
   const initials =
     name
       .split(" ")
       .map((n) => n[0])
       .slice(0, 2)
       .join("")
-      .toUpperCase() || "NJ";
+      .toUpperCase() || "GJ";
 
   return (
     <div className="border-b border-border/50 bg-gradient-to-b from-cream to-background">
@@ -30,6 +38,7 @@ export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps
                 <img
                   src={avatar}
                   alt={name}
+                  referrerPolicy="no-referrer"
                   className="h-16 w-16 rounded-full object-cover border-2 border-primary/40 shadow-xs"
                 />
               ) : (
@@ -37,7 +46,7 @@ export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps
                   {initials}
                 </div>
               )}
-              {user?.authProvider === "google" && (
+              {(user?.linkedProviders?.includes("google") || user?.authProvider === "google") && (
                 <div
                   title="Google Verified Account"
                   className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-background border border-border shadow-xs"
@@ -62,6 +71,19 @@ export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps
                   </svg>
                 </div>
               )}
+              {!user?.linkedProviders?.includes("google") &&
+                user?.authProvider !== "google" &&
+                (user?.linkedProviders?.includes("facebook") ||
+                  user?.authProvider === "facebook") && (
+                <div
+                  title="Facebook Verified Account"
+                  className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-background border border-border shadow-xs"
+                >
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </div>
+              )}
             </div>
 
             <div>
@@ -69,7 +91,7 @@ export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps
                 <span className="eyebrow text-primary">Member Account</span>
                 <span className="text-muted-foreground/40">•</span>
                 <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                  🌸 VIP Ritual Member
+                  🌸 {tierLabel || "Sakura Petal Member"}
                 </span>
               </div>
               <h1 className="mt-1 font-display text-2xl sm:text-3xl font-medium tracking-tight text-foreground">
@@ -87,7 +109,7 @@ export function AccountHeroBanner({ user, name, avatar }: AccountHeroBannerProps
               <span className="text-[10.5px] text-muted-foreground block">Available Points</span>
               <span className="font-display text-lg font-bold text-primary flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4" />
-                500 Pts
+                {(availablePoints ?? 0).toLocaleString("en-US")} Pts
               </span>
             </div>
 

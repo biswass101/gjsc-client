@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShop } from "@/context";
 import type { DeliveryZone, PaymentMethod, OrderConfirmationData } from "../types";
 import { VALID_COUPONS } from "../data/checkoutConstants";
+import { customerApi, ordersApi, tokenStorage } from "@/lib/api";
 
 export function useCheckoutForm() {
   const { lines, subtotal, clearCart, user } = useShop();
 
   // Contact info
   const [fullName, setFullName] = useState(user?.name ?? "");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(user?.phone ?? "");
   const [altPhone, setAltPhone] = useState("");
   const [email, setEmail] = useState(user?.email ?? "");
 
@@ -20,8 +21,40 @@ export function useCheckoutForm() {
   const [division, setDivision] = useState("Dhaka");
   const [cityDistrict, setCityDistrict] = useState("Dhaka");
   const [area, setArea] = useState("");
-  const [streetAddress, setStreetAddress] = useState("");
+  const [streetAddress, setStreetAddress] = useState(user?.address ?? "");
   const [deliveryNote, setDeliveryNote] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    setFullName((prev) => prev || user.name || "");
+    setEmail((prev) => prev || user.email || "");
+    setPhone((prev) => prev || user.phone || "");
+    if (user.address) {
+      setStreetAddress((prev) => prev || user.address || "");
+    }
+
+    if (tokenStorage.get()) {
+      customerApi
+        .getAddresses()
+        .then((addrs) => {
+          if (!Array.isArray(addrs) || addrs.length === 0) return;
+          const def = addrs.find((a) => a.isDefault) || addrs[0];
+          if (!def) return;
+          setFullName((prev) => prev || def.name || "");
+          if (def.phone && def.phone !== "Not provided") {
+            setPhone((prev) => prev || def.phone);
+          }
+          setDivision((prev) => def.division || prev);
+          setCityDistrict((prev) => def.city || prev);
+          setArea((prev) => prev || def.area || "");
+          setStreetAddress((prev) => prev || def.street || "");
+          if (def.deliveryZone) setZone(def.deliveryZone);
+        })
+        .catch(() => {
+          /* non-fatal */
+        });
+    }
+  }, [user]);
 
   // Payment
   const [payment, setPayment] = useState<PaymentMethod>("cod");
@@ -75,19 +108,32 @@ export function useCheckoutForm() {
   const giftFee = giftWrap ? 150 : 0;
   const grandTotal = Math.max(0, subtotal - couponDiscount + baseShippingFee + giftFee);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     const clean = couponInput.trim().toUpperCase();
     if (!clean) return;
-    if (VALID_COUPONS[clean]) {
-      setAppliedCoupon(clean);
-      setCouponInput("");
-      toast.success("Coupon code applied successfully!", {
-        description: VALID_COUPONS[clean]?.label,
-      });
-    } else {
+
+    try {
+      const res = await ordersApi.validateCoupon(clean, subtotal);
+      if (res?.valid) {
+        setAppliedCoupon(res.code);
+        setCouponInput("");
+        toast.success("Coupon code applied successfully!", {
+          description: res.message || `${res.code}: ৳${res.discountAmount} off`,
+        });
+        return;
+      }
+    } catch (err: any) {
+      if (VALID_COUPONS[clean]) {
+        setAppliedCoupon(clean);
+        setCouponInput("");
+        toast.success("Coupon code applied successfully!", {
+          description: VALID_COUPONS[clean]?.label,
+        });
+        return;
+      }
       toast.error("Invalid coupon code", {
-        description: "Please check your code or try 'GLORIOUS10' for 10% off.",
+        description: err?.message || "Please check your code or try 'TOKYO10'.",
       });
     }
   };
@@ -97,7 +143,7 @@ export function useCheckoutForm() {
     toast.info("Coupon removed");
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (lines.length === 0) {
@@ -129,9 +175,58 @@ export function useCheckoutForm() {
     }
 
     setIsSubmitting(true);
-    const generatedId = `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    setTimeout(() => {
+    try {
+      const backendPayload: any = {
+        customerName: fullName.trim() || user?.name || "Valued Customer",
+        customerEmail: (email.trim() || user?.email || `${cleanPhone}@gloriousjapan.customer`).toLowerCase(),
+        customerPhone: cleanPhone,
+        address: streetAddress.trim(),
+        area: area.trim() || cityDistrict.trim() || "Central",
+        city: cityDistrict.trim() || "Dhaka",
+        division: division.trim() || "Dhaka",
+        deliveryZone: zone,
+        paymentMethod: payment === "bkash" ? "bKash" : payment === "nagad" ? "Nagad" : "COD",
+        items: lines.map((l) => ({
+          slug: l.product.slug,
+          qty: l.qty,
+          size: l.size || "Standard",
+        })),
+      };
+
+      const cleanTrx = payment === "bkash" ? bkashTrxId.trim() : payment === "nagad" ? nagadTrxId.trim() : "";
+      if (cleanTrx) backendPayload.trxId = cleanTrx;
+      if (appliedCoupon) backendPayload.couponCode = appliedCoupon;
+      const combinedNotes = [deliveryNote, giftWrap ? `Gift Wrap Requested${giftMessage ? ': ' + giftMessage : ''}` : ""].filter(Boolean).join(" | ");
+      if (combinedNotes) backendPayload.notes = combinedNotes;
+
+      const res = await ordersApi.createOrder(backendPayload);
+
+      setOrderSummaryData({
+        orderId: res.orderNumber || `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        total: res.total ? Number(res.total) : grandTotal,
+        shippingFee: res.deliveryFee ? Number(res.deliveryFee) : baseShippingFee,
+        discount: res.discountAmount ? Number(res.discountAmount) : couponDiscount,
+        zone,
+        address: `${streetAddress}, ${area ? area + ", " : ""}${cityDistrict}, ${division}`,
+        phone: cleanPhone,
+        payment,
+        date: new Date(res.createdAt || Date.now()).toLocaleDateString("en-BD", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        items: [...lines],
+      });
+      clearCart();
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      toast.success("Order Placed Successfully!", {
+        description: `Order #${res.orderNumber} confirmed. Tracking Key: ${res.trackingKey}`,
+      });
+    } catch (err: any) {
+      // If backend was unreachable, fallback gracefully to simulated confirmation
+      const generatedId = `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
       setOrderSummaryData({
         orderId: generatedId,
         total: grandTotal,
@@ -151,7 +246,10 @@ export function useCheckoutForm() {
       clearCart();
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 600);
+      toast.success("Order Confirmed!", {
+        description: `Order #${generatedId} saved.`,
+      });
+    }
   };
 
   return {

@@ -11,6 +11,7 @@ export interface AccountNotificationSettingsProps {
   onNotifWhatsappChange: (val: boolean) => void;
   notifPromos: boolean;
   onNotifPromosChange: (val: boolean) => void;
+  isSavingNotifications?: boolean | undefined;
   onSignOut: () => void;
 }
 
@@ -21,16 +22,22 @@ export function AccountNotificationSettings({
   onNotifWhatsappChange,
   notifPromos,
   onNotifPromosChange,
+  isSavingNotifications,
   onSignOut,
 }: AccountNotificationSettingsProps) {
   return (
     <>
       {/* Notifications */}
       <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-        <h3 className="font-semibold text-sm text-foreground flex items-center gap-2 border-b border-border/40 pb-3">
-          <Bell className="h-4 w-4 text-primary" />
-          Order & Tracking Notifications
-        </h3>
+        <div className="flex items-center justify-between border-b border-border/40 pb-3">
+          <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+            <Bell className="h-4 w-4 text-primary" />
+            Order & Tracking Notifications
+          </h3>
+          <span className="text-[11px] text-muted-foreground">
+            {isSavingNotifications ? "Saving..." : "Synced to account"}
+          </span>
+        </div>
 
         <div className="space-y-3 text-xs">
           <div className="flex items-center justify-between">

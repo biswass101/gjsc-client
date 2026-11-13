@@ -28,14 +28,35 @@ export interface BuyerOrderItem {
   image: string;
 }
 
+export type FulfillmentStatus =
+  | "Pending"
+  | "Processing"
+  | "Quality Checked"
+  | "Dispatched"
+  | "In Transit"
+  | "Delivered"
+  | "Cancelled";
+
 export interface BuyerOrder {
   id: string;
   date: string;
-  status: "Delivered" | "In Transit" | "Processing" | "Quality Checked";
+  status: FulfillmentStatus;
   total: number;
+  subtotal?: number | undefined;
+  shippingFee?: number | undefined;
+  discountAmount?: number | undefined;
   paymentMethod: string;
+  paymentStatus?: string | undefined;
   courier: string;
   consignmentId: string;
+  customerName?: string | undefined;
+  customerEmail?: string | undefined;
+  customerPhone?: string | undefined;
+  address?: string | undefined;
+  area?: string | undefined;
+  city?: string | undefined;
+  division?: string | undefined;
+  estimatedDelivery?: string | undefined;
   items: BuyerOrderItem[];
 }
 

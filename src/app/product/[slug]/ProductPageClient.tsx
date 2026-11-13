@@ -33,7 +33,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
 
   const gallery = useProductGallery(product);
   const bundle = useProductBundle(product);
-  const reviews = useProductReviews();
+  const reviews = useProductReviews(product.slug);
 
   useEffect(() => {
     addRecent(product.slug);
