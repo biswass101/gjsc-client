@@ -1,14 +1,15 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface OrderHeaderProps {
   totalParcels: number;
   onExportCSV: () => void;
+  onCreateOrder?: () => void;
 }
 
-export function OrderHeader({ totalParcels, onExportCSV }: OrderHeaderProps) {
+export function OrderHeader({ totalParcels, onExportCSV, onCreateOrder }: OrderHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/70 pb-5">
       <div>
@@ -29,6 +30,16 @@ export function OrderHeader({ totalParcels, onExportCSV }: OrderHeaderProps) {
       </div>
 
       <div className="flex items-center gap-2.5">
+        {onCreateOrder && (
+          <Button
+            size="sm"
+            onClick={onCreateOrder}
+            className="rounded-full text-xs h-8 px-3.5 gap-1.5 shadow-sm bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            New Manual Order
+          </Button>
+        )}
         <Button
           variant="outline"
           size="sm"

@@ -6,6 +6,7 @@ import {
   AdminHeader,
   AdminCommandPalette,
   AdminQuickModals,
+  AdminAuthGuard,
 } from "@/components/admin";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 
@@ -24,57 +25,58 @@ export default function AdminLayout({
   const [quickDiscountOpen, setQuickDiscountOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground antialiased selection:bg-primary/20">
-      {/* Desktop Persistent Sidebar - locked to screen height */}
-      <div className="hidden lg:flex shrink-0 h-screen sticky top-0">
-        <AdminSidebar
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-        />
-      </div>
-
-      {/* Mobile Drawer Sidebar */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-[270px] h-full flex flex-col">
+    <AdminAuthGuard>
+      <div className="flex h-screen w-full overflow-hidden bg-background text-foreground antialiased selection:bg-primary/20">
+        {/* Desktop Persistent Sidebar - locked to screen height */}
+        <div className="hidden lg:flex shrink-0 h-screen sticky top-0">
           <AdminSidebar
-            collapsed={false}
-            onToggleCollapse={() => setMobileMenuOpen(false)}
-            onNavigateMobile={() => setMobileMenuOpen(false)}
+            collapsed={collapsed}
+            onToggleCollapse={() => setCollapsed(!collapsed)}
           />
-        </SheetContent>
-      </Sheet>
+        </div>
 
-      {/* Main Admin Content Canvas */}
-      <div className="flex flex-1 flex-col h-screen min-w-0 overflow-hidden">
-        <AdminHeader
-          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-          onOpenMobileMenu={() => setMobileMenuOpen(true)}
-          onOpenQuickNewProduct={() => setQuickProductOpen(true)}
-          onOpenQuickNewOrder={() => setQuickOrderOpen(true)}
-          onOpenQuickNewDiscount={() => setQuickDiscountOpen(true)}
+        {/* Mobile Drawer Sidebar */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="left" className="p-0 w-[270px] h-full flex flex-col">
+            <AdminSidebar
+              collapsed={false}
+              onToggleCollapse={() => setMobileMenuOpen(false)}
+              onNavigateMobile={() => setMobileMenuOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+
+        {/* Main Admin Content Canvas */}
+        <div className="flex flex-1 flex-col h-screen min-w-0 overflow-hidden">
+          <AdminHeader
+            onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+            onOpenMobileMenu={() => setMobileMenuOpen(true)}
+            onOpenQuickNewProduct={() => setQuickProductOpen(true)}
+            onOpenQuickNewOrder={() => setQuickOrderOpen(true)}
+            onOpenQuickNewDiscount={() => setQuickDiscountOpen(true)}
+          />
+
+          <main className="flex-1 overflow-y-auto min-w-0 custom-scrollbar">
+            {children}
+          </main>
+        </div>
+
+        {/* Global Command Palette */}
+        <AdminCommandPalette
+          open={commandPaletteOpen}
+          onOpenChange={setCommandPaletteOpen}
         />
 
-        <main className="flex-1 overflow-y-auto min-w-0 custom-scrollbar">
-          {children}
-        </main>
+        {/* Quick Action Modals (Product, Order, Discount) */}
+        <AdminQuickModals
+          productOpen={quickProductOpen}
+          onProductOpenChange={setQuickProductOpen}
+          orderOpen={quickOrderOpen}
+          onOrderOpenChange={setQuickOrderOpen}
+          discountOpen={quickDiscountOpen}
+          onDiscountOpenChange={setQuickDiscountOpen}
+        />
       </div>
-
-      {/* Global Command Palette */}
-      <AdminCommandPalette
-        open={commandPaletteOpen}
-        onOpenChange={setCommandPaletteOpen}
-      />
-
-      {/* Quick Action Modals (Product, Order, Discount) */}
-      <AdminQuickModals
-        productOpen={quickProductOpen}
-        onProductOpenChange={setQuickProductOpen}
-        orderOpen={quickOrderOpen}
-        onOrderOpenChange={setQuickOrderOpen}
-        discountOpen={quickDiscountOpen}
-        onDiscountOpenChange={setQuickDiscountOpen}
-      />
-    </div>
+    </AdminAuthGuard>
   );
 }
-

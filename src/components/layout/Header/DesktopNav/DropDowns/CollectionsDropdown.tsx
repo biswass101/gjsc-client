@@ -14,7 +14,7 @@ import {
   type DropdownItem,
 } from "../shared/DropdownColumn";
 
-const collections: DropdownItem[] = [
+export const collections: DropdownItem[] = [
   {
     label: "Bestsellers",
     category: "bestsellers",
@@ -53,7 +53,7 @@ const collections: DropdownItem[] = [
   },
 ];
 
-const moreCollections: DropdownItem[] = [
+export const moreCollections: DropdownItem[] = [
   {
     label: "Winter Essentials",
     category: "winter-essentials",

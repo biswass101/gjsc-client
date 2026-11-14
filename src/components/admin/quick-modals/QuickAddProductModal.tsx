@@ -36,7 +36,7 @@ export function QuickAddProductModal({ open, onOpenChange }: QuickAddProductModa
     "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
   );
 
-  const handleCreateProduct = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodName.trim()) {
       toast.error("Please enter a product title.");
@@ -49,41 +49,45 @@ export function QuickAddProductModal({ open, onOpenChange }: QuickAddProductModa
       prodSku.trim() ||
       `${prodBrand.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    addProduct({
-      name: prodName.trim(),
-      japaneseName: `${prodBrand} プレミアム処方`,
-      brand: prodBrand,
-      category: prodCat,
-      productType: "in-stock",
-      price: priceNum,
-      compareAt: Math.round(priceNum * 1.25),
-      costPrice: costNum,
-      stock: stockNum,
-      lowStockThreshold: 5,
-      sku: generatedSku,
-      barcode: `4580${Math.floor(10000000 + Math.random() * 90000000)}`,
-      badge: "New",
-      status: "active",
-      rating: 5.0,
-      reviewsCount: 1,
-      image: prodImage,
-      images: [prodImage],
-      short: "Imported authentic Japanese formulation.",
-      description: "Authentic Tokyo formulation with skin-soothing botanical extracts.",
-      ingredients: ["Sakura Extract", "Rice Ferment Filtrate", "Hyaluronic Acid"],
-      benefits: ["Deep 72-hour hydration", "Moisture barrier repair", "Radiant glass-skin finish"],
-      howTo: "Dispense appropriate amount and massage gently.",
-      skinTypes: ["All Skin Types"],
-      concerns: ["Hydration"],
-      sizes: ["50ml"],
-      origin: "Tokyo, Japan",
-      texture: "Lightweight Essence",
-      pao: "12M",
-    });
+    try {
+      await addProduct({
+        name: prodName.trim(),
+        japaneseName: `${prodBrand} プレミアム処方`,
+        brand: prodBrand,
+        category: prodCat,
+        productType: "in-stock",
+        price: priceNum,
+        compareAt: Math.round(priceNum * 1.25),
+        costPrice: costNum,
+        stock: stockNum,
+        lowStockThreshold: 5,
+        sku: generatedSku,
+        barcode: `4580${Math.floor(10000000 + Math.random() * 90000000)}`,
+        badge: "New",
+        status: "active",
+        rating: 5.0,
+        reviewsCount: 1,
+        image: prodImage,
+        images: [prodImage],
+        short: "Imported authentic Japanese formulation.",
+        description: "Authentic Tokyo formulation with skin-soothing botanical extracts.",
+        ingredients: ["Sakura Extract", "Rice Ferment Filtrate", "Hyaluronic Acid"],
+        benefits: ["Deep 72-hour hydration", "Moisture barrier repair", "Radiant glass-skin finish"],
+        howTo: "Dispense appropriate amount and massage gently.",
+        skinTypes: ["All Skin Types"],
+        concerns: ["Hydration"],
+        sizes: ["50ml"],
+        origin: "Tokyo, Japan",
+        texture: "Lightweight Essence",
+        pao: "12M",
+      });
 
-    toast.success(`Product "${prodName}" added to catalog! 🌸`);
-    onOpenChange(false);
-    setProdName("");
+      toast.success(`Product "${prodName}" added to catalog! 🌸`);
+      onOpenChange(false);
+      setProdName("");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to create product");
+    }
   };
 
   return (

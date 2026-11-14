@@ -19,6 +19,7 @@ export function ProductFormModal({ modal }: ProductFormModalProps) {
     isModalOpen,
     setIsModalOpen,
     editingProduct,
+    isSubmitting,
     formTab,
     setFormTab,
     formName,
@@ -202,6 +203,7 @@ export function ProductFormModal({ modal }: ProductFormModalProps) {
           <ProductModalFooter
             formTab={formTab}
             isEditing={!!editingProduct}
+            isSubmitting={isSubmitting}
             onClose={() => setIsModalOpen(false)}
             onPrevTab={handlePrevTab}
             onNextTab={handleNextTab}

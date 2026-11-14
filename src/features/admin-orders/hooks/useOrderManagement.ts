@@ -40,10 +40,10 @@ export function useOrderManagement(
       const query = q.toLowerCase().trim();
       const matchQ =
         !query ||
-        o.id.toLowerCase().includes(query) ||
-        o.customerName.toLowerCase().includes(query) ||
-        o.customerPhone.includes(query) ||
-        (o.consignmentId && o.consignmentId.toLowerCase().includes(query));
+        (o.id || "").toLowerCase().includes(query) ||
+        (o.customerName || "").toLowerCase().includes(query) ||
+        (o.customerPhone || "").includes(query) ||
+        Boolean(o.consignmentId && o.consignmentId.toLowerCase().includes(query));
 
       return matchStage && matchMethod && matchCourier && matchQ;
     });

@@ -25,6 +25,7 @@ export interface AdminOrder {
   area: string;
   city: string;
   division: string;
+  deliveryZone?: "dhaka_metro" | "outside_dhaka" | string;
   date: string;
   dateFormatted: string;
   subtotal: number;

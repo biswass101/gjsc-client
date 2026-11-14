@@ -129,7 +129,16 @@ export function useAdminStorage(params: StorageParams) {
             })),
           );
         }
-        if (parsed.orders) setOrders(parsed.orders);
+        if (parsed.orders && Array.isArray(parsed.orders)) {
+          setOrders(
+            parsed.orders.map((o: any) => ({
+              ...o,
+              shippingFee: typeof o.shippingFee === "number" && !isNaN(o.shippingFee) ? o.shippingFee : 60,
+              timeline: Array.isArray(o.timeline) ? o.timeline : [],
+              items: Array.isArray(o.items) ? o.items : [],
+            }))
+          );
+        }
         if (parsed.customers) setCustomers(parsed.customers);
         if (parsed.discounts) setDiscounts(parsed.discounts);
         if (parsed.categories) setCategories(parsed.categories);

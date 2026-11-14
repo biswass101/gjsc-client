@@ -56,21 +56,23 @@ export const JAPAN_REGIONS = [
   "Kobe, Japan",
 ];
 
-export const PAGE_SIZE_OPTIONS = [8, 16, 24, 48];
+export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+export const DEFAULT_PAGE_SIZE = 25;
 
 export function stockBadge(stock: number, threshold = 5) {
-  if (stock === 0)
+  const safeStock = Math.max(0, Number(stock) || 0);
+  if (safeStock === 0)
     return {
       label: "Out of Stock",
       cls: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border-red-200",
     };
-  if (stock <= threshold)
+  if (safeStock <= threshold)
     return {
-      label: `Low: ${stock} left`,
+      label: `Low: ${safeStock} left`,
       cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200",
     };
   return {
-    label: `${stock} in stock`,
+    label: `${safeStock} in stock`,
     cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200",
   };
 }

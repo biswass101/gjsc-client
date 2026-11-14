@@ -39,6 +39,9 @@ export default function AdminDashboard() {
     topProducts,
     orderStatusData,
     handleExportCSV,
+    isLiveDb,
+    isLoadingTelemetry,
+    fetchTelemetry,
   } = useDashboardMetrics();
 
   return (
@@ -48,6 +51,9 @@ export default function AdminDashboard() {
         timeRange={timeRange}
         setTimeRange={setTimeRange}
         onExportCSV={handleExportCSV}
+        isLiveDb={isLiveDb}
+        isLoading={isLoadingTelemetry}
+        onRefresh={fetchTelemetry}
       />
 
       {/* Critical Action Alerts Bar */}

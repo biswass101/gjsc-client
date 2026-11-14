@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FORM_TABS } from "../../data/productConstants";
 import type { ProductFormTab } from "../../types";
@@ -8,6 +8,7 @@ import type { ProductFormTab } from "../../types";
 export interface ProductModalFooterProps {
   formTab: ProductFormTab;
   isEditing: boolean;
+  isSubmitting?: boolean;
   onClose: () => void;
   onPrevTab: () => void;
   onNextTab: () => void;
@@ -16,6 +17,7 @@ export interface ProductModalFooterProps {
 export function ProductModalFooter({
   formTab,
   isEditing,
+  isSubmitting = false,
   onClose,
   onPrevTab,
   onNextTab,
@@ -70,10 +72,19 @@ export function ProductModalFooter({
         <Button
           type="submit"
           size="sm"
-          className="rounded-xl text-xs h-9 px-6 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm cursor-pointer"
+          disabled={isSubmitting}
+          className="rounded-xl text-xs h-9 px-6 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm cursor-pointer disabled:opacity-60"
         >
-          <Check className="h-3.5 w-3.5 mr-1.5" />
-          {isEditing ? "Save Formulation" : "Create Product"}
+          {isSubmitting ? (
+            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+          ) : (
+            <Check className="h-3.5 w-3.5 mr-1.5" />
+          )}
+          {isSubmitting
+            ? "Saving..."
+            : isEditing
+              ? "Save Formulation"
+              : "Create Product"}
         </Button>
       </div>
     </div>

@@ -1,99 +1,175 @@
 import { useState, useCallback, useEffect } from "react";
-import type { AdminOrder, AdminCustomer, AdminOrderTimelineEvent } from "@/types";
+import type { AdminOrder, AdminCustomer, AdminOrderItem, AdminOrderTimelineEvent } from "@/types";
 import { INITIAL_ORDERS, INITIAL_CUSTOMERS } from "../admin-seed";
 import type { AddActivityLogFn } from "./types";
 import { adminApi } from "@/lib/api";
+
+function toSafeTimeline(raw: any): AdminOrderTimelineEvent[] {
+  let list = raw;
+  if (typeof list === "string") {
+    try {
+      list = JSON.parse(list);
+    } catch {
+      list = [];
+    }
+  }
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.map((t: any, idx: number) => ({
+    id: t.id || `tl-${idx}`,
+    title: t.title || "Order Event",
+    description: t.description || "",
+    time: t.time || "",
+    by: t.by || "System",
+  }));
+}
+
+function toSafeItems(raw: any): AdminOrderItem[] {
+  let list = raw;
+  if (typeof list === "string") {
+    try {
+      list = JSON.parse(list);
+    } catch {
+      list = [];
+    }
+  }
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.map((it: any) => ({
+    name: it.name || "Product",
+    brand: it.brand || "Authentic Japan",
+    size: it.size || "Standard",
+    price: Number(it.price || 0),
+    qty: Number(it.qty || 1),
+    image: it.image || "",
+    slug: it.slug || "",
+  }));
+}
+
+function formatApiOrderToAdminOrder(o: any): AdminOrder {
+  const createdAt = o.createdAt || "";
+  const now = new Date();
+  const orderDate = createdAt ? new Date(createdAt) : now;
+  const dateFormatted = !isNaN(orderDate.getTime())
+    ? orderDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }) + `, ${orderDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
+    : "Recently";
+
+  return {
+    id: o.orderNumber || String(o.id),
+    customerName: o.customerName || "Customer",
+    customerEmail: o.customerEmail || "",
+    customerPhone: o.customerPhone || "",
+    date: createdAt ? String(createdAt).slice(0, 10) : now.toISOString().slice(0, 10),
+    dateFormatted,
+    total: Number(o.total || 0),
+    subtotal: Number(o.subtotal || 0),
+    shippingFee: Number(o.shippingFee ?? o.deliveryFee ?? 60),
+    discountAmount: Number(o.discountAmount || 0),
+    paymentMethod: o.paymentMethod || "COD",
+    paymentStatus: o.paymentStatus || "Pending",
+    fulfillmentStatus: o.fulfillmentStatus || "Pending",
+    deliveryZone: o.deliveryZone || "dhaka_metro",
+    address: o.address || "",
+    city: o.city || "Dhaka",
+    area: o.area || "",
+    division: o.division || "Dhaka",
+    courier: o.courier || "None",
+    consignmentId: o.consignmentId || undefined,
+    trackingUrl: o.trackingUrl || undefined,
+    timeline: toSafeTimeline(o.timeline),
+    items: toSafeItems(o.items),
+    notes: o.notes || undefined,
+  };
+}
 
 export function useOrderSlice(addActivityLog: AddActivityLogFn) {
   const [orders, setOrders] = useState<AdminOrder[]>(INITIAL_ORDERS);
   const [customers, setCustomers] = useState<AdminCustomer[]>(INITIAL_CUSTOMERS);
 
-  // Sync orders with backend MySQL database on mount
+  // Sync orders & customers with backend MySQL database on mount
   useEffect(() => {
     adminApi
-      .getOrders()
+      .getOrders({ limit: 100 })
       .then((res) => {
-        if (res?.orders && res.orders.length > 0) {
-          const formatted: AdminOrder[] = res.orders.map((o: any) => ({
-            id: o.orderNumber,
-            customerName: o.customerName,
-            customerEmail: o.customerEmail,
-            customerPhone: o.customerPhone,
-            date: (o.createdAt || "").slice(0, 10),
-            dateFormatted: new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }),
-            total: Number(o.total),
-            subtotal: Number(o.subtotal),
-            shippingFee: Number(o.deliveryFee),
-            discount: Number(o.discountAmount || 0),
-            paymentMethod: o.paymentMethod,
-            paymentStatus: o.paymentStatus,
-            fulfillmentStatus: o.fulfillmentStatus,
-            deliveryZone: o.deliveryZone,
-            address: o.address,
-            city: o.city,
-            area: o.area,
-            division: o.division,
-            courier: o.courier || "None",
-            consignmentId: o.consignmentId || undefined,
-            timeline: (o.timeline || []).map((t: any, idx: number) => ({
-              id: `tl-${idx}`,
-              title: t.title,
-              description: t.description,
-              time: t.time,
-              by: "System",
-            })),
-            items: (o.items || []).map((it: any) => ({
-              name: it.name,
-              brand: it.brand,
-              size: it.size,
-              price: Number(it.price),
-              qty: Number(it.qty),
-              image: it.image,
-              slug: it.slug,
-            })),
-          }));
+        const orderList = Array.isArray(res) ? res : res?.orders;
+        if (Array.isArray(orderList)) {
+          const formatted: AdminOrder[] = orderList.map(formatApiOrderToAdminOrder);
           setOrders(formatted);
         }
       })
-      .catch(() => {
-        /* fallback to INITIAL_ORDERS */
+      .catch((err) => {
+        console.warn("Could not sync orders from backend API:", err);
+      });
+
+    adminApi
+      .getCustomers()
+      .then((res) => {
+        if (res?.customers && Array.isArray(res.customers)) {
+          setCustomers(res.customers);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not sync customers from backend API:", err);
       });
   }, []);
 
   const addOrder = useCallback(
-    (input: Omit<AdminOrder, "id" | "timeline" | "date" | "dateFormatted">): AdminOrder => {
+    async (input: Omit<AdminOrder, "id" | "timeline" | "date" | "dateFormatted">): Promise<AdminOrder> => {
       const now = new Date();
       const dateStr = now.toISOString().slice(0, 10);
       const dateFormatted =
         now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
         `, ${now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
-      const id = `GJ-2026-${Math.floor(5500 + Math.random() * 500)}`;
-      const newOrder: AdminOrder = {
-        ...input,
-        id,
-        date: dateStr,
-        dateFormatted,
-        timeline: [
-          {
-            id: `tl-${Date.now()}`,
-            title: "Order Placed",
-            description: `Manual order created by Admin via ${input.paymentMethod}.`,
-            time: dateFormatted,
-            by: "Admin",
-          },
-        ],
+
+      const payload = {
+        customerName: input.customerName,
+        customerEmail: input.customerEmail || "customer@gloriousjapan.com",
+        customerPhone: input.customerPhone,
+        address: input.address,
+        area: input.area || "Area",
+        city: input.city || "Dhaka",
+        division: input.division || "Dhaka",
+        deliveryZone: input.deliveryZone || (input.city?.toLowerCase() === "dhaka" ? "dhaka_metro" : "outside_dhaka"),
+        paymentMethod: input.paymentMethod || "COD",
+        paymentStatus: input.paymentStatus || "Pending",
+        fulfillmentStatus: input.fulfillmentStatus || "Pending",
+        courier: input.courier || "None",
+        consignmentId: input.consignmentId || null,
+        shippingFee: Number(input.shippingFee || 60),
+        discountAmount: Number(input.discountAmount || 0),
+        notes: input.notes || "Manual order placed via admin console.",
+        items: input.items.map((it) => ({
+          slug: it.slug,
+          qty: it.qty,
+          size: it.size || "Standard",
+          price: it.price,
+        })),
       };
-      setOrders((prev) => [newOrder, ...prev]);
-      addActivityLog(
-        "Created Manual Order",
-        id,
-        `Customer: ${newOrder.customerName}, Total: ৳${newOrder.total}`,
-      );
-      return newOrder;
+
+      try {
+        const savedOrder = await adminApi.createOrder(payload);
+        const newOrder = formatApiOrderToAdminOrder({
+          ...savedOrder,
+          notes: savedOrder.notes || input.notes,
+        });
+
+        setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
+        addActivityLog(
+          "Created Manual Order",
+          newOrder.id,
+          `Customer: ${newOrder.customerName}, Total: ৳${newOrder.total} (${newOrder.items.length} items)`,
+        );
+        return newOrder;
+      } catch (err: any) {
+        console.error("Database order creation failed:", err);
+        throw err;
+      }
     },
     [addActivityLog],
   );
@@ -114,7 +190,7 @@ export function useOrderSlice(addActivityLog: AddActivityLogFn) {
             return {
               ...o,
               fulfillmentStatus: status,
-              timeline: [...o.timeline, newTimelineEvent],
+              timeline: [...(Array.isArray(o.timeline) ? o.timeline : []), newTimelineEvent],
             };
           }
           return o;
@@ -137,6 +213,7 @@ export function useOrderSlice(addActivityLog: AddActivityLogFn) {
         }),
       );
       addActivityLog("Updated Payment Status", orderId, `Status set to ${status}`);
+      adminApi.updateOrderPayment(orderId, { paymentStatus: status, trxId }).catch(() => {});
     },
     [addActivityLog],
   );
@@ -171,14 +248,20 @@ export function useOrderSlice(addActivityLog: AddActivityLogFn) {
     [addActivityLog],
   );
 
-  const addOrderNote = useCallback((orderId: string, note: string) => {
-    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, notes: note } : o)));
-  }, []);
+  const addOrderNote = useCallback(
+    (orderId: string, note: string) => {
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, notes: note } : o)));
+      addActivityLog("Added Order Note", orderId, note);
+      adminApi.addOrderNote(orderId, note).catch(() => {});
+    },
+    [addActivityLog],
+  );
 
   const deleteOrder = useCallback(
     (orderId: string) => {
       setOrders((prev) => prev.filter((o) => o.id !== orderId));
       addActivityLog("Deleted Order", orderId);
+      adminApi.deleteOrder(orderId).catch(() => {});
     },
     [addActivityLog],
   );

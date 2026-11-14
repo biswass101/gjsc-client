@@ -46,16 +46,18 @@ export interface AdminContextType {
   // Product Operations
   addProduct: (
     product: Omit<AdminProduct, "id" | "slug" | "createdAt" | "salesCount">,
-  ) => AdminProduct;
-  updateProduct: (id: string, updates: Partial<AdminProduct>) => void;
-  deleteProduct: (id: string) => void;
+  ) => Promise<AdminProduct>;
+  updateProduct: (id: string, updates: Partial<AdminProduct>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   duplicateProduct: (id: string) => AdminProduct;
   bulkUpdateProducts: (ids: string[], updates: Partial<AdminProduct>) => void;
   bulkDeleteProducts: (ids: string[]) => void;
   adjustStock: (id: string, delta: number) => void;
 
   // Order Operations
-  addOrder: (order: Omit<AdminOrder, "id" | "timeline" | "date" | "dateFormatted">) => AdminOrder;
+  addOrder: (
+    order: Omit<AdminOrder, "id" | "timeline" | "date" | "dateFormatted">
+  ) => Promise<AdminOrder> | AdminOrder;
   updateOrderStatus: (
     orderId: string,
     status: AdminOrder["fulfillmentStatus"],

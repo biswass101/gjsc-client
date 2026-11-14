@@ -1,14 +1,40 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useAdmin } from "@/context/admin-context";
 import { TimeRange } from "../types";
 import { useDashboardCharts } from "./useDashboardCharts";
+import { adminApi } from "@/lib/api";
 
 export function useDashboardMetrics() {
   const adminState = useAdmin();
   const { orders, products, preOrders, reviews } = adminState;
 
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [backendAnalytics, setBackendAnalytics] = useState<any | null>(null);
+  const [isLoadingTelemetry, setIsLoadingTelemetry] = useState<boolean>(false);
+  const [isLiveDb, setIsLiveDb] = useState<boolean>(false);
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+
+  // Live Telemetry from Express / MySQL Backend
+  const fetchTelemetry = useCallback(async () => {
+    try {
+      setIsLoadingTelemetry(true);
+      const data = await adminApi.getAnalytics();
+      if (data && data.metrics) {
+        setBackendAnalytics(data);
+        setIsLiveDb(true);
+        setLastSynced(new Date());
+      }
+    } catch {
+      setIsLiveDb(false);
+    } finally {
+      setIsLoadingTelemetry(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchTelemetry();
+  }, [fetchTelemetry]);
 
   // Active Orders
   const activeOrders = useMemo(
@@ -16,18 +42,18 @@ export function useDashboardMetrics() {
     [orders],
   );
 
-  const totalGrossRevenue = useMemo(
-    () => activeOrders.reduce((sum, o) => sum + o.total, 0),
-    [activeOrders],
-  );
+  const totalGrossRevenue = useMemo(() => {
+    if (backendAnalytics?.metrics?.grossRevenue !== undefined) {
+      return Number(backendAnalytics.metrics.grossRevenue);
+    }
+    return activeOrders.reduce((sum, o) => sum + o.total, 0);
+  }, [activeOrders, backendAnalytics]);
 
-  const deliveredRevenue = useMemo(
-    () =>
-      orders
-        .filter((o) => o.fulfillmentStatus === "Delivered")
-        .reduce((sum, o) => sum + o.total, 0),
-    [orders],
-  );
+  const deliveredRevenue = useMemo(() => {
+    return orders
+      .filter((o) => o.fulfillmentStatus === "Delivered")
+      .reduce((sum, o) => sum + o.total, 0);
+  }, [orders]);
 
   const estimatedProfit = useMemo(() => {
     let totalProfit = 0;
@@ -46,23 +72,30 @@ export function useDashboardMetrics() {
     [estimatedProfit, totalGrossRevenue],
   );
 
-  const avgOrderValue = useMemo(
-    () => (activeOrders.length > 0 ? Math.round(totalGrossRevenue / activeOrders.length) : 0),
-    [activeOrders, totalGrossRevenue],
-  );
+  const avgOrderValue = useMemo(() => {
+    if (backendAnalytics?.metrics?.avgOrderValue !== undefined) {
+      return Number(backendAnalytics.metrics.avgOrderValue);
+    }
+    return activeOrders.length > 0 ? Math.round(totalGrossRevenue / activeOrders.length) : 0;
+  }, [activeOrders, backendAnalytics, totalGrossRevenue]);
 
-  const pendingOrdersCount = useMemo(
-    () =>
-      orders.filter(
-        (o) => o.fulfillmentStatus === "Pending" || o.fulfillmentStatus === "Processing",
-      ).length,
-    [orders],
-  );
+  const pendingOrdersCount = useMemo(() => {
+    if (backendAnalytics?.statusBreakdown) {
+      const p = Number(backendAnalytics.statusBreakdown["Pending"] || 0);
+      const pr = Number(backendAnalytics.statusBreakdown["Processing"] || 0);
+      return p + pr;
+    }
+    return orders.filter(
+      (o) => o.fulfillmentStatus === "Pending" || o.fulfillmentStatus === "Processing",
+    ).length;
+  }, [orders, backendAnalytics]);
 
-  const lowStockProducts = useMemo(
-    () => products.filter((p) => p.stock <= p.lowStockThreshold),
-    [products],
-  );
+  const lowStockProducts = useMemo(() => {
+    if (backendAnalytics?.lowStockProducts !== undefined) {
+      return backendAnalytics.lowStockProducts;
+    }
+    return products.filter((p) => p.stock <= p.lowStockThreshold);
+  }, [products, backendAnalytics]);
 
   const pendingReviewsCount = useMemo(
     () => reviews.filter((r) => r.status === "pending").length,
@@ -88,14 +121,41 @@ export function useDashboardMetrics() {
     regionalSalesData,
     paymentMethodData,
     brandPerformanceData,
-    topProducts,
-    orderStatusData,
-  } = useDashboardCharts(orders, products, timeRange, totalGrossRevenue, estimatedProfit);
+    topProducts: fallbackTopProducts,
+    orderStatusData: fallbackOrderStatusData,
+  } = useDashboardCharts(orders, products, timeRange, totalGrossRevenue, estimatedProfit, backendAnalytics);
+
+  const topProducts = useMemo(() => {
+    if (backendAnalytics?.topProducts !== undefined) {
+      return backendAnalytics.topProducts.map((p: any) => ({
+        id: String(p.id),
+        name: p.name,
+        slug: p.slug,
+        brand: p.brandName || "Authentic Japan",
+        price: Number(p.price),
+        salesCount: Number(p.salesCount || 0),
+        stock: Number(p.stock || 0),
+        image: p.image,
+      }));
+    }
+    return fallbackTopProducts;
+  }, [backendAnalytics, fallbackTopProducts]);
+
+  const orderStatusData = useMemo(() => {
+    if (backendAnalytics?.statusBreakdown) {
+      return Object.entries(backendAnalytics.statusBreakdown).map(([status, count]) => ({
+        status,
+        count: Number(count),
+      }));
+    }
+    return fallbackOrderStatusData;
+  }, [backendAnalytics, fallbackOrderStatusData]);
 
   const handleExportCSV = () => {
     const rows = [
       ["--- GLORIOUS JAPAN BUSINESS PERFORMANCE REPORT ---"],
       [`Generated At: ${new Date().toISOString()}`],
+      [`Telemetry Source: ${isLiveDb ? "MySQL Production Database" : "Cached Workspace Dataset"}`],
       [`Selected Timeframe: ${timeRange.toUpperCase()}`],
       [""],
       ["FINANCIAL KPI SUMMARY"],
@@ -153,5 +213,9 @@ export function useDashboardMetrics() {
     topProducts,
     orderStatusData,
     handleExportCSV,
+    isLiveDb,
+    isLoadingTelemetry,
+    lastSynced,
+    fetchTelemetry,
   };
 }

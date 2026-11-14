@@ -147,8 +147,11 @@ export function ProductTable({
                     <div className="inline-flex items-center gap-1.5">
                       <button
                         type="button"
-                        onClick={() => onAdjustStock(p.id, -1)}
-                        className="h-5 w-5 rounded bg-secondary grid place-items-center text-muted-foreground hover:text-foreground font-bold cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAdjustStock(p.id, -1);
+                        }}
+                        className="h-5 w-5 rounded bg-secondary grid place-items-center text-muted-foreground hover:text-foreground font-bold cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all select-none"
                         title="Decrement 1"
                       >
                         -
@@ -162,8 +165,11 @@ export function ProductTable({
 
                       <button
                         type="button"
-                        onClick={() => onAdjustStock(p.id, 1)}
-                        className="h-5 w-5 rounded bg-secondary grid place-items-center text-muted-foreground hover:text-foreground font-bold cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAdjustStock(p.id, 1);
+                        }}
+                        className="h-5 w-5 rounded bg-secondary grid place-items-center text-muted-foreground hover:text-foreground font-bold cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all select-none"
                         title="Increment 1"
                       >
                         +

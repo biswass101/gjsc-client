@@ -36,9 +36,17 @@ export const adminApi = {
     return apiClient.delete(`/admin/products/${id}`);
   },
 
-  // Orders
+  // Orders & Customers
   getOrders(params?: Record<string, any>): Promise<any> {
     return apiClient.get('/admin/orders', params);
+  },
+
+  createOrder(orderData: any): Promise<any> {
+    return apiClient.post('/admin/orders', orderData);
+  },
+
+  getCustomers(): Promise<any> {
+    return apiClient.get('/admin/customers');
   },
 
   updateOrderStatus(id: number | string, statusData: any): Promise<any> {
@@ -47,6 +55,18 @@ export const adminApi = {
 
   assignCourier(id: number | string, courierData: any): Promise<any> {
     return apiClient.patch(`/admin/orders/${id}/courier`, courierData);
+  },
+
+  updateOrderPayment(id: number | string, paymentData: any): Promise<any> {
+    return apiClient.patch(`/admin/orders/${id}/payment`, paymentData);
+  },
+
+  addOrderNote(id: number | string, note: string): Promise<any> {
+    return apiClient.patch(`/admin/orders/${id}/notes`, { notes: note });
+  },
+
+  deleteOrder(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/orders/${id}`);
   },
 
   // Discounts
@@ -128,6 +148,11 @@ export const adminApi = {
 
   deleteVideo(id: number): Promise<any> {
     return apiClient.delete(`/admin/videos/${id}`);
+  },
+
+  // System & Database Seeding
+  seedDatabase(): Promise<{ message: string }> {
+    return apiClient.post('/admin/seed', {});
   },
 };
 

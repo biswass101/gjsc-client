@@ -11,6 +11,13 @@ interface DashboardFunnelTabProps {
 }
 
 export function DashboardFunnelTab({ funnelData }: DashboardFunnelTabProps) {
+  const bagStage = funnelData.find((f) => f.stage === "Added to Bag")?.count || 0;
+  const checkoutStage = funnelData.find((f) => f.stage === "Initiated Checkout")?.count || 0;
+  const paidStage = funnelData.find((f) => f.stage === "Paid Orders")?.count || 0;
+
+  const bagToCheckout = bagStage > 0 ? ((checkoutStage / bagStage) * 100).toFixed(1) + "%" : "0.0%";
+  const checkoutCompletion = checkoutStage > 0 ? ((paidStage / checkoutStage) * 100).toFixed(1) + "%" : "0.0%";
+
   return (
     <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
       {/* Conversion Stages Progress */}
@@ -59,15 +66,15 @@ export function DashboardFunnelTab({ funnelData }: DashboardFunnelTabProps) {
         <div className="space-y-3 text-xs">
           <div className="p-3 rounded-lg border border-border bg-card">
             <p className="font-semibold text-foreground">Bag-to-Checkout Ratio</p>
-            <p className="text-xl font-bold text-emerald-600 mt-1">39.6%</p>
+            <p className="text-xl font-bold text-emerald-600 mt-1">{bagToCheckout}</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Benchmark: 35%+ in Prestige Cosmetics
+              Based on active shopper sessions
             </p>
           </div>
 
           <div className="p-3 rounded-lg border border-border bg-card">
             <p className="font-semibold text-foreground">Checkout Completion Rate</p>
-            <p className="text-xl font-bold text-blue-600 mt-1">74.2%</p>
+            <p className="text-xl font-bold text-blue-600 mt-1">{checkoutCompletion}</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
               High trust via bKash & Cash on Delivery options
             </p>

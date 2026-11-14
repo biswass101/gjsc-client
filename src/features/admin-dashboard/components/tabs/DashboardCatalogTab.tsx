@@ -29,25 +29,31 @@ export function DashboardCatalogTab({
         </div>
 
         <div className="space-y-3">
-          {brandPerformanceData.map((b, idx) => (
-            <div
-              key={b.brand}
-              className="flex items-center justify-between p-3 rounded-lg bg-secondary/25 border border-border/50 text-xs"
-            >
-              <div className="flex items-center gap-3">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary font-bold text-xs">
-                  #{idx + 1}
-                </span>
-                <div>
-                  <p className="font-bold text-foreground">{b.brand}</p>
-                  <p className="text-[11px] text-muted-foreground">{b.units} units sold</p>
-                </div>
-              </div>
-              <span className="font-bold text-foreground text-sm font-mono">
-                ৳{b.revenue.toLocaleString("en-BD")}
-              </span>
+          {brandPerformanceData.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground text-xs rounded-lg bg-secondary/15 border border-border/40">
+              No brand performance data yet. Japanese brand sales will appear here as orders are placed.
             </div>
-          ))}
+          ) : (
+            brandPerformanceData.map((b, idx) => (
+              <div
+                key={b.brand}
+                className="flex items-center justify-between p-3 rounded-lg bg-secondary/25 border border-border/50 text-xs"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary font-bold text-xs">
+                    #{idx + 1}
+                  </span>
+                  <div>
+                    <p className="font-bold text-foreground">{b.brand}</p>
+                    <p className="text-[11px] text-muted-foreground">{b.units} units sold</p>
+                  </div>
+                </div>
+                <span className="font-bold text-foreground text-sm font-mono">
+                  ৳{b.revenue.toLocaleString("en-BD")}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -66,8 +72,13 @@ export function DashboardCatalogTab({
         </div>
 
         <div className="divide-y divide-border/50">
-          {topProducts.map((p, idx) => (
-            <div key={p.id} className="py-2.5 flex items-center justify-between gap-3 text-xs">
+          {topProducts.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground text-xs">
+              No product SKUs recorded yet.
+            </div>
+          ) : (
+            topProducts.map((p, idx) => (
+              <div key={p.id} className="py-2.5 flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-3">
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-secondary text-[11px] font-bold text-muted-foreground">
                   #{idx + 1}
@@ -98,7 +109,8 @@ export function DashboardCatalogTab({
                 </p>
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
       </div>
     </div>

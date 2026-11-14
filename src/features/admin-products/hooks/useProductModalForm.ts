@@ -14,11 +14,14 @@ import {
 } from "../data/productDefaults";
 
 export function useProductModalForm(
-  addProduct: (product: Omit<AdminProduct, "id" | "slug" | "createdAt" | "salesCount">) => void,
-  updateProduct: (id: string, updates: Partial<AdminProduct>) => void,
+  addProduct: (
+    product: Omit<AdminProduct, "id" | "slug" | "createdAt" | "salesCount">,
+  ) => Promise<AdminProduct> | AdminProduct | void,
+  updateProduct: (id: string, updates: Partial<AdminProduct>) => Promise<void> | void,
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formState = useProductFormState();
 
@@ -113,107 +116,116 @@ export function useProductModalForm(
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formState.formName.trim()) {
       toast.error("Please enter a formulation title.");
       return;
     }
 
-    const priceNum = parseFloat(formState.formPrice) || 0;
-    const compareAtNum = formState.formCompareAt ? parseFloat(formState.formCompareAt) : undefined;
-    const costNum = parseFloat(formState.formCostPrice) || Math.round(priceNum * 0.6);
-    const stockNum = parseInt(formState.formStock, 10) || 0;
-    const lowStockNum = parseInt(formState.formLowStockThreshold, 10) || 5;
+    setIsSubmitting(true);
+    try {
+      const priceNum = parseFloat(formState.formPrice) || 0;
+      const compareAtNum = formState.formCompareAt ? parseFloat(formState.formCompareAt) : undefined;
+      const costNum = parseFloat(formState.formCostPrice) || Math.round(priceNum * 0.6);
+      const stockNum = parseInt(formState.formStock, 10) || 0;
+      const lowStockNum = parseInt(formState.formLowStockThreshold, 10) || 5;
 
-    const sizesArray = formState.formSizes
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+      const sizesArray = formState.formSizes
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
-    const cleanCover =
-      formState.formImage.trim() ||
-      PRODUCT_IMAGES[0] ||
-      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80";
-    const allImages: string[] = [
-      cleanCover,
-      ...formState.formGallery.filter(
-        (img): img is string =>
-          typeof img === "string" && img.trim().length > 0 && img !== cleanCover,
-      ),
-    ];
+      const cleanCover =
+        formState.formImage.trim() ||
+        PRODUCT_IMAGES[0] ||
+        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80";
+      const allImages: string[] = [
+        cleanCover,
+        ...formState.formGallery.filter(
+          (img): img is string =>
+            typeof img === "string" && img.trim().length > 0 && img !== cleanCover,
+        ),
+      ];
 
-    const cleanIngredients =
-      formState.formIngredients.length > 0
-        ? formState.formIngredients
-        : ["Rice Ferment Filtrate", "Hyaluronic Acid (5 Molecular Weights)"];
+      const cleanIngredients =
+        formState.formIngredients.length > 0
+          ? formState.formIngredients
+          : ["Rice Ferment Filtrate", "Hyaluronic Acid (5 Molecular Weights)"];
 
-    const cleanBenefits =
-      formState.formBenefits.length > 0
-        ? formState.formBenefits
-        : [
-            "Deep 72-Hour Cellular Moisture Lock",
-            "Strengthens Damaged Acid Mantle & Lipid Barrier",
-          ];
+      const cleanBenefits =
+        formState.formBenefits.length > 0
+          ? formState.formBenefits
+          : [
+              "Deep 72-Hour Cellular Moisture Lock",
+              "Strengthens Damaged Acid Mantle & Lipid Barrier",
+            ];
 
-    const payload = {
-      name: formState.formName.trim(),
-      brand: formState.formBrand,
-      category: formState.formCategory,
-      productType: formState.formProductType,
-      price: priceNum,
-      compareAt: compareAtNum,
-      costPrice: costNum,
-      stock: stockNum,
-      lowStockThreshold: lowStockNum,
-      badge: (formState.formBadge as AdminProduct["badge"]) || null,
-      status: formState.formStatus,
-      image: cleanCover,
-      images: allImages,
-      short: formState.formShort.trim(),
-      description: formState.formDesc.trim(),
-      howTo: formState.formHowTo.trim(),
-      skinTypes: formState.formSkinTypes,
-      concerns: formState.formConcerns,
-      ingredients: cleanIngredients,
-      benefits: cleanBenefits,
-      sizes: sizesArray.length > 0 ? sizesArray : ["50ml"],
-      origin: formState.formOrigin.trim(),
-      texture: formState.formTexture.trim(),
-      spf: formState.formSpf === "None" ? undefined : formState.formSpf,
-      pao: formState.formPao.trim(),
-    };
+      const payload = {
+        name: formState.formName.trim(),
+        brand: formState.formBrand,
+        category: formState.formCategory,
+        productType: formState.formProductType,
+        price: priceNum,
+        compareAt: compareAtNum,
+        costPrice: costNum,
+        stock: stockNum,
+        lowStockThreshold: lowStockNum,
+        badge: (formState.formBadge as AdminProduct["badge"]) || null,
+        status: formState.formStatus,
+        image: cleanCover,
+        images: allImages,
+        short: formState.formShort.trim(),
+        description: formState.formDesc.trim(),
+        howTo: formState.formHowTo.trim(),
+        skinTypes: formState.formSkinTypes,
+        concerns: formState.formConcerns,
+        ingredients: cleanIngredients,
+        benefits: cleanBenefits,
+        sizes: sizesArray.length > 0 ? sizesArray : ["50ml"],
+        origin: formState.formOrigin.trim(),
+        texture: formState.formTexture.trim(),
+        spf: formState.formSpf === "None" ? undefined : formState.formSpf,
+        pao: formState.formPao.trim(),
+      };
 
-    if (editingProduct) {
-      updateProduct(editingProduct.id, {
-        ...payload,
-        japaneseName: formState.formJapaneseName.trim() || `${formState.formBrand} プレミアム処方`,
-        sku: formState.formSku.trim() || editingProduct.sku,
-        barcode: formState.formBarcode.trim() || editingProduct.barcode,
-      });
-      toast.success(`Updated "${formState.formName}" successfully! ✨`);
-    } else {
-      addProduct({
-        ...payload,
-        japaneseName: formState.formJapaneseName.trim() || `${formState.formBrand} 公式処方`,
-        sku:
-          formState.formSku.trim() ||
-          `${formState.formBrand.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
-        barcode:
-          formState.formBarcode.trim() || `4580${Math.floor(10000000 + Math.random() * 90000000)}`,
-        rating: 5.0,
-        reviewsCount: 1,
-      });
-      toast.success(`Product "${formState.formName}" added to catalog! 🌸`);
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, {
+          ...payload,
+          japaneseName: formState.formJapaneseName.trim() || `${formState.formBrand} プレミアム処方`,
+          sku: formState.formSku.trim() || editingProduct.sku,
+          barcode: formState.formBarcode.trim() || editingProduct.barcode,
+        });
+        toast.success(`Updated "${formState.formName}" successfully! ✨`);
+      } else {
+        await addProduct({
+          ...payload,
+          japaneseName: formState.formJapaneseName.trim() || `${formState.formBrand} 公式処方`,
+          sku:
+            formState.formSku.trim() ||
+            `${formState.formBrand.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          barcode:
+            formState.formBarcode.trim() || `4580${Math.floor(10000000 + Math.random() * 90000000)}`,
+          rating: 5.0,
+          reviewsCount: 1,
+        });
+        toast.success(`Product "${formState.formName}" added to catalog! 🌸`);
+      }
+
+      setIsModalOpen(false);
+    } catch (err: any) {
+      const msg = err?.message || "Failed to save product to database.";
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsModalOpen(false);
   };
 
   return {
     isModalOpen,
     setIsModalOpen,
     editingProduct,
+    isSubmitting,
     ...formState,
     handleOpenAdd,
     handleOpenEdit,

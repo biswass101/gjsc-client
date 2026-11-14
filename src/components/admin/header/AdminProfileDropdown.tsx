@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Store, ShieldCheck, RefreshCw, LogOut, ExternalLink } from "lucide-react";
@@ -15,12 +17,16 @@ import { toast } from "sonner";
 export function AdminProfileDropdown() {
   const router = useRouter();
   const { resetToDefaults } = useAdmin();
-  const { logout } = useShop();
+  const { user, logout } = useShop();
 
-  const handleSignOut = () => {
-    logout();
+  const adminName = user?.name || "Administrator";
+  const adminEmail = user?.email || "admin@gloriousjapan.com";
+  const initials = adminName.slice(0, 1).toUpperCase();
+
+  const handleSignOut = async () => {
+    await logout();
     toast.info("Signed out of admin session.");
-    router.push("/auth");
+    router.push("/admin");
   };
 
   const handleFactoryReset = () => {
@@ -41,18 +47,24 @@ export function AdminProfileDropdown() {
           type="button"
           className="flex items-center gap-2 rounded-full border border-border/80 bg-secondary/30 p-1 pr-2 hover:bg-secondary transition-colors"
         >
-          <div className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground font-bold text-xs shadow-2xs">
-            A
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground font-bold text-xs shadow-2xs overflow-hidden">
+            {user?.avatar ? (
+              <img src={user.avatar} alt={adminName} className="h-full w-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
-          <span className="hidden md:inline text-xs font-semibold text-foreground">Admin</span>
+          <span className="hidden md:inline text-xs font-semibold text-foreground truncate max-w-[120px]">
+            {adminName}
+          </span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-3 py-2.5 border-b border-border/60">
-          <p className="text-xs font-semibold text-foreground">Super Administrator</p>
-          <p className="text-[11px] text-muted-foreground">admin@gloriousjapan.com</p>
+          <p className="text-xs font-semibold text-foreground truncate">{adminName}</p>
+          <p className="text-[11px] text-muted-foreground truncate">{adminEmail}</p>
           <span className="inline-block mt-1 rounded-full bg-emerald-500/15 px-2 py-0.2 text-[9px] font-bold text-emerald-700 dark:text-emerald-300">
-            Full Access • All Modules
+            Verified Admin • Full Access
           </span>
         </div>
         <DropdownMenuItem asChild className="cursor-pointer gap-2 text-xs">

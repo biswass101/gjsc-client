@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useAdmin } from "@/context/admin-context";
+import { QuickAddOrderModal } from "@/components/admin/quick-modals";
 import {
   useOrderManagement,
   OrderHeader,
@@ -13,6 +15,7 @@ import {
 } from "@/features/admin-orders";
 
 export default function AdminOrdersPage() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const {
     orders = [],
     updateOrderStatus,
@@ -34,7 +37,11 @@ export default function AdminOrdersPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header with Logistics Overview & Export */}
-      <OrderHeader totalParcels={orders.length} onExportCSV={mgmt.handleExportCSV} />
+      <OrderHeader
+        totalParcels={orders.length}
+        onExportCSV={mgmt.handleExportCSV}
+        onCreateOrder={() => setIsCreateOpen(true)}
+      />
 
       {/* Pipeline Status Filter Tabs */}
       <OrderStageTabs
@@ -104,6 +111,12 @@ export default function AdminOrdersPage() {
         order={mgmt.selectedOrder}
         isOpen={mgmt.isInvoiceOpen}
         onOpenChange={mgmt.setIsInvoiceOpen}
+      />
+
+      {/* Manual Order Creation Modal */}
+      <QuickAddOrderModal
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { Building2, Download } from "lucide-react";
+import { Building2, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimeRange } from "../types";
 
@@ -7,6 +7,9 @@ interface DashboardHeaderProps {
   timeRange: TimeRange;
   setTimeRange: (t: TimeRange) => void;
   onExportCSV: () => void;
+  isLiveDb?: boolean;
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
 const TIME_RANGES: Array<{ id: TimeRange; label: string }> = [
@@ -17,17 +20,31 @@ const TIME_RANGES: Array<{ id: TimeRange; label: string }> = [
   { id: "ytd", label: "YTD" },
 ];
 
-export function DashboardHeader({ timeRange, setTimeRange, onExportCSV }: DashboardHeaderProps) {
+export function DashboardHeader({
+  timeRange,
+  setTimeRange,
+  onExportCSV,
+  isLiveDb = false,
+  isLoading = false,
+  onRefresh,
+}: DashboardHeaderProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-border/70 pb-5">
       <div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="eyebrow text-primary font-bold">Executive Cockpit v2.6</span>
           <span className="text-muted-foreground/50">•</span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live Telemetry Active
-          </span>
+          {isLiveDb ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live MySQL Telemetry Active
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Cached Storefront Dataset
+            </span>
+          )}
           <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-300">
             <Building2 className="h-3 w-3" /> Tokyo Hub • Dhaka
           </span>
@@ -43,6 +60,20 @@ export function DashboardHeader({ timeRange, setTimeRange, onExportCSV }: Dashbo
       </div>
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        {onRefresh && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="rounded-full text-xs h-8 px-3 gap-1.5 shadow-2xs hover:border-primary/50"
+            title="Sync live analytics with MySQL database"
+          >
+            <RefreshCw className={`h-3 w-3 text-primary ${isLoading ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">Sync DB</span>
+          </Button>
+        )}
+
         <div className="flex items-center rounded-full border border-border/80 bg-secondary/40 p-1 text-xs">
           {TIME_RANGES.map((t) => (
             <button

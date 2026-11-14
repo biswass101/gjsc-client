@@ -53,6 +53,11 @@ export default function AdminProductsPage() {
     pagedProducts,
     totalPages,
     currentPage,
+    filteredCount,
+    totalCount,
+    isLoading,
+    refetch,
+    handleAdjustStock,
     handleSelectAll,
     handleToggleSelect,
     handleBulkRestock,
@@ -61,22 +66,35 @@ export default function AdminProductsPage() {
   } = useProductList(products, adjustStock, bulkDeleteProducts);
 
   // Formulation Modal & Multi-Step Tab Form Hook
-  const modal = useProductModalForm(addProduct, updateProduct);
+  const modal = useProductModalForm(
+    async (input) => {
+      const p = await addProduct(input);
+      refetch();
+      return p;
+    },
+    async (id, updates) => {
+      await updateProduct(id, updates);
+      refetch();
+    },
+  );
 
-  const handleDeleteProduct = (id: string, name: string) => {
+  const handleDeleteProduct = async (id: string, name: string) => {
     if (window.confirm(`Delete product "${name}"?`)) {
-      deleteProduct(id);
+      await deleteProduct(id);
+      refetch();
       toast.info(`Deleted "${name}"`);
     }
   };
 
   const handleDuplicateProduct = (id: string, name: string) => {
     duplicateProduct(id);
+    refetch();
     toast.success(`Duplicated "${name}"`);
   };
 
   const handleTagFlashSale = () => {
     bulkUpdateProducts(selectedIds, { badge: "Flash Sale" });
+    refetch();
     toast.success(`Applied 'Flash Sale' badge to ${selectedIds.length} products!`);
     handleSelectAll(false);
   };
@@ -85,14 +103,14 @@ export default function AdminProductsPage() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header & Quick Action */}
       <ProductHeader
-        productsCount={products.length}
+        productsCount={totalCount || products.length}
         onExportCsv={handleExportFilteredCSV}
         onOpenAdd={modal.handleOpenAdd}
       />
 
       {/* Inventory Health Strip */}
       <ProductInventoryHealth
-        productsCount={products.length}
+        productsCount={totalCount || products.length}
         inStockPercentage={inStockPercentage}
         totalStockUnits={totalStockUnits}
         lowStockCount={lowStockCount}
@@ -147,7 +165,7 @@ export default function AdminProductsPage() {
           selectedIds={selectedIds}
           onSelectAll={handleSelectAll}
           onToggleSelect={handleToggleSelect}
-          onAdjustStock={adjustStock}
+          onAdjustStock={handleAdjustStock}
           onEdit={modal.handleOpenEdit}
           onDuplicate={handleDuplicateProduct}
           onDelete={handleDeleteProduct}
@@ -159,12 +177,14 @@ export default function AdminProductsPage() {
             setPageSize(size);
             setPage(1);
           }}
-          filteredCount={sortedProducts.length}
-          totalCount={products.length}
+          filteredCount={filteredCount}
+          totalCount={totalCount}
           currentPage={currentPage}
           totalPages={totalPages}
           onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
           onNextPage={() => setPage((p) => Math.min(totalPages, p + 1))}
+          onPageChange={setPage}
+          isLoading={isLoading}
         />
       </div>
 

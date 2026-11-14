@@ -8,6 +8,8 @@ interface DashboardPaymentChannelCardProps {
 export function DashboardPaymentChannelCard({
   paymentMethodData,
 }: DashboardPaymentChannelCardProps) {
+  const totalVolume = paymentMethodData.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="rounded-xl border border-border/80 bg-card p-5 space-y-4 shadow-xs">
       <div className="border-b border-border/60 pb-3">
@@ -16,32 +18,41 @@ export function DashboardPaymentChannelCard({
       </div>
 
       <div className="h-52 w-full relative">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={paymentMethodData}
-              cx="50%"
-              cy="50%"
-              innerRadius={50}
-              outerRadius={75}
-              paddingAngle={4}
-              dataKey="value"
-            >
-              {paymentMethodData.map((entry, index) => (
-                <Cell key={`pay-cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(val: number) => [`৳${val.toLocaleString("en-BD")} BDT`, "Volume"]}
-              contentStyle={{
-                backgroundColor: "var(--popover)",
-                borderColor: "var(--border)",
-                borderRadius: "8px",
-                fontSize: "11px",
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        {totalVolume === 0 ? (
+          <div className="h-full w-full flex flex-col items-center justify-center text-center p-4">
+            <div className="h-24 w-24 rounded-full border-2 border-dashed border-border/70 flex items-center justify-center mb-2">
+              <span className="text-xs font-semibold text-muted-foreground">৳0 BDT</span>
+            </div>
+            <p className="text-xs text-muted-foreground">No payment volume recorded yet</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={paymentMethodData}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={75}
+                paddingAngle={4}
+                dataKey="value"
+              >
+                {paymentMethodData.map((entry, index) => (
+                  <Cell key={`pay-cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(val: number) => [`৳${val.toLocaleString("en-BD")} BDT`, "Volume"]}
+                contentStyle={{
+                  backgroundColor: "var(--popover)",
+                  borderColor: "var(--border)",
+                  borderRadius: "8px",
+                  fontSize: "11px",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="space-y-2 pt-2 border-t border-border/50 text-xs">

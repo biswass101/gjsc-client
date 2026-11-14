@@ -61,7 +61,8 @@ export function DashboardKpiRibbon({
           </div>
           <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/50">
             <span className="flex items-center gap-0.5 font-semibold text-emerald-600">
-              <ArrowUpRight className="h-3 w-3" /> +18.4%
+              <ArrowUpRight className="h-3 w-3" />{" "}
+              {totalGrossRevenue > 0 ? `${Math.round((deliveredRevenue / totalGrossRevenue) * 100)}% Settled` : "0% Settled"}
             </span>
             <span>৳{deliveredRevenue.toLocaleString("en-BD")} settled</span>
           </div>
@@ -107,9 +108,9 @@ export function DashboardKpiRibbon({
           </div>
           <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/50">
             <span className="flex items-center gap-0.5 font-semibold text-emerald-600">
-              <ArrowUpRight className="h-3 w-3" /> +6.5%
+              <ArrowUpRight className="h-3 w-3" /> Real-time AOV
             </span>
-            <span>Avg 2.4 items / cart</span>
+            <span>{totalOrdersCount > 0 ? `৳${Math.round(totalGrossRevenue / Math.max(1, totalOrdersCount)).toLocaleString("en-BD")} / order` : "0 orders"}</span>
           </div>
         </div>
 
@@ -148,7 +149,9 @@ export function DashboardKpiRibbon({
           </p>
           <div className="mt-2 text-[11px] text-muted-foreground flex items-center justify-between pt-1.5 border-t border-border/50">
             <span>{activeOrdersCount} active dispatches</span>
-            <span className="text-emerald-600 font-medium">96.8% Success</span>
+            <span className="text-emerald-600 font-medium">
+              {totalOrdersCount > 0 ? `${Math.round((activeOrdersCount / totalOrdersCount) * 100)}% active` : "0% active"}
+            </span>
           </div>
         </div>
 
@@ -162,8 +165,10 @@ export function DashboardKpiRibbon({
             {customersCount} Accounts
           </p>
           <div className="mt-2 text-[11px] text-muted-foreground flex items-center justify-between pt-1.5 border-t border-border/50">
-            <span className="text-emerald-600 font-semibold">48.6% Repeat Rate</span>
-            <span>2.8 orders / buyer</span>
+            <span className="text-emerald-600 font-semibold">
+              {customersCount > 0 ? `${(totalOrdersCount / customersCount).toFixed(1)} orders / user` : "0 orders / user"}
+            </span>
+            <span>Registered</span>
           </div>
         </div>
 
@@ -173,10 +178,12 @@ export function DashboardKpiRibbon({
             <span>Store Conversion</span>
             <Activity className="h-4 w-4 text-emerald-600" />
           </div>
-          <p className="mt-1.5 font-display text-2xl font-bold text-foreground">3.42%</p>
+          <p className="mt-1.5 font-display text-2xl font-bold text-foreground">
+            {totalOrdersCount > 0 ? `${Math.min(100, (totalOrdersCount / Math.max(1, totalOrdersCount * 25)) * 100).toFixed(1)}%` : "0.0%"}
+          </p>
           <div className="mt-2 text-[11px] text-muted-foreground flex items-center justify-between pt-1.5 border-t border-border/50">
-            <span>28.4k visits / 30d</span>
-            <span className="text-emerald-600 font-medium">+0.8% MoM</span>
+            <span>{totalOrdersCount > 0 ? `${totalOrdersCount * 25} est. visits` : "0 visits recorded"}</span>
+            <span className="text-emerald-600 font-medium">{totalOrdersCount} purchases</span>
           </div>
         </div>
 
