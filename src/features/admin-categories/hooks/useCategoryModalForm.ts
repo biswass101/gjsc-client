@@ -4,8 +4,8 @@ import type { AdminCategory } from "@/types";
 import { PARENT_CATEGORIES, DEFAULT_IMAGES } from "../constants";
 
 interface UseCategoryModalFormProps {
-  addCategory: (cat: Omit<AdminCategory, "id">) => AdminCategory;
-  updateCategory: (id: string, updates: Partial<AdminCategory>) => void;
+  addCategory: (cat: Omit<AdminCategory, "id">) => Promise<AdminCategory> | AdminCategory;
+  updateCategory: (id: string, updates: Partial<AdminCategory>) => Promise<void> | void;
 }
 
 export function useCategoryModalForm({ addCategory, updateCategory }: UseCategoryModalFormProps) {

@@ -1,3 +1,6 @@
+"use client";
+
+import { useAdmin } from "@/context/admin-context";
 import { BrandBreadcrumb } from "./BrandBreadcrumb";
 import type { BrandMeta } from "../data/brandMetadata";
 import { ShieldCheck, MapPin, Sparkles, Building2 } from "lucide-react";
@@ -8,6 +11,22 @@ interface BrandHeroProps {
 }
 
 export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
+  const { banners } = useAdmin();
+  const normalizedSlug = meta.slug.replace(/-/g, "_");
+  const matchingBanners = (banners || [])
+    .filter(
+      (b) =>
+        (b.pageKey === `brand_${normalizedSlug}` ||
+          b.pageKey === meta.slug ||
+          b.pageKey === normalizedSlug) &&
+        b.active !== false
+    )
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const activeBanner = matchingBanners[0];
+  const bgImage = activeBanner?.imageUrl || meta.bannerImage;
+  const mobileBgImage = activeBanner?.mobileImageUrl;
+
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-cream/60 via-cream/30 to-background">
       <div className="container-lux py-8 sm:py-12">
@@ -20,11 +39,16 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
         <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
           {/* Background Banner with Gradient */}
           <div className="relative h-44 sm:h-56 md:h-64 w-full overflow-hidden">
-            <img
-              src={meta.bannerImage}
-              alt={meta.name}
-              className="h-full w-full object-cover object-center"
-            />
+            <picture>
+              {mobileBgImage && (
+                <source media="(max-width: 640px)" srcSet={mobileBgImage} />
+              )}
+              <img
+                src={bgImage}
+                alt={activeBanner?.title || meta.name}
+                className="h-full w-full object-cover object-center"
+              />
+            </picture>
             <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
             <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/40 to-transparent" />
           </div>
@@ -55,7 +79,7 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
                   </div>
 
                   <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                    {meta.name}
+                    {activeBanner?.title || meta.name}
                   </h1>
 
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -89,10 +113,10 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
             {/* Tagline & Short Description */}
             <div className="mt-5 max-w-3xl pt-4 border-t border-border/60">
               <p className="font-medium text-sm sm:text-base text-foreground leading-snug">
-                {meta.tagline}
+                {activeBanner?.badge || meta.tagline}
               </p>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                {meta.description}
+                {activeBanner?.subtitle || meta.description}
               </p>
 
               {/* Key Ingredients or Philosophies Pills */}

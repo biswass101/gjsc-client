@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { Layout, GoToTop } from "@/components/layout";
-import { getCategoryMeta } from "../data/categoryMetadata";
+import { useAdmin } from "@/context/admin-context";
+import { getCategoryMeta, normalizeCategorySlug } from "../data/categoryMetadata";
 import { CategoryHero } from "./CategoryHero";
 import { CategoryTopSelling } from "./CategoryTopSelling";
 import { CategoryFilterSidebar } from "./CategoryFilters";
@@ -15,7 +16,42 @@ interface CategoryPageClientProps {
 }
 
 export function CategoryPageClient({ slug }: CategoryPageClientProps) {
-  const meta = useMemo(() => getCategoryMeta(slug), [slug]);
+  const { categories: adminCategories } = useAdmin();
+
+  const meta = useMemo(() => {
+    const staticMeta = getCategoryMeta(slug);
+    const normalized = normalizeCategorySlug(slug);
+    const adminCat = adminCategories.find(
+      (c) =>
+        c.slug === normalized ||
+        c.slug === slug ||
+        c.title.toLowerCase() === normalized.replace(/-/g, " ") ||
+        c.title.toLowerCase() === slug.toLowerCase()
+    );
+    if (adminCat) {
+      const mergedSubcats =
+        adminCat.subcategories && adminCat.subcategories.length > 0
+          ? ["All", ...adminCat.subcategories.filter((s) => s.toLowerCase() !== "all")]
+          : staticMeta.subcategories;
+
+      return {
+        ...staticMeta,
+        title: adminCat.title,
+        japaneseTitle: adminCat.japaneseTitle || staticMeta.japaneseTitle,
+        tagline: adminCat.tagline || staticMeta.tagline,
+        description: adminCat.description || staticMeta.description,
+        subcategories: mergedSubcats,
+        matchedCategories: Array.from(
+          new Set([
+            adminCat.title,
+            ...(adminCat.subcategories || []),
+            ...staticMeta.matchedCategories,
+          ])
+        ),
+      };
+    }
+    return staticMeta;
+  }, [slug, adminCategories]);
 
   const {
     categoryProducts,

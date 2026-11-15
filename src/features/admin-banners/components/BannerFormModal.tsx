@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { AdminBanner } from "@/context/admin-context";
 import { BannerModalIdentityFields } from "./form/BannerModalIdentityFields";
 import { BannerModalMediaCtaFields } from "./form/BannerModalMediaCtaFields";
+import { BannerModalGradientFields } from "./form/BannerModalGradientFields";
 
 interface BannerFormModalProps {
   isOpen: boolean;
@@ -29,14 +30,20 @@ interface BannerFormModalProps {
   setImageUrl: (val: string) => void;
   mobileImageUrl: string;
   setMobileImageUrl: (val: string) => void;
-  ctaText: string;
-  setCtaText: (val: string) => void;
   ctaLink: string;
   setCtaLink: (val: string) => void;
   order: string;
   setOrder: (val: string) => void;
   active: boolean;
   setActive: (val: boolean) => void;
+  gradient: string;
+  setGradient: (val: string) => void;
+  customStart: string;
+  setCustomStart: (val: string) => void;
+  customEnd: string;
+  setCustomEnd: (val: string) => void;
+  customOpacity: number;
+  setCustomOpacity: (val: number) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -56,14 +63,20 @@ export function BannerFormModal({
   setImageUrl,
   mobileImageUrl,
   setMobileImageUrl,
-  ctaText,
-  setCtaText,
   ctaLink,
   setCtaLink,
   order,
   setOrder,
   active,
   setActive,
+  gradient,
+  setGradient,
+  customStart,
+  setCustomStart,
+  customEnd,
+  setCustomEnd,
+  customOpacity,
+  setCustomOpacity,
   onSubmit,
 }: BannerFormModalProps) {
   return (
@@ -78,8 +91,7 @@ export function BannerFormModal({
               </span>
             </DialogTitle>
             <DialogDescription>
-              Configure page placement, marketing headline, responsive graphics, and conversion CTA
-              button.
+              Configure page placement, marketing headline, responsive graphics, custom gradient atmosphere, and conversion CTA.
             </DialogDescription>
           </DialogHeader>
 
@@ -95,13 +107,23 @@ export function BannerFormModal({
               setSubtitle={setSubtitle}
             />
 
+            <BannerModalGradientFields
+              gradient={gradient}
+              setGradient={setGradient}
+              customStart={customStart}
+              setCustomStart={setCustomStart}
+              customEnd={customEnd}
+              setCustomEnd={setCustomEnd}
+              customOpacity={customOpacity}
+              setCustomOpacity={setCustomOpacity}
+              hasText={Boolean(title.trim() || subtitle.trim())}
+            />
+
             <BannerModalMediaCtaFields
               imageUrl={imageUrl}
               setImageUrl={setImageUrl}
               mobileImageUrl={mobileImageUrl}
               setMobileImageUrl={setMobileImageUrl}
-              ctaText={ctaText}
-              setCtaText={setCtaText}
               ctaLink={ctaLink}
               setCtaLink={setCtaLink}
               order={order}

@@ -64,11 +64,19 @@ export function VideoTable({
                     </div>
                   </td>
                   <td className="py-3 px-4 max-w-xs">
-                    <p className="font-semibold text-foreground truncate">{video.title}</p>
+                    <p className="font-semibold text-foreground truncate flex items-center gap-1.5">
+                      <span className="truncate">{video.title}</span>
+                      {video.videoUrl?.includes("cloudinary") && (
+                        <span className="shrink-0 text-[9px] font-semibold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-800">
+                          ☁️ Cloudinary
+                        </span>
+                      )}
+                    </p>
                     <p className="text-[11px] text-muted-foreground italic truncate">
                       "{video.caption}"
                     </p>
                   </td>
+
                   <td className="py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <img

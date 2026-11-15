@@ -22,24 +22,24 @@ export default function AdminPreOrdersPage() {
 
   const [poToDelete, setPoToDelete] = useState<AdminPreOrder | null>(null);
 
-  const handleConfirmDelete = useCallback(() => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!poToDelete) return;
-    deletePreOrder(poToDelete.id);
+    await deletePreOrder(poToDelete.id);
     toast.success(`Pre-order batch "${poToDelete.productName}" removed.`);
     setPoToDelete(null);
   }, [poToDelete, deletePreOrder]);
 
   const handleQuickStatusChange = useCallback(
-    (po: AdminPreOrder, newStatus: AdminPreOrder["batchStatus"]) => {
-      updatePreOrder(po.id, { batchStatus: newStatus });
+    async (po: AdminPreOrder, newStatus: AdminPreOrder["batchStatus"]) => {
+      await updatePreOrder(po.id, { batchStatus: newStatus });
       toast.success(`Batch status updated to "${newStatus}" for ${po.productName}!`);
     },
     [updatePreOrder],
   );
 
   const handleToggleActive = useCallback(
-    (po: AdminPreOrder) => {
-      updatePreOrder(po.id, { active: !po.active });
+    async (po: AdminPreOrder) => {
+      await updatePreOrder(po.id, { active: !po.active });
       toast.success(
         `Pre-order booking ${!po.active ? "reopened" : "paused"} for ${po.productName}.`,
       );
@@ -54,9 +54,8 @@ export default function AdminPreOrdersPage() {
       <PreOrdersKpiCards
         totalCampaigns={preOrders.length}
         totalBookedRevenue={filterState.totalBookedRevenue}
-        totalSlotsBooked={filterState.totalSlotsBooked}
-        totalSlots={filterState.totalSlots}
         inFlightBatchesCount={filterState.inFlightBatchesCount}
+        readyBatchesCount={filterState.readyBatchesCount}
       />
 
       <PreOrdersFiltersBar

@@ -1,5 +1,6 @@
 import story from "@/assets/story.jpg";
 import { Layout } from "@/components/layout";
+import { StorefrontPageBanner } from "@/components/common";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,7 +19,14 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <Layout>
-      <div className="container-lux grid items-center gap-14 py-20 lg:grid-cols-2">
+      <StorefrontPageBanner
+        pageKey="about"
+        defaultTitle="The Philosophy of Glorious Japan"
+        defaultSubtitle="Bridging ancient Ginza apothecary traditions and modern Tokyo biochemistry directly to Dhaka."
+        defaultBadge="私たちの哲学 · Our Heritage"
+        centered
+      />
+      <div className="container-lux grid items-center gap-14 py-16 lg:grid-cols-2">
         <div>
           <p className="eyebrow">Est. 2025</p>
           <h1 className="mt-3 font-display text-4xl md:text-5xl">Stay Glorious, Shine with Confidence</h1>

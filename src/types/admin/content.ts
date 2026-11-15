@@ -11,28 +11,32 @@ export interface AdminDiscount {
   endDate: string;
 }
 
+export type BannerPageKey =
+  | "home_hero"
+  | "home_middle"
+  | "shop"
+  | "collections"
+  | "brands"
+  | "categories"
+  | "offers"
+  | "pre_order"
+  | "checkout"
+  | (string & {});
+
 export interface AdminBanner {
   id: string;
-  pageKey:
-    | "home_hero"
-    | "home_middle"
-    | "shop"
-    | "collections"
-    | "brands"
-    | "categories"
-    | "offers"
-    | "pre_order"
-    | "checkout";
+  pageKey: BannerPageKey;
   pageTitle: string;
   title: string;
-  subtitle?: string | undefined;
-  badge?: string | undefined;
+  subtitle?: string | null | undefined;
+  badge?: string | null | undefined;
   imageUrl: string;
-  mobileImageUrl?: string | undefined;
-  ctaText?: string | undefined;
-  ctaLink?: string | undefined;
+  mobileImageUrl?: string | null | undefined;
+  ctaText?: string | null | undefined;
+  ctaLink?: string | null | undefined;
   active: boolean;
   order: number;
+  gradient?: string | null | undefined;
 }
 
 export interface AdminFeaturedVideo {

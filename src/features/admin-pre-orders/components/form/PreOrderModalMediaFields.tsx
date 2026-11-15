@@ -70,7 +70,7 @@ export function PreOrderModalMediaFields({
             Pre-Order Booking Active
           </Label>
           <p className="text-[11px] text-muted-foreground">
-            When active, customers can pay advance deposit and reserve their quota slot
+            When active, customers can place pre-orders and reserve this Tokyo import
           </p>
         </div>
         <Switch id="po-active" checked={active} onCheckedChange={setActive} />

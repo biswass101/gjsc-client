@@ -35,10 +35,10 @@ interface PreOrderFormModalProps {
   setDepositPercent: (val: string) => void;
   estimatedArrival: string;
   setEstimatedArrival: (val: string) => void;
-  slotsTotal: string;
-  setSlotsTotal: (val: string) => void;
-  slotsBooked: string;
-  setSlotsBooked: (val: string) => void;
+  slotsTotal?: string;
+  setSlotsTotal?: (val: string) => void;
+  slotsBooked?: string;
+  setSlotsBooked?: (val: string) => void;
   batchStatus: AdminPreOrder["batchStatus"];
   setBatchStatus: (val: AdminPreOrder["batchStatus"]) => void;
   image: string;
@@ -94,8 +94,8 @@ export function PreOrderFormModal({
               </span>
             </DialogTitle>
             <DialogDescription>
-              Configure Tokyo direct air-cargo arrival dates, quota reservation limits, and required
-              customer advance deposits.
+              Configure Tokyo direct air-cargo arrival dates, flight batch stages, tracking notes,
+              and required customer advance deposits.
             </DialogDescription>
           </DialogHeader>
 
@@ -121,10 +121,6 @@ export function PreOrderFormModal({
               setEstimatedArrival={setEstimatedArrival}
               batchStatus={batchStatus}
               setBatchStatus={setBatchStatus}
-              slotsTotal={slotsTotal}
-              setSlotsTotal={setSlotsTotal}
-              slotsBooked={slotsBooked}
-              setSlotsBooked={setSlotsBooked}
             />
 
             <PreOrderModalMediaFields

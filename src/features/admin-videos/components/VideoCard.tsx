@@ -49,6 +49,11 @@ export function VideoCard({
             <span className="rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-semibold backdrop-blur-md">
               #{video.order} · {video.duration}
             </span>
+            {video.videoUrl?.includes("cloudinary") && (
+              <span className="rounded-full bg-sky-600/90 text-white px-1.5 py-0.5 text-[8px] font-bold tracking-wider backdrop-blur-md flex items-center gap-0.5">
+                <span>☁️ CDN</span>
+              </span>
+            )}
             {video.featured && (
               <span className="rounded-full bg-amber-500/90 text-white px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider backdrop-blur-md flex items-center gap-0.5">
                 <Sparkles className="h-2 w-2" />
@@ -56,6 +61,7 @@ export function VideoCard({
               </span>
             )}
           </div>
+
 
           <span className="inline-flex items-center gap-0.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-medium backdrop-blur-md">
             <Eye className="h-2.5 w-2.5" />

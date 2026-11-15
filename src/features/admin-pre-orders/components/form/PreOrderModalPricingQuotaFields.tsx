@@ -20,10 +20,10 @@ interface PreOrderModalPricingQuotaFieldsProps {
   setEstimatedArrival: (val: string) => void;
   batchStatus: AdminPreOrder["batchStatus"];
   setBatchStatus: (val: AdminPreOrder["batchStatus"]) => void;
-  slotsTotal: string;
-  setSlotsTotal: (val: string) => void;
-  slotsBooked: string;
-  setSlotsBooked: (val: string) => void;
+  slotsTotal?: string;
+  setSlotsTotal?: (val: string) => void;
+  slotsBooked?: string;
+  setSlotsBooked?: (val: string) => void;
 }
 
 export function PreOrderModalPricingQuotaFields({
@@ -35,10 +35,6 @@ export function PreOrderModalPricingQuotaFields({
   setEstimatedArrival,
   batchStatus,
   setBatchStatus,
-  slotsTotal,
-  setSlotsTotal,
-  slotsBooked,
-  setSlotsBooked,
 }: PreOrderModalPricingQuotaFieldsProps) {
   const depositAmount = (
     (parseFloat(price) || 0) *
@@ -71,7 +67,7 @@ export function PreOrderModalPricingQuotaFields({
               type="number"
               value={depositPercent}
               onChange={(e) => setDepositPercent(e.target.value)}
-              min={10}
+              min={0}
               max={100}
             />
             <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -113,33 +109,6 @@ export function PreOrderModalPricingQuotaFields({
               ))}
             </SelectContent>
           </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="po-total-slots" className="text-xs font-semibold">
-            Total Flight Quota Allocation (Slots)
-          </Label>
-          <Input
-            id="po-total-slots"
-            type="number"
-            value={slotsTotal}
-            onChange={(e) => setSlotsTotal(e.target.value)}
-            min={1}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="po-booked-slots" className="text-xs font-semibold">
-            Currently Booked Slots
-          </Label>
-          <Input
-            id="po-booked-slots"
-            type="number"
-            value={slotsBooked}
-            onChange={(e) => setSlotsBooked(e.target.value)}
-            min={0}
-          />
         </div>
       </div>
     </>

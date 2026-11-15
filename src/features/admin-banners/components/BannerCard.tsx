@@ -1,10 +1,10 @@
 import React from "react";
-import { ArrowRight, Monitor, Smartphone, Edit2, Trash2 } from "lucide-react";
-import { AdminBanner } from "@/context/admin-context";
+import { Monitor, Smartphone, Edit2, Trash2 } from "lucide-react";
+import { AdminBanner, useAdmin } from "@/context/admin-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { PAGE_KEYS } from "../constants";
+import { PAGE_KEYS, resolveBannerGradient } from "../constants";
 
 interface BannerCardProps {
   banner: AdminBanner;
@@ -14,7 +14,16 @@ interface BannerCardProps {
 }
 
 export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerCardProps) {
+  const { banners } = useAdmin();
   const pageConfig = PAGE_KEYS.find((p) => p.key === banner.pageKey);
+
+  const pageBanners = (banners || [])
+    .filter((b) => b.pageKey === banner.pageKey)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  const totalInPage = pageBanners.length;
+
+  const hasText = Boolean(banner.title?.trim() || banner.subtitle?.trim());
+  const gradientCss = hasText ? resolveBannerGradient(banner.gradient) : "none";
 
   return (
     <div
@@ -33,12 +42,11 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
           loading="lazy"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src =
-              "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1600&auto=format&fit=crop&q=80";
+              "/hero/Glorious Japan Skincare Spring Glow.png";
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent" />
 
-        {/* Status & Page Badge */}
+        {/* Status & Page Badge in preview top-left */}
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <Badge className="bg-background/90 text-foreground font-semibold text-[10px] backdrop-blur-xs shadow-xs">
             {pageConfig?.label || banner.pageTitle}
@@ -48,47 +56,52 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
               {banner.badge}
             </Badge>
           )}
+          {hasText && banner.gradient && banner.gradient !== "none" && (
+            <Badge variant="outline" className="bg-background/85 text-foreground text-[9px] backdrop-blur-xs">
+              🎨 Styled Gradient
+            </Badge>
+          )}
         </div>
 
         {/* Active switch & order badge in preview top-right */}
         <div className="absolute top-3 right-3 flex items-center gap-2">
-          <span className="rounded-md bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-white font-mono">
-            Order #{banner.order}
+          <span className="rounded-md bg-background/85 backdrop-blur-md border border-border/50 px-2 py-0.5 text-[10px] font-bold text-foreground font-mono shadow-xs">
+            Slide #{banner.order} {totalInPage > 1 ? `of ${totalInPage}` : ""}
           </span>
-          <div className="rounded-full bg-black/60 backdrop-blur-md p-1 px-2 flex items-center gap-1.5">
-            <span className="text-[10px] text-white">Live:</span>
+          <div className="rounded-full bg-background/85 backdrop-blur-md border border-border/50 p-1 px-2 flex items-center gap-1.5 shadow-xs">
+            <span className="text-[10px] font-medium text-foreground">Live:</span>
             <Switch checked={banner.active} onCheckedChange={() => onToggleActive(banner)} />
           </div>
         </div>
 
-        {/* Banner Text Overlay */}
-        <div className="absolute bottom-4 left-4 right-4 space-y-2">
-          <h3 className="text-xl font-bold text-white drop-shadow-sm leading-tight max-w-lg">
-            {banner.title}
-          </h3>
-          {banner.subtitle && (
-            <p className="text-xs text-white/90 line-clamp-2 max-w-md drop-shadow-2xs">
-              {banner.subtitle}
-            </p>
-          )}
+        {/* Applied Gradient Atmosphere Overlay - ONLY when headline or subtitle is present! */}
+        {hasText && gradientCss !== "none" && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-all duration-300"
+            style={{ background: gradientCss }}
+          />
+        )}
 
-          {banner.ctaText && (
-            <div className="pt-1 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-xs">
-                <span>{banner.ctaText}</span>
-                <ArrowRight className="h-3 w-3" />
-              </span>
-              <span className="text-[11px] text-white/70 font-mono">
-                Target: {banner.ctaLink || "/"}
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Banner Text Overlay (when headline or subtitle provided) */}
+        {(banner.title || banner.subtitle) && (
+          <div className="absolute bottom-3 left-3 right-3 p-3 rounded-lg bg-background/85 backdrop-blur-md border border-border/40 space-y-1.5 shadow-sm">
+            {banner.title && (
+              <h3 className="text-sm font-bold text-foreground leading-tight line-clamp-1">
+                {banner.title}
+              </h3>
+            )}
+            {banner.subtitle && (
+              <p className="text-[11px] text-muted-foreground line-clamp-1">
+                {banner.subtitle}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Information & Action Footer */}
       <div className="p-4 bg-card/60 flex items-center justify-between gap-4 border-t border-border/60">
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
             <Monitor className="h-3.5 w-3.5 text-primary" />
             <span>Desktop Ready</span>
@@ -102,6 +115,11 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
             <div className="flex items-center gap-1 text-muted-foreground">
               <Smartphone className="h-3.5 w-3.5" />
               <span>Auto Responsive</span>
+            </div>
+          )}
+          {banner.imageUrl && (
+            <div className="flex items-center gap-1 text-primary font-medium">
+              <span>Image Ready</span>
             </div>
           )}
         </div>

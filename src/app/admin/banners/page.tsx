@@ -44,30 +44,36 @@ export default function AdminBannersPage() {
     setImageUrl,
     mobileImageUrl,
     setMobileImageUrl,
-    ctaText,
-    setCtaText,
     ctaLink,
     setCtaLink,
     active,
     setActive,
     order,
     setOrder,
+    gradient,
+    setGradient,
+    customStart,
+    setCustomStart,
+    customEnd,
+    setCustomEnd,
+    customOpacity,
+    setCustomOpacity,
     openCreateModal,
     openEditModal,
     handleSave,
   } = useBannerModalForm();
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!bannerToDelete) return;
-    deleteBanner(bannerToDelete.id);
-    toast.success(`Banner "${bannerToDelete.title}" removed.`);
+    await deleteBanner(bannerToDelete.id);
+    toast.success(`Banner "${bannerToDelete.title || bannerToDelete.pageTitle}" removed.`);
     setBannerToDelete(null);
   };
 
-  const handleToggleActive = (banner: AdminBanner) => {
-    updateBanner(banner.id, { active: !banner.active });
+  const handleToggleActive = async (banner: AdminBanner) => {
+    await updateBanner(banner.id, { active: !banner.active });
     toast.success(
-      `Banner "${banner.title}" is now ${!banner.active ? "LIVE on storefront" : "hidden/inactive"}.`,
+      `Banner "${banner.title || banner.pageTitle}" is now ${!banner.active ? "LIVE on storefront" : "hidden/inactive"}.`,
     );
   };
 
@@ -115,14 +121,20 @@ export default function AdminBannersPage() {
         setImageUrl={setImageUrl}
         mobileImageUrl={mobileImageUrl}
         setMobileImageUrl={setMobileImageUrl}
-        ctaText={ctaText}
-        setCtaText={setCtaText}
         ctaLink={ctaLink}
         setCtaLink={setCtaLink}
         order={order}
         setOrder={setOrder}
         active={active}
         setActive={setActive}
+        gradient={gradient}
+        setGradient={setGradient}
+        customStart={customStart}
+        setCustomStart={setCustomStart}
+        customEnd={customEnd}
+        setCustomEnd={setCustomEnd}
+        customOpacity={customOpacity}
+        setCustomOpacity={setCustomOpacity}
         onSubmit={handleSave}
       />
 

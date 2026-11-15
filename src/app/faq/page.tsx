@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout";
+import { StorefrontPageBanner } from "@/components/common";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { Metadata } from "next";
 
@@ -26,7 +27,14 @@ export const metadata: Metadata = {
 export default function FAQPage() {
   return (
     <Layout>
-      <div className="container-lux max-w-3xl py-20">
+      <StorefrontPageBanner
+        pageKey="faq"
+        defaultTitle="Customer Concierge & Frequently Asked Questions"
+        defaultSubtitle="Everything you need to know about Tokyo authenticity verification, air freight shipping, and COD in Bangladesh."
+        defaultBadge="サポート · Concierge Desk"
+        centered
+      />
+      <div className="container-lux max-w-3xl py-14">
         <p className="eyebrow">Help Centre</p>
         <h1 className="mt-3 font-display text-4xl md:text-5xl">Frequently Asked</h1>
         <Accordion type="single" collapsible className="mt-8">

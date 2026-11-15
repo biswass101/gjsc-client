@@ -8,6 +8,7 @@ export interface BatchStatusConfig {
 }
 
 export interface PreOrderFormData {
+  productId?: number | null;
   productName: string;
   japaneseName: string;
   brand: string;
@@ -15,8 +16,8 @@ export interface PreOrderFormData {
   price: string;
   depositPercent: string;
   estimatedArrival: string;
-  slotsTotal: string;
-  slotsBooked: string;
+  slotsTotal?: string;
+  slotsBooked?: string;
   batchStatus: AdminPreOrder["batchStatus"];
   image: string;
   active: boolean;

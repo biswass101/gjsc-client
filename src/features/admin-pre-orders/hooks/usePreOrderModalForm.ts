@@ -5,8 +5,8 @@ import { DEFAULT_PREORDER_IMAGES } from "../constants";
 
 interface UsePreOrderModalFormProps {
   brands: AdminBrand[];
-  addPreOrder: (po: Omit<AdminPreOrder, "id">) => AdminPreOrder;
-  updatePreOrder: (id: string, updates: Partial<AdminPreOrder>) => void;
+  addPreOrder: (po: Omit<AdminPreOrder, "id">) => Promise<AdminPreOrder> | AdminPreOrder;
+  updatePreOrder: (id: string, updates: Partial<AdminPreOrder>) => Promise<void> | void;
 }
 
 export function usePreOrderModalForm({

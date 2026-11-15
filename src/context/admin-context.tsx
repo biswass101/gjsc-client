@@ -190,6 +190,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         addBanner: marketingSlice.addBanner,
         updateBanner: marketingSlice.updateBanner,
         deleteBanner: marketingSlice.deleteBanner,
+        syncBannersFromDatabase: marketingSlice.syncBannersFromDatabase,
+        resetBanners: marketingSlice.resetBanners,
         addFeaturedVideo: marketingSlice.addFeaturedVideo,
         updateFeaturedVideo: marketingSlice.updateFeaturedVideo,
         deleteFeaturedVideo: marketingSlice.deleteFeaturedVideo,

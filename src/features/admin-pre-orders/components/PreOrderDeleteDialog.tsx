@@ -33,7 +33,7 @@ export function PreOrderDeleteDialog({
           </AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete <strong>{poToDelete?.productName}</strong>? This will
-            remove the pre-order campaign and customer reservation quota.
+            remove the pre-order campaign from the Tokyo air-freight tracking pipeline.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

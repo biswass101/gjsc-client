@@ -6,7 +6,7 @@ import {
   COLLECTION_DEFINITIONS,
   CollectionPageClient,
 } from "@/features/collections";
-import { LoadingScreen } from "@/components/common";
+import { LoadingScreen, StorefrontPageBanner } from "@/components/common";
 import {
   Star,
   Sparkles,
@@ -69,20 +69,13 @@ export default async function CollectionsPage({ searchParams }: PageProps) {
   // All Collections Hub
   return (
     <Layout>
-      <div className="border-b border-border/60 bg-gradient-to-b from-cream/60 via-background to-background py-8 sm:py-12">
-        <div className="container-lux text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary uppercase tracking-widest mb-3">
-            <Sparkles className="h-3 w-3" />
-            <span>特別コレクション · Curated Tokyo Editions</span>
-          </div>
-          <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
-            Exclusive Collections
-          </h1>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            From iconic Tokyo bestsellers and seasonal barrier essentials to rare apothecary pre-orders and complete ritual gift sets, explore our specialized curations.
-          </p>
-        </div>
-      </div>
+      <StorefrontPageBanner
+        pageKey="collections"
+        defaultTitle="Exclusive Collections"
+        defaultSubtitle="From iconic Tokyo bestsellers and seasonal barrier essentials to rare apothecary pre-orders and complete ritual gift sets, explore our specialized curations."
+        defaultBadge="特別コレクション · Curated Tokyo Editions"
+        centered
+      />
 
       <div className="container-lux py-8 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">

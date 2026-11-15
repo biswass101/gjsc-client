@@ -4,8 +4,8 @@ import type { AdminCollection } from "@/types";
 import { THEME_COLORS, DEFAULT_BANNERS } from "../constants";
 
 interface UseCollectionModalFormProps {
-  addCollection: (col: Omit<AdminCollection, "id">) => AdminCollection;
-  updateCollection: (id: string, updates: Partial<AdminCollection>) => void;
+  addCollection: (col: Omit<AdminCollection, "id">) => Promise<AdminCollection> | AdminCollection;
+  updateCollection: (id: string, updates: Partial<AdminCollection>) => Promise<void> | void;
 }
 
 export function useCollectionModalForm({

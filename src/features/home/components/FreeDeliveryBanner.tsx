@@ -2,10 +2,74 @@
 
 import { Link } from "@/lib/navigation";
 import { ArrowRight, BadgePercent, CheckCircle2, ShieldCheck, Truck } from "lucide-react";
+import { useAdmin } from "@/context/admin-context";
+import { resolveBannerGradient } from "@/features/admin-banners/constants";
 
 export function FreeDeliveryBanner() {
+  const { banners } = useAdmin();
+  const midBanner = (banners || []).find(
+    (b) => b.pageKey === "home_middle" && b.active !== false,
+  );
+
+  if (midBanner) {
+    const hasText = Boolean(midBanner.title?.trim() || midBanner.subtitle?.trim());
+    const gradientCss = hasText ? resolveBannerGradient(midBanner.gradient) : "none";
+
+    return (
+      <section className="bg-background py-4 sm:py-6">
+        <div className="container-lux">
+          <div className="relative overflow-hidden rounded-md sm:rounded-xl border border-primary/25 bg-muted/30 shadow-xs">
+            {/* Background image container - clean full color, no blackish gradient veil */}
+            <div className="absolute inset-0 z-0">
+              <picture>
+                {midBanner.mobileImageUrl && (
+                  <source media="(max-width: 640px)" srcSet={midBanner.mobileImageUrl} />
+                )}
+                <img
+                  src={midBanner.imageUrl}
+                  alt={midBanner.title || "Promotion Banner"}
+                  className="w-full h-full object-cover"
+                />
+              </picture>
+
+              {/* Applied Gradient Atmosphere Overlay - ONLY when headline or subtitle is present! */}
+              {hasText && gradientCss !== "none" && (
+                <div
+                  className="absolute inset-0 pointer-events-none transition-all duration-300"
+                  style={{ background: gradientCss }}
+                />
+              )}
+            </div>
+
+            {/* Banner Text Overlay (when headline, subtitle or badge provided) - button removed */}
+            {(midBanner.title || midBanner.subtitle || midBanner.badge) && (
+              <div className="relative z-10 p-6 sm:p-10 lg:p-12 max-w-2xl text-white space-y-3 pointer-events-none">
+                {midBanner.badge && (
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary-foreground shadow-xs">
+                    <span>{midBanner.badge}</span>
+                  </div>
+                )}
+                {midBanner.title && (
+                  <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">
+                    {midBanner.title}
+                  </h2>
+                )}
+                {midBanner.subtitle && (
+                  <p className="text-xs sm:text-sm text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] leading-relaxed max-w-xl">
+                    {midBanner.subtitle}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-background py-4 sm:py-6">
+
       <div className="container-lux">
         <div className="relative overflow-hidden rounded-md sm:rounded-xl border border-primary/25 bg-gradient-to-r from-primary/10 via-cream to-primary/5 p-4 sm:p-8 lg:p-10 shadow-xs">
           {/* Subtle Decorative Background Glow */}

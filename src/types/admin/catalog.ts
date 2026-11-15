@@ -83,6 +83,7 @@ export interface AdminBrand {
 
 export interface AdminPreOrder {
   id: string;
+  productId?: number | null | undefined;
   productName: string;
   japaneseName?: string | undefined;
   brand: string;

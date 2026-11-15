@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { Layout, GoToTop } from "@/components/layout";
-import { getCollectionMeta } from "../data/collectionMetadata";
+import { useAdmin } from "@/context/admin-context";
+import { getCollectionMeta, normalizeCollectionSlug } from "../data/collectionMetadata";
 import { CollectionHero } from "./CollectionHero";
 import { CollectionBreadcrumb } from "./CollectionBreadcrumb";
 import { CollectionFrequentlySearched } from "./CollectionFrequentlySearched";
@@ -16,7 +17,56 @@ interface CollectionPageClientProps {
 }
 
 export function CollectionPageClient({ slug }: CollectionPageClientProps) {
-  const meta = useMemo(() => getCollectionMeta(slug), [slug]);
+  const { collections: adminCollections } = useAdmin();
+
+  const meta = useMemo(() => {
+    const staticMeta = getCollectionMeta(slug);
+    const normalized = normalizeCollectionSlug(slug);
+    const adminCol = adminCollections.find(
+      (c) =>
+        c.slug === normalized ||
+        c.slug === slug ||
+        c.title.toLowerCase() === normalized.replace(/-/g, " ") ||
+        c.title.toLowerCase() === slug.toLowerCase()
+    );
+
+    if (adminCol) {
+      const frequentlySearched =
+        adminCol.frequentlySearched && adminCol.frequentlySearched.length > 0
+          ? adminCol.frequentlySearched
+          : staticMeta.frequentlySearched;
+
+      return {
+        ...staticMeta,
+        title: adminCol.title,
+        japaneseTitle: adminCol.japaneseTitle || staticMeta.japaneseTitle,
+        tagline: adminCol.tagline || staticMeta.tagline,
+        description: adminCol.description || staticMeta.description,
+        badgeText: adminCol.badgeText || staticMeta.badgeText,
+        bannerImage: adminCol.bannerImage || staticMeta.bannerImage,
+        frequentlySearched,
+        aliases: Array.from(new Set([normalized, ...(staticMeta.aliases || [])])),
+        filterPredicate: (p: any) => {
+          if (staticMeta.filterPredicate && staticMeta.filterPredicate(p)) return true;
+          const pName = (p.name || "").toLowerCase();
+          const pCat = (p.category || "").toLowerCase();
+          const pBrand = (p.brand || "").toLowerCase();
+          const normTitle = adminCol.title.toLowerCase();
+          if (pName.includes(normTitle) || pCat.includes(normTitle) || pBrand.includes(normTitle)) {
+            return true;
+          }
+          return frequentlySearched.some(
+            (tag) =>
+              pName.includes(tag.toLowerCase()) ||
+              pCat.includes(tag.toLowerCase()) ||
+              pBrand.includes(tag.toLowerCase())
+          );
+        },
+      };
+    }
+
+    return staticMeta;
+  }, [slug, adminCollections]);
   const {
     priceBounds,
     filters,

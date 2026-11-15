@@ -19,7 +19,7 @@ import type {
   AdminActivityLog,
 } from "@/types";
 
-export const STORAGE_KEY = "gjsc_admin_state_v3";
+export const STORAGE_KEY = "gjsc_admin_state_v8";
 
 interface StorageParams {
   products: AdminProduct[];
@@ -145,7 +145,13 @@ export function useAdminStorage(params: StorageParams) {
         if (parsed.collections) setCollections(parsed.collections);
         if (parsed.brands) setBrands(parsed.brands);
         if (parsed.preOrders) setPreOrders(parsed.preOrders);
-        if (parsed.banners) setBanners(parsed.banners);
+        if (
+          parsed.banners &&
+          Array.isArray(parsed.banners) &&
+          parsed.banners.length > 0
+        ) {
+          setBanners(parsed.banners);
+        }
         if (
           parsed.featuredVideos &&
           Array.isArray(parsed.featuredVideos) &&

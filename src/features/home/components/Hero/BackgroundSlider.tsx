@@ -1,18 +1,38 @@
 "use client";
 import { useState } from "react";
+import { Link } from "@/lib/navigation";
+import { Sparkles } from "lucide-react";
+import { resolveBannerGradient } from "@/features/admin-banners/constants";
 import pujaSale from "@/assets/hero/puja-sale.png";
 import hero1 from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
 import hero2 from "@/assets/hero/Perfect Whip Fresh Beauty Ritual.png";
 
 const HERO_IMAGES = [pujaSale, hero1, hero2];
 
+export interface HeroSlide {
+  src: string;
+  mobileSrc?: string | null | undefined;
+  ctaLink?: string | null | undefined;
+  ctaText?: string | null | undefined;
+  title?: string | undefined;
+  subtitle?: string | undefined;
+  badge?: string | undefined;
+  gradient?: string | null | undefined;
+}
+
 interface BackgroundSliderProps {
   currentIndex: number;
+  slides?: HeroSlide[];
 }
 
 const SLIDE_DURATION_MS = 1000;
 
-export function BackgroundSlider({ currentIndex }: BackgroundSliderProps) {
+export function BackgroundSlider({ currentIndex, slides }: BackgroundSliderProps) {
+  const activeSlides: HeroSlide[] =
+    slides && slides.length > 0
+      ? slides
+      : HERO_IMAGES.map((img) => ({ src: img.src }));
+
   const [indexes, setIndexes] = useState({
     current: currentIndex,
     prev: currentIndex,
@@ -23,16 +43,20 @@ export function BackgroundSlider({ currentIndex }: BackgroundSliderProps) {
   }
 
   return (
-    <div className="isolate absolute inset-0 z-0 overflow-hidden rounded">
-      {HERO_IMAGES.map((img, index) => {
+    <div className="isolate absolute inset-0 z-0 overflow-hidden rounded" suppressHydrationWarning>
+      {activeSlides.map((slide, index) => {
         const isCurrent = index === indexes.current;
         const isPrev = index === indexes.prev && !isCurrent;
 
         const translateX = isCurrent ? 0 : isPrev ? -100 : 100;
 
-        return (
+        const hasText = Boolean(slide.title?.trim() || slide.subtitle?.trim());
+        const hasOverlayContent = Boolean(slide.title || slide.subtitle || slide.badge);
+        const gradientCss = hasText ? resolveBannerGradient(slide.gradient) : "none";
+
+        const content = (
           <div
-            key={img.src}
+            key={`${slide.src}-${index}`}
             aria-hidden={!isCurrent}
             className="absolute inset-0 will-change-transform"
             style={{
@@ -41,23 +65,67 @@ export function BackgroundSlider({ currentIndex }: BackgroundSliderProps) {
                 isCurrent || isPrev ? `transform ${SLIDE_DURATION_MS}ms ease-in-out` : "none",
             }}
           >
-            {/* Using <img> instead of background-image so the browser can
-                prioritise the first slide and avoid layout shift */}
-            <img
-              src={img.src}
-              alt=""
-              aria-hidden="true"
-              /* First slide loads eagerly to avoid LCP delay; others are lazy */
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "low"}
-              decoding={index === 0 ? "sync" : "async"}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
+            {/* Picture element supporting mobileImageUrl when provided */}
+            <picture>
+              {slide.mobileSrc && (
+                <source media="(max-width: 640px)" srcSet={slide.mobileSrc} />
+              )}
+              <img
+                src={slide.src}
+                alt={slide.title || "Japanese Skincare Banner"}
+                aria-hidden={!isCurrent}
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "low"}
+                decoding={index === 0 ? "sync" : "async"}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            </picture>
+
+            {/* Gradient Atmosphere Overlay - ONLY when headline or subtitle is present! */}
+            {hasText && gradientCss !== "none" && (
+              <div
+                className="absolute inset-0 pointer-events-none transition-all duration-300"
+                style={{ background: gradientCss }}
+              />
+            )}
+
+            {/* Banner Content Overlay (Headline, Subtitle, Badge) - button removed as requested */}
+            {hasOverlayContent && (
+              <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-8 md:p-12 max-w-2xl text-white z-10 pointer-events-none">
+                {slide.badge && (
+                  <div className="inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-2 drop-shadow-sm">
+                    <Sparkles className="h-3 w-3" />
+                    <span>{slide.badge}</span>
+                  </div>
+                )}
+                {slide.title && (
+                  <h2 className="font-display text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">
+                    {slide.title}
+                  </h2>
+                )}
+                {slide.subtitle && (
+                  <p className="mt-2 text-xs sm:text-sm text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] line-clamp-2 max-w-xl leading-relaxed">
+                    {slide.subtitle}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         );
+
+        if (slide.ctaLink) {
+          return (
+            <Link key={`${slide.src}-${index}`} to={slide.ctaLink} className="cursor-pointer">
+              {content}
+            </Link>
+          );
+        }
+
+        return content;
       })}
     </div>
   );
 }
 
 export { HERO_IMAGES };
+

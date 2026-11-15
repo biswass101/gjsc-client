@@ -1,10 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import { Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BRANDS, CATEGORIES } from "@/lib/catalog";
-import type { AdminProduct } from "@/context/admin-context";
+import { useAdmin, type AdminProduct } from "@/context/admin-context";
 import { JAPAN_REGIONS } from "../../data/productConstants";
 
 export interface ProductIdentityTabProps {
@@ -44,6 +45,35 @@ export function ProductIdentityTab({
   status,
   onStatusChange,
 }: ProductIdentityTabProps) {
+  const { categories: adminCategories, brands: adminBrands } = useAdmin();
+
+  const brandOptions = useMemo(() => {
+    const list = new Set<string>();
+    if (adminBrands && adminBrands.length > 0) {
+      adminBrands.forEach((b) => {
+        if (b.name) list.add(b.name);
+      });
+    }
+    BRANDS.forEach((b) => list.add(b));
+    if (brand && !list.has(brand)) {
+      list.add(brand);
+    }
+    return Array.from(list);
+  }, [adminBrands, brand]);
+
+  const categoryOptions = useMemo(() => {
+    const list = new Set<string>();
+    if (adminCategories && adminCategories.length > 0) {
+      adminCategories.forEach((c) => {
+        if (c.title) list.add(c.title);
+      });
+    }
+    CATEGORIES.forEach((c) => list.add(c));
+    if (category && !list.has(category)) {
+      list.add(category);
+    }
+    return Array.from(list);
+  }, [adminCategories, category]);
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Product Title */}
@@ -91,7 +121,7 @@ export function ProductIdentityTab({
             onChange={(e) => onBrandChange(e.target.value)}
             className="mt-1.5 h-10 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium focus:ring-1 focus:ring-primary"
           >
-            {BRANDS.map((b) => (
+            {brandOptions.map((b) => (
               <option key={b} value={b}>
                 {b}
               </option>
@@ -106,7 +136,7 @@ export function ProductIdentityTab({
             onChange={(e) => onCategoryChange(e.target.value)}
             className="mt-1.5 h-10 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium focus:ring-1 focus:ring-primary"
           >
-            {CATEGORIES.map((c) => (
+            {categoryOptions.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

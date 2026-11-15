@@ -2,6 +2,8 @@
 
 import { useMemo } from "react";
 import { Layout, GoToTop } from "@/components/layout";
+import { useAdmin } from "@/context/admin-context";
+import { slugify } from "@/lib/catalog";
 import { getBrandMeta } from "../data/brandMetadata";
 import { BrandHero } from "./BrandHero";
 import { BrandBestSelling } from "./BrandBestSelling";
@@ -15,7 +17,36 @@ interface BrandPageClientProps {
 }
 
 export function BrandPageClient({ slug }: BrandPageClientProps) {
-  const meta = useMemo(() => getBrandMeta(slug), [slug]);
+  const { brands: adminBrands } = useAdmin();
+
+  const meta = useMemo(() => {
+    const staticMeta = getBrandMeta(slug);
+    const normalized = decodeURIComponent(slug).toLowerCase().trim();
+    const adminBrand = adminBrands.find(
+      (b) =>
+        b.slug.toLowerCase() === normalized ||
+        b.name.toLowerCase() === normalized ||
+        slugify(b.name).toLowerCase() === normalized
+    );
+
+    if (adminBrand) {
+      return {
+        ...staticMeta,
+        name: adminBrand.name,
+        slug: adminBrand.slug,
+        kanji: adminBrand.kanji || staticMeta.kanji,
+        origin: adminBrand.origin || staticMeta.origin,
+        tagline: adminBrand.tagline || staticMeta.tagline,
+        description: adminBrand.description || staticMeta.description,
+        category: adminBrand.category || staticMeta.category,
+        image: adminBrand.logo || staticMeta.image,
+        bannerImage: adminBrand.bannerImage || staticMeta.bannerImage,
+        aliases: Array.from(new Set([normalized, ...(staticMeta.aliases || [])])),
+      };
+    }
+
+    return staticMeta;
+  }, [slug, adminBrands]);
   const {
     brandProducts,
     priceBounds,

@@ -88,29 +88,31 @@ export interface AdminContextType {
   deleteDiscount: (id: string) => void;
 
   // Categories Operations
-  addCategory: (cat: Omit<AdminCategory, "id">) => AdminCategory;
-  updateCategory: (id: string, updates: Partial<AdminCategory>) => void;
-  deleteCategory: (id: string) => void;
+  addCategory: (cat: Omit<AdminCategory, "id">) => Promise<AdminCategory> | AdminCategory;
+  updateCategory: (id: string, updates: Partial<AdminCategory>) => Promise<void> | void;
+  deleteCategory: (id: string) => Promise<void> | void;
 
   // Collections Operations
-  addCollection: (col: Omit<AdminCollection, "id">) => AdminCollection;
-  updateCollection: (id: string, updates: Partial<AdminCollection>) => void;
-  deleteCollection: (id: string) => void;
+  addCollection: (col: Omit<AdminCollection, "id">) => Promise<AdminCollection> | AdminCollection;
+  updateCollection: (id: string, updates: Partial<AdminCollection>) => Promise<void> | void;
+  deleteCollection: (id: string) => Promise<void> | void;
 
   // Brands Operations
-  addBrand: (brand: Omit<AdminBrand, "id">) => AdminBrand;
-  updateBrand: (id: string, updates: Partial<AdminBrand>) => void;
-  deleteBrand: (id: string) => void;
+  addBrand: (brand: Omit<AdminBrand, "id">) => Promise<AdminBrand> | AdminBrand;
+  updateBrand: (id: string, updates: Partial<AdminBrand>) => Promise<void> | void;
+  deleteBrand: (id: string) => Promise<void> | void;
 
   // Pre-Orders Operations
-  addPreOrder: (po: Omit<AdminPreOrder, "id">) => AdminPreOrder;
-  updatePreOrder: (id: string, updates: Partial<AdminPreOrder>) => void;
-  deletePreOrder: (id: string) => void;
+  addPreOrder: (po: Omit<AdminPreOrder, "id">) => Promise<AdminPreOrder> | AdminPreOrder;
+  updatePreOrder: (id: string, updates: Partial<AdminPreOrder>) => Promise<void> | void;
+  deletePreOrder: (id: string) => Promise<void> | void;
 
   // Banners Operations
-  addBanner: (banner: Omit<AdminBanner, "id">) => AdminBanner;
-  updateBanner: (id: string, updates: Partial<AdminBanner>) => void;
-  deleteBanner: (id: string) => void;
+  addBanner: (banner: Omit<AdminBanner, "id">) => Promise<AdminBanner> | AdminBanner;
+  updateBanner: (id: string, updates: Partial<AdminBanner>) => Promise<void> | void;
+  deleteBanner: (id: string) => Promise<void> | void;
+  syncBannersFromDatabase?: () => Promise<any>;
+  resetBanners?: () => void;
 
   // Featured Videos Operations
   addFeaturedVideo: (video: Omit<AdminFeaturedVideo, "id" | "createdAt">) => AdminFeaturedVideo;

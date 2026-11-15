@@ -5,6 +5,8 @@ import { Link } from "@/lib/navigation";
 import { Sparkles, Truck, Gift, Flame, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAdmin } from "@/context/admin-context";
+
 
 export const PROMO_CODES = [
   {
@@ -40,9 +42,29 @@ export function OffersPromoHeader() {
     setTimeout(() => setCopiedCode(null), 3000);
   };
 
+  const { banners } = useAdmin();
+  const offersBanner = (banners || []).find(
+    (b) => b.pageKey === "offers" && b.active !== false,
+  );
+
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-rose-500/10 via-cream/40 to-background py-10 sm:py-14">
-      <div className="container-lux">
+      {offersBanner?.imageUrl && (
+        <div className="absolute inset-0 z-0">
+          <picture>
+            {offersBanner.mobileImageUrl && (
+              <source media="(max-width: 640px)" srcSet={offersBanner.mobileImageUrl} />
+            )}
+            <img
+              src={offersBanner.imageUrl}
+              alt={offersBanner.title}
+              className="w-full h-full object-cover"
+            />
+          </picture>
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
+        </div>
+      )}
+      <div className="container-lux relative z-10">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground mb-4">
           <Link to="/" className="hover:text-primary transition-colors">
@@ -55,16 +77,17 @@ export function OffersPromoHeader() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] mb-3">
             <Flame className="w-3.5 h-3.5 fill-rose-500" />
-            <span>Limited-Time Japanese Promotions</span>
+            <span>{offersBanner?.badge || "Limited-Time Japanese Promotions"}</span>
           </div>
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
-            Offers & Special Deals
+            {offersBanner?.title || "Offers & Special Deals"}
           </h1>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Explore authentic Tokyo skincare and beauty with exclusive promotional pricing,
-            seasonal bundles, and active coupon codes. Every bottle is 100% guaranteed authentic.
+            {offersBanner?.subtitle ||
+              "Explore authentic Tokyo skincare and beauty with exclusive promotional pricing, seasonal bundles, and active coupon codes. Every bottle is 100% guaranteed authentic."}
           </p>
         </div>
+
 
         {/* Active Promo Codes Carousel / Grid */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">

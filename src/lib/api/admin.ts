@@ -86,6 +86,74 @@ export const adminApi = {
     return apiClient.delete(`/admin/discounts/${id}`);
   },
 
+  // Categories
+  getCategories(): Promise<any[]> {
+    return apiClient.get('/admin/categories');
+  },
+
+  createCategory(data: any): Promise<any> {
+    return apiClient.post('/admin/categories', data);
+  },
+
+  updateCategory(id: number | string, data: any): Promise<any> {
+    return apiClient.patch(`/admin/categories/${id}`, data);
+  },
+
+  deleteCategory(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/categories/${id}`);
+  },
+
+  // Collections
+  getCollections(): Promise<any[]> {
+    return apiClient.get('/admin/collections');
+  },
+
+  createCollection(data: any): Promise<any> {
+    return apiClient.post('/admin/collections', data);
+  },
+
+  updateCollection(id: number | string, data: any): Promise<any> {
+    return apiClient.patch(`/admin/collections/${id}`, data);
+  },
+
+  deleteCollection(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/collections/${id}`);
+  },
+
+  // Brands
+  getBrands(): Promise<any[]> {
+    return apiClient.get('/admin/brands');
+  },
+
+  createBrand(data: any): Promise<any> {
+    return apiClient.post('/admin/brands', data);
+  },
+
+  updateBrand(id: number | string, data: any): Promise<any> {
+    return apiClient.patch(`/admin/brands/${id}`, data);
+  },
+
+  deleteBrand(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/brands/${id}`);
+  },
+
+  // Pre-Orders
+  getPreOrders(): Promise<any[]> {
+    return apiClient.get('/admin/pre-orders');
+  },
+
+  createPreOrder(data: any): Promise<any> {
+    return apiClient.post('/admin/pre-orders', data);
+  },
+
+  updatePreOrder(id: number | string, data: any): Promise<any> {
+    return apiClient.patch(`/admin/pre-orders/${id}`, data);
+  },
+
+  deletePreOrder(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/pre-orders/${id}`);
+  },
+
   // Banners
   getBanners(): Promise<any[]> {
     return apiClient.get('/admin/banners');
@@ -95,11 +163,11 @@ export const adminApi = {
     return apiClient.post('/admin/banners', data);
   },
 
-  updateBanner(id: number, data: any): Promise<any> {
+  updateBanner(id: number | string, data: any): Promise<any> {
     return apiClient.patch(`/admin/banners/${id}`, data);
   },
 
-  deleteBanner(id: number): Promise<any> {
+  deleteBanner(id: number | string): Promise<any> {
     return apiClient.delete(`/admin/banners/${id}`);
   },
 
@@ -142,13 +210,37 @@ export const adminApi = {
     return apiClient.post('/admin/videos', data);
   },
 
-  updateVideo(id: number, data: any): Promise<any> {
+  updateVideo(id: number | string, data: any): Promise<any> {
     return apiClient.patch(`/admin/videos/${id}`, data);
   },
 
-  deleteVideo(id: number): Promise<any> {
+  deleteVideo(id: number | string): Promise<any> {
     return apiClient.delete(`/admin/videos/${id}`);
   },
+
+  uploadVideo(file: File): Promise<{
+    url: string;
+    publicId: string;
+    duration?: string;
+    format?: string;
+    thumbnailUrl?: string;
+    storage: string;
+  }> {
+    const formData = new FormData();
+    formData.append('video', file);
+    return apiClient.upload('/uploads/video', formData);
+  },
+
+  uploadImage(file: File): Promise<{
+    url: string;
+    publicId: string;
+    storage: string;
+  }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return apiClient.upload('/uploads/image', formData);
+  },
+
 
   // System & Database Seeding
   seedDatabase(): Promise<{ message: string }> {

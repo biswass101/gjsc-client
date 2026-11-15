@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit2, Trash2, Calendar } from "lucide-react";
+import { Edit2, Trash2, Calendar, Plane } from "lucide-react";
 import type { AdminPreOrder } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,9 +29,17 @@ export function PreOrderCard({
   onStatusChange,
   onToggleActive,
 }: PreOrderCardProps) {
-  const bookedPercent = Math.min(100, Math.round((po.slotsBooked / po.slotsTotal) * 100));
+  const STAGE_ORDER: AdminPreOrder["batchStatus"][] = [
+    "Booking Open",
+    "Tokyo Sourcing",
+    "Air-Freight",
+    "Customs Cleared",
+    "Ready for Delivery",
+  ];
+  const currentStageIndex = Math.max(0, STAGE_ORDER.indexOf(po.batchStatus));
+  const stagePercent = Math.round(((currentStageIndex + 1) / STAGE_ORDER.length) * 100);
   const currentBatchConfig =
-    BATCH_STATUSES.find((b) => b.status === po.batchStatus) || BATCH_STATUSES[0];
+    BATCH_STATUSES.find((b) => b.status === po.batchStatus) || BATCH_STATUSES[0]!;
   const depositAmount = (po.price * (po.depositPercent / 100)).toFixed(0);
 
   return (
@@ -97,19 +105,23 @@ export function PreOrderCard({
           </div>
         </div>
 
-        {/* Quota reservation progress */}
-        <div className="w-full lg:w-64 space-y-2 p-3 rounded-lg bg-secondary/30 border border-border/60">
+        {/* Logistics & Sourcing Tracking Pipeline */}
+        <div className="w-full lg:w-72 space-y-2 p-3 rounded-lg bg-secondary/30 border border-border/60">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-muted-foreground">Quota Reserved</span>
-            <span className="font-bold text-foreground">
-              {po.slotsBooked} / {po.slotsTotal} slots ({bookedPercent}%)
+            <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Plane className="h-3.5 w-3.5 text-primary" />
+              Sourcing & Transit Pipeline
+            </span>
+            <span className="font-bold text-primary text-[11px]">
+              Stage {currentStageIndex + 1}/5 ({stagePercent}%)
             </span>
           </div>
-          <Progress value={bookedPercent} className="h-2" />
+          <Progress value={stagePercent} className="h-2" />
           <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-            <span>{po.slotsTotal - po.slotsBooked} slots remaining</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-              ৳{(parseFloat(depositAmount) * po.slotsBooked).toLocaleString("en-BD")} collected
+            <span className="font-medium text-foreground">{currentBatchConfig?.label || po.batchStatus}</span>
+            <span className="flex items-center gap-1 font-medium">
+              <Calendar className="h-3 w-3 text-primary" />
+              ETA: {po.estimatedArrival}
             </span>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { toast } from "sonner";
 import { Layout } from "@/components/layout";
+import { StorefrontPageBanner } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 export default function ContactPage() {
   return (
     <Layout>
-      <div className="container-lux max-w-2xl py-20">
+      <StorefrontPageBanner
+        pageKey="contact"
+        defaultTitle="Get in Touch with Our Tokyo Beauty Advisors"
+        defaultSubtitle="Personalized skincare consultations, batch code authenticity checks, and dedicated WhatsApp support."
+        defaultBadge="お問い合わせ · Live Support"
+        centered
+      />
+      <div className="container-lux max-w-2xl py-14">
         <p className="eyebrow">Contact</p>
         <h1 className="mt-3 font-display text-4xl md:text-5xl">We'd love to hear from you</h1>
         <form

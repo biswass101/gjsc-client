@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/lib/navigation";
+import { useAdmin } from "@/context/admin-context";
 import {
   Globe,
   Plane,
@@ -40,9 +41,29 @@ export const PRE_ORDER_STEPS = [
 ];
 
 export function PreOrderHero() {
+  const { banners } = useAdmin();
+  const preOrderBanner = (banners || []).find(
+    (b) => b.pageKey === "pre_order" && b.active !== false,
+  );
+
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-primary/10 via-cream/40 to-background py-10 sm:py-16">
-      <div className="container-lux">
+      {preOrderBanner?.imageUrl && (
+        <div className="absolute inset-0 z-0">
+          <picture>
+            {preOrderBanner.mobileImageUrl && (
+              <source media="(max-width: 640px)" srcSet={preOrderBanner.mobileImageUrl} />
+            )}
+            <img
+              src={preOrderBanner.imageUrl}
+              alt={preOrderBanner.title}
+              className="w-full h-full object-cover"
+            />
+          </picture>
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
+        </div>
+      )}
+      <div className="container-lux relative z-10">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground mb-4">
           <Link to="/" className="hover:text-primary transition-colors">
@@ -55,17 +76,17 @@ export function PreOrderHero() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/25 text-primary text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] mb-3">
             <Globe className="w-3.5 h-3.5 text-primary" />
-            <span>Direct Tokyo Vault · 予約注文</span>
+            <span>{preOrderBanner?.badge || "Direct Tokyo Vault · 予約注文"}</span>
           </div>
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
-            Pre-Order Direct From Japan
+            {preOrderBanner?.title || "Pre-Order Direct From Japan"}
           </h1>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Reserve rare, ultra-fresh Japanese skincare and luxury prestige editions directly from
-            official Tokyo brand houses. Freshly bottled, 100% authentic, and delivered directly to
-            your doorstep in Bangladesh in 10–14 days.
+            {preOrderBanner?.subtitle ||
+              "Reserve rare, ultra-fresh Japanese skincare and luxury prestige editions directly from official Tokyo brand houses. Freshly bottled, 100% authentic, and delivered directly to your doorstep in Bangladesh in 10–14 days."}
           </p>
         </div>
+
 
         {/* 2. Four-Step Pre-Order Process */}
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAdmin } from "@/context/admin-context";
 import { CategoryMeta } from "../data/categoryMetadata";
 import { CategoryBreadcrumb } from "./CategoryBreadcrumb";
 import { Sparkles, ShieldCheck, Truck, RefreshCw } from "lucide-react";
@@ -18,24 +19,55 @@ export function CategoryHero({
   selectedSubcategory,
   onSelectSubcategory,
 }: CategoryHeroProps) {
+  const { banners } = useAdmin();
+  const normalizedSlug = meta.slug.replace(/-/g, "_");
+  const matchingBanners = (banners || [])
+    .filter(
+      (b) =>
+        (b.pageKey === `category_${normalizedSlug}` ||
+          b.pageKey === meta.slug ||
+          b.pageKey === normalizedSlug) &&
+        b.active !== false
+    )
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const activeBanner = matchingBanners[0];
+  const title = activeBanner?.title || meta.title;
+  const description = activeBanner?.subtitle || meta.description;
+  const badge = activeBanner?.badge || meta.japaneseTitle;
+  const bgImage = activeBanner?.imageUrl;
+  const mobileBgImage = activeBanner?.mobileImageUrl;
+
   return (
-    <div className="relative border-b border-border/60 bg-gradient-to-b from-cream/60 via-background to-background pt-2 pb-6 sm:pb-8">
-      <div className="container-lux">
+    <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-cream/60 via-background to-background pt-2 pb-6 sm:pb-8">
+      {bgImage && (
+        <div className="absolute inset-0 z-0">
+          <picture>
+            {mobileBgImage && (
+              <source media="(max-width: 640px)" srcSet={mobileBgImage} />
+            )}
+            <img src={bgImage} alt={title} className="w-full h-full object-cover" />
+          </picture>
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
+        </div>
+      )}
+
+      <div className="container-lux relative z-10">
         {/* Breadcrumb Navigation */}
-        <CategoryBreadcrumb title={meta.title} />
+        <CategoryBreadcrumb title={title} />
 
         {/* Header Content */}
         <div className="mt-2 max-w-4xl">
           {/* Japanese Kanji Pill */}
           <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-0.5 text-[10px] sm:text-xs font-semibold text-primary uppercase tracking-wider">
             <Sparkles className="h-3 w-3" />
-            <span>{meta.japaneseTitle}</span>
+            <span>{badge}</span>
           </div>
 
           {/* Category Title & Product Count */}
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
             <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-              {meta.title}
+              {title}
             </h1>
             <span className="text-xs sm:text-sm font-sans font-medium text-muted-foreground">
               ({totalCount} {totalCount === 1 ? "Product" : "Products"})
@@ -44,7 +76,7 @@ export function CategoryHero({
 
           {/* Short Description */}
           <p className="mt-2.5 text-xs sm:text-sm md:text-base leading-relaxed text-muted-foreground max-w-3xl">
-            {meta.description}
+            {description}
           </p>
 
           {/* Trust Highlights Strip (BeautyBooth Inspiration) */}

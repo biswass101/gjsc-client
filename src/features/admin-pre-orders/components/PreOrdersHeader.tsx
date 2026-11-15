@@ -17,7 +17,7 @@ export function PreOrdersHeader({ onOpenCreate }: PreOrdersHeaderProps) {
         </div>
         <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground mt-1 flex items-center gap-2.5">
           <Plane className="h-7 w-7 text-primary" />
-          <span>Pre-Order Flights & Quota Management</span>
+          <span>Tokyo Direct Pre-Order Tracking & Management</span>
         </h1>
         <p className="text-sm text-muted-foreground">
           Manage advance Japanese skin care bookings, Tokyo warehouse arrival ETAs, 50% deposit
