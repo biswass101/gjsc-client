@@ -4,22 +4,22 @@ export const PRESET_AVATARS: PresetAvatar[] = [
   {
     id: "sakura",
     label: "Sakura Radiance",
-    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     id: "matcha",
     label: "Kyoto Calm",
-    url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     id: "dewy",
     label: "Dewy Glow",
-    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     id: "zen",
     label: "Tokyo Zen",
-    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
 ];
 

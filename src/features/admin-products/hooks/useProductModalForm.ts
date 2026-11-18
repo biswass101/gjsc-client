@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { BRANDS, CATEGORIES, PRODUCT_IMAGES } from "@/lib/catalog";
+import { BRANDS, CATEGORIES } from "@/lib/catalog";
 import type { AdminProduct } from "@/context/admin-context";
 import { useProductFormState } from "./useProductFormState";
 import {
@@ -47,14 +47,8 @@ export function useProductModalForm(
     formState.setFormTexture("Watery Essence / Lotion");
     formState.setFormSpf("None");
     formState.setFormPao("12M");
-    formState.setFormImage(
-      PRODUCT_IMAGES[0] ||
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
-    );
-    formState.setFormGallery([
-      PRODUCT_IMAGES[0] ||
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
-    ]);
+    formState.setFormImage("");
+    formState.setFormGallery([]);
     formState.setNewGalleryInput("");
     formState.setFormShort(PRODUCT_DEFAULT_SHORT);
     formState.setFormDesc(PRODUCT_DEFAULT_DESC);
@@ -90,8 +84,15 @@ export function useProductModalForm(
     formState.setFormTexture(p.texture || "Watery Essence / Lotion");
     formState.setFormSpf(p.spf || "None");
     formState.setFormPao(p.pao || "12M");
-    formState.setFormImage(p.image);
-    formState.setFormGallery(p.images && p.images.length > 0 ? p.images : [p.image]);
+    const existingCover = (p.image || "").trim();
+    const existingGallery = Array.isArray(p.images)
+      ? p.images.filter((img): img is string => typeof img === "string" && img.trim().length > 0)
+      : [];
+    const normalizedGallery = existingCover
+      ? [existingCover, ...existingGallery.filter((img) => img !== existingCover)]
+      : existingGallery;
+    formState.setFormImage(existingCover || normalizedGallery[0] || "");
+    formState.setFormGallery(normalizedGallery);
     formState.setNewGalleryInput("");
     formState.setFormShort(p.short || PRODUCT_DEFAULT_SHORT);
     formState.setFormDesc(p.description || "");
@@ -136,16 +137,21 @@ export function useProductModalForm(
         .map((s) => s.trim())
         .filter(Boolean);
 
-      const cleanCover =
-        formState.formImage.trim() ||
-        PRODUCT_IMAGES[0] ||
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80";
+      const validGallery = formState.formGallery.filter(
+        (img): img is string => typeof img === "string" && img.trim().length > 0,
+      );
+      const cleanCover = formState.formImage.trim() || validGallery[0] || "";
+      if (!cleanCover) {
+        formState.setFormTab("media");
+        toast.error("Product cover image is required", {
+          description: "Please upload a primary product photo to Cloudinary in the Media & Gallery tab.",
+        });
+        setIsSubmitting(false);
+        return;
+      }
       const allImages: string[] = [
         cleanCover,
-        ...formState.formGallery.filter(
-          (img): img is string =>
-            typeof img === "string" && img.trim().length > 0 && img !== cleanCover,
-        ),
+        ...validGallery.filter((img) => img !== cleanCover),
       ];
 
       const cleanIngredients =

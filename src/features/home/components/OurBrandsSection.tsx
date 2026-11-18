@@ -3,14 +3,16 @@
 import { Link } from "@/lib/navigation";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { slugify } from "@/lib/catalog";
-import bGlorious from "@/assets/brands/glorious-japan.jpg";
-import bSakura from "@/assets/brands/sakura-lab.jpg";
-import bKyoto from "@/assets/brands/kyoto-botanicals.jpg";
-import bYuzu from "@/assets/brands/yuzu-no-mori.jpg";
-import bHikari from "@/assets/brands/hikari-beauty.jpg";
-import bShiseido from "@/assets/brands/shiseido.jpg";
-import bSkii from "@/assets/brands/sk-ii.jpg";
-import bHada from "@/assets/brands/hada-labo.jpg";
+import {
+  bGlorious,
+  bSakura,
+  bKyoto,
+  bYuzu,
+  bHikari,
+  bShiseido,
+  bSkii,
+  bHada,
+} from "@/lib/cloudinaryAssets";
 
 interface BrandItem {
   name: string;

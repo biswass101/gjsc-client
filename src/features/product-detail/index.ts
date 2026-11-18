@@ -13,4 +13,5 @@ export * from "./components/ProductRecommendations";
 export * from "./components/ProductStickyMobileBar";
 export * from "./components/ProductLightboxModal";
 export * from "./components/ProductWriteReviewModal";
+export * from "./components/ProductDetailSkeleton";
 

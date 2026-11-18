@@ -26,6 +26,15 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [newSubcatInput, setNewSubcatInput] = useState("");
 
+  const [metaDescription, setMetaDescription] = useState("");
+  const [icon, setIcon] = useState("Sparkles");
+  const [popularTags, setPopularTags] = useState<string[]>([]);
+  const [newTagInput, setNewTagInput] = useState("");
+  const [ritualStepNumber, setRitualStepNumber] = useState("");
+  const [ritualStepLabel, setRitualStepLabel] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+
   const openCreateModal = useCallback(() => {
     setEditingCategory(null);
     setTitle("");
@@ -34,11 +43,16 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     setParentCategory(PARENT_CATEGORIES[0] || "Skincare");
     setTagline("");
     setDescription("");
+    setMetaDescription("");
+    setIcon("Sparkles");
     setImage(DEFAULT_IMAGES[Math.floor(Math.random() * DEFAULT_IMAGES.length)] || "");
     setBannerImage("");
     setFeatured(false);
     setItemCount("10");
-    setSubcategories(["Daily Essentials", "Hydration", "Brightening"]);
+    setSubcategories(["Serum", "Moisturizer", "Cleanser"]);
+    setPopularTags(["Japanese Ritual", "Barrier Care"]);
+    setRitualStepNumber("");
+    setRitualStepLabel("");
     setIsModalOpen(true);
   }, []);
 
@@ -50,11 +64,16 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     setParentCategory(cat.parentCategory);
     setTagline(cat.tagline);
     setDescription(cat.description);
+    setMetaDescription(cat.metaDescription || "");
+    setIcon(cat.icon || "Sparkles");
     setImage(cat.image);
     setBannerImage(cat.bannerImage || "");
     setFeatured(cat.featured);
     setItemCount(String(cat.itemCount));
     setSubcategories([...cat.subcategories]);
+    setPopularTags(cat.popularTags ? [...cat.popularTags] : []);
+    setRitualStepNumber(cat.ritualStep?.step || "");
+    setRitualStepLabel(cat.ritualStep?.label || "");
     setIsModalOpen(true);
   }, []);
 
@@ -88,6 +107,54 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     setSubcategories((prev) => prev.filter((s) => s !== sub));
   }, []);
 
+  const handleAddTag = useCallback(() => {
+    const trimmed = newTagInput.trim();
+    if (!trimmed) return;
+    if (popularTags.includes(trimmed)) {
+      toast.error("Tag already added!");
+      return;
+    }
+    setPopularTags((prev) => [...prev, trimmed]);
+    setNewTagInput("");
+  }, [newTagInput, popularTags]);
+
+  const handleRemoveTag = useCallback((tag: string) => {
+    setPopularTags((prev) => prev.filter((t) => t !== tag));
+  }, []);
+
+  const handleFileUpload = useCallback(
+    async (file: File, target: "image" | "banner") => {
+      const isBanner = target === "banner";
+      if (isBanner) setIsUploadingBanner(true);
+      else setIsUploadingImage(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/v1/uploads/image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success && data.data?.url) {
+          if (isBanner) setBannerImage(data.data.url);
+          else setImage(data.data.url);
+          toast.success("Image uploaded to Cloudinary! ☁️");
+        } else {
+          toast.error(data.error?.message || "Failed to upload image");
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        toast.error("Upload failed. Please check network connection.");
+      } finally {
+        if (isBanner) setIsUploadingBanner(false);
+        else setIsUploadingImage(false);
+      }
+    },
+    [],
+  );
+
   const handleSave = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -100,35 +167,37 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
         return;
       }
 
+      const ritualStep =
+        ritualStepNumber.trim() || ritualStepLabel.trim()
+          ? {
+              step: ritualStepNumber.trim() || "Step 01",
+              label: ritualStepLabel.trim() || "Daily Care",
+            }
+          : null;
+
+      const categoryData = {
+        title: title.trim(),
+        slug: slug.trim(),
+        japaneseTitle: japaneseTitle.trim() || undefined,
+        parentCategory,
+        tagline: tagline.trim() || "Authentic Japanese Skincare Formula",
+        description: description.trim() || "Carefully curated Japanese beauty formulation.",
+        metaDescription: metaDescription.trim() || undefined,
+        image: image.trim() || DEFAULT_IMAGES[0] || "",
+        bannerImage: bannerImage.trim() || undefined,
+        icon: icon.trim() || "Sparkles",
+        subcategories,
+        popularTags,
+        ritualStep,
+        featured,
+        itemCount: parseInt(itemCount, 10) || 0,
+      };
+
       if (editingCategory) {
-        updateCategory(editingCategory.id, {
-          title: title.trim(),
-          slug: slug.trim(),
-          japaneseTitle: japaneseTitle.trim() || undefined,
-          parentCategory,
-          tagline: tagline.trim() || "Authentic Japanese Skincare Formula",
-          description: description.trim() || "Carefully curated Japanese beauty formulation.",
-          image: image.trim() || DEFAULT_IMAGES[0] || "",
-          bannerImage: bannerImage.trim() || undefined,
-          subcategories,
-          featured,
-          itemCount: parseInt(itemCount, 10) || 0,
-        });
+        updateCategory(editingCategory.id, categoryData);
         toast.success(`Category "${title}" updated successfully! 🌸`);
       } else {
-        addCategory({
-          title: title.trim(),
-          slug: slug.trim(),
-          japaneseTitle: japaneseTitle.trim() || undefined,
-          parentCategory,
-          tagline: tagline.trim() || "Authentic Japanese Skincare Formula",
-          description: description.trim() || "Carefully curated Japanese beauty formulation.",
-          image: image.trim() || DEFAULT_IMAGES[0] || "",
-          bannerImage: bannerImage.trim() || undefined,
-          subcategories,
-          featured,
-          itemCount: parseInt(itemCount, 10) || 0,
-        });
+        addCategory(categoryData);
         toast.success(`Category "${title}" created and published! 🌸`);
       }
 
@@ -141,9 +210,14 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
       parentCategory,
       tagline,
       description,
+      metaDescription,
       image,
       bannerImage,
+      icon,
       subcategories,
+      popularTags,
+      ritualStepNumber,
+      ritualStepLabel,
       featured,
       itemCount,
       editingCategory,
@@ -161,6 +235,11 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     handleTitleChange,
     handleAddSubcat,
     handleRemoveSubcat,
+    handleAddTag,
+    handleRemoveTag,
+    handleFileUpload,
+    isUploadingImage,
+    isUploadingBanner,
     handleSave,
     title,
     setTitle,
@@ -174,6 +253,10 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     setTagline,
     description,
     setDescription,
+    metaDescription,
+    setMetaDescription,
+    icon,
+    setIcon,
     image,
     setImage,
     bannerImage,
@@ -183,7 +266,14 @@ export function useCategoryModalForm({ addCategory, updateCategory }: UseCategor
     itemCount,
     setItemCount,
     subcategories,
+    popularTags,
     newSubcatInput,
     setNewSubcatInput,
+    newTagInput,
+    setNewTagInput,
+    ritualStepNumber,
+    setRitualStepNumber,
+    ritualStepLabel,
+    setRitualStepLabel,
   };
 }

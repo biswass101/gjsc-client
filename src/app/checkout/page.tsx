@@ -48,6 +48,18 @@ export default function CheckoutPage() {
     setNagadPhone,
     nagadTrxId,
     setNagadTrxId,
+    cardholderName,
+    setCardholderName,
+    cardNumber,
+    setCardNumber,
+    cardExpiry,
+    setCardExpiry,
+    cardCvc,
+    setCardCvc,
+    cardPaymentType,
+    setCardPaymentType,
+    selectedBank,
+    setSelectedBank,
     giftWrap,
     setGiftWrap,
     giftMessage,
@@ -136,6 +148,18 @@ export default function CheckoutPage() {
                 onNagadPhoneChange={setNagadPhone}
                 nagadTrxId={nagadTrxId}
                 onNagadTrxIdChange={setNagadTrxId}
+                cardholderName={cardholderName}
+                onCardholderNameChange={setCardholderName}
+                cardNumber={cardNumber}
+                onCardNumberChange={setCardNumber}
+                cardExpiry={cardExpiry}
+                onCardExpiryChange={setCardExpiry}
+                cardCvc={cardCvc}
+                onCardCvcChange={setCardCvc}
+                cardPaymentType={cardPaymentType}
+                onCardPaymentTypeChange={setCardPaymentType}
+                selectedBank={selectedBank}
+                onSelectedBankChange={setSelectedBank}
               />
 
               <CheckoutGiftWrap

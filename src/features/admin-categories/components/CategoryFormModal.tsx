@@ -27,12 +27,25 @@ interface CategoryFormModalProps {
   setJapaneseTitle: (val: string) => void;
   parentCategory: string;
   setParentCategory: (val: string) => void;
+  icon: string;
+  setIcon: (val: string) => void;
+  ritualStepNumber: string;
+  setRitualStepNumber: (val: string) => void;
+  ritualStepLabel: string;
+  setRitualStepLabel: (val: string) => void;
   tagline: string;
   setTagline: (val: string) => void;
   description: string;
   setDescription: (val: string) => void;
+  metaDescription: string;
+  setMetaDescription: (val: string) => void;
   image: string;
   setImage: (val: string) => void;
+  bannerImage: string;
+  setBannerImage: (val: string) => void;
+  handleFileUpload?: (file: File, target: "image" | "banner") => void;
+  isUploadingImage?: boolean;
+  isUploadingBanner?: boolean;
   featured: boolean;
   setFeatured: (val: boolean) => void;
   itemCount: string;
@@ -42,6 +55,11 @@ interface CategoryFormModalProps {
   setNewSubcatInput: (val: string) => void;
   onAddSubcat: () => void;
   onRemoveSubcat: (sub: string) => void;
+  popularTags: string[];
+  newTagInput: string;
+  setNewTagInput: (val: string) => void;
+  onAddTag: () => void;
+  onRemoveTag: (tag: string) => void;
 }
 
 export function CategoryFormModal({
@@ -57,12 +75,25 @@ export function CategoryFormModal({
   setJapaneseTitle,
   parentCategory,
   setParentCategory,
+  icon,
+  setIcon,
+  ritualStepNumber,
+  setRitualStepNumber,
+  ritualStepLabel,
+  setRitualStepLabel,
   tagline,
   setTagline,
   description,
   setDescription,
+  metaDescription,
+  setMetaDescription,
   image,
   setImage,
+  bannerImage,
+  setBannerImage,
+  handleFileUpload,
+  isUploadingImage,
+  isUploadingBanner,
   featured,
   setFeatured,
   itemCount,
@@ -72,6 +103,11 @@ export function CategoryFormModal({
   setNewSubcatInput,
   onAddSubcat,
   onRemoveSubcat,
+  popularTags,
+  newTagInput,
+  setNewTagInput,
+  onAddTag,
+  onRemoveTag,
 }: CategoryFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -98,15 +134,29 @@ export function CategoryFormModal({
               setSlug={setSlug}
               parentCategory={parentCategory}
               setParentCategory={setParentCategory}
+              icon={icon}
+              setIcon={setIcon}
+              ritualStepNumber={ritualStepNumber}
+              setRitualStepNumber={setRitualStepNumber}
+              ritualStepLabel={ritualStepLabel}
+              setRitualStepLabel={setRitualStepLabel}
               tagline={tagline}
               setTagline={setTagline}
               description={description}
               setDescription={setDescription}
+              metaDescription={metaDescription}
+              setMetaDescription={setMetaDescription}
             />
 
             <CategoryModalMediaFields
               image={image}
               setImage={setImage}
+              bannerImage={bannerImage}
+              setBannerImage={setBannerImage}
+              onUploadImage={(f) => handleFileUpload?.(f, "image")}
+              onUploadBanner={(f) => handleFileUpload?.(f, "banner")}
+              isUploadingImage={Boolean(isUploadingImage)}
+              isUploadingBanner={Boolean(isUploadingBanner)}
               featured={featured}
               setFeatured={setFeatured}
               itemCount={itemCount}
@@ -119,6 +169,11 @@ export function CategoryFormModal({
               setNewSubcatInput={setNewSubcatInput}
               onAddSubcat={onAddSubcat}
               onRemoveSubcat={onRemoveSubcat}
+              popularTags={popularTags}
+              newTagInput={newTagInput}
+              setNewTagInput={setNewTagInput}
+              onAddTag={onAddTag}
+              onRemoveTag={onRemoveTag}
             />
           </div>
 

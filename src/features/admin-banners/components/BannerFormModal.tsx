@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Image as ImageIcon } from "lucide-react";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import { AdminBanner } from "@/context/admin-context";
 import { BannerModalIdentityFields } from "./form/BannerModalIdentityFields";
 import { BannerModalMediaCtaFields } from "./form/BannerModalMediaCtaFields";
 import { BannerModalGradientFields } from "./form/BannerModalGradientFields";
+import { BannerLivePreview } from "./BannerLivePreview";
 
 interface BannerFormModalProps {
   isOpen: boolean;
@@ -79,9 +80,30 @@ export function BannerFormModal({
   setCustomOpacity,
   onSubmit,
 }: BannerFormModalProps) {
+  const [desktopPreviewBlob, setDesktopPreviewBlob] = useState<string | null>(null);
+  const [mobilePreviewBlob, setMobilePreviewBlob] = useState<string | null>(null);
+  const [isUploadingDesktop, setIsUploadingDesktop] = useState(false);
+  const [isUploadingMobile, setIsUploadingMobile] = useState(false);
+
+  // Clean up object URLs when modal closes or editingBanner changes
+  useEffect(() => {
+    if (!isOpen) {
+      if (desktopPreviewBlob) {
+        URL.revokeObjectURL(desktopPreviewBlob);
+        setDesktopPreviewBlob(null);
+      }
+      if (mobilePreviewBlob) {
+        URL.revokeObjectURL(mobilePreviewBlob);
+        setMobilePreviewBlob(null);
+      }
+      setIsUploadingDesktop(false);
+      setIsUploadingMobile(false);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl lg:max-w-4xl max-h-[92vh] overflow-y-auto">
         <form onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
@@ -91,11 +113,31 @@ export function BannerFormModal({
               </span>
             </DialogTitle>
             <DialogDescription>
-              Configure page placement, marketing headline, responsive graphics, custom gradient atmosphere, and conversion CTA.
+              Configure page placement, marketing headline, responsive graphics, custom gradient atmosphere, and live storefront preview.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-4">
+            {/* Live Interactive Storefront Preview Component */}
+            <BannerLivePreview
+              pageKey={pageKey}
+              title={title}
+              subtitle={subtitle}
+              badge={badge}
+              imageUrl={imageUrl}
+              mobileImageUrl={mobileImageUrl}
+              gradient={gradient}
+              customStart={customStart}
+              customEnd={customEnd}
+              customOpacity={customOpacity}
+              active={active}
+              ctaLink={ctaLink}
+              desktopPreviewBlob={desktopPreviewBlob}
+              mobilePreviewBlob={mobilePreviewBlob}
+              isUploadingDesktop={isUploadingDesktop}
+              isUploadingMobile={isUploadingMobile}
+            />
+
             <BannerModalIdentityFields
               pageKey={pageKey}
               setPageKey={setPageKey}
@@ -130,14 +172,26 @@ export function BannerFormModal({
               setOrder={setOrder}
               active={active}
               setActive={setActive}
+              desktopPreviewBlob={desktopPreviewBlob}
+              setDesktopPreviewBlob={setDesktopPreviewBlob}
+              mobilePreviewBlob={mobilePreviewBlob}
+              setMobilePreviewBlob={setMobilePreviewBlob}
+              isUploadingDesktop={isUploadingDesktop}
+              setIsUploadingDesktop={setIsUploadingDesktop}
+              isUploadingMobile={isUploadingMobile}
+              setIsUploadingMobile={setIsUploadingMobile}
             />
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 pt-2 border-t border-border/40">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-primary text-primary-foreground font-semibold">
+            <Button
+              type="submit"
+              disabled={isUploadingDesktop || isUploadingMobile}
+              className="bg-primary text-primary-foreground font-semibold"
+            >
               {editingBanner ? "Save Banner Changes" : "Publish Banner"}
             </Button>
           </DialogFooter>

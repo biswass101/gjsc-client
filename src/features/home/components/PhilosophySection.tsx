@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@/lib/navigation";
-import story from "@/assets/story.jpg";
+import { story } from "@/lib/cloudinaryAssets";
 import {
   ArrowRight,
   CheckCircle2,

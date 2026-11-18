@@ -3,58 +3,92 @@
 import { useMemo, useState } from "react";
 import { Link } from "@/lib/navigation";
 import { Layout, GoToTop } from "@/components/layout";
+import { useAdmin } from "@/context/admin-context";
 import { CATEGORIES, PRODUCTS } from "@/lib/catalog";
 import { Search, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CATEGORY_DIRECTORY } from "../data/categoryDirectoryData";
 import { CategoryDirectoryHero } from "./CategoryDirectoryHero";
 import { LayeringRitualRibbon } from "./LayeringRitualRibbon";
-import { CategoryDirectoryCard } from "./CategoryDirectoryCard";
+import { CategoryDirectoryCard, type UnifiedCategoryCardItem } from "./CategoryDirectoryCard";
 import { CategoryAssuranceBanner } from "./CategoryAssuranceBanner";
 
 export function CategoriesDirectoryClient() {
+  const { categories: adminCategories } = useAdmin();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("All");
+
+  const displayCategories: UnifiedCategoryCardItem[] = useMemo(() => {
+    if (adminCategories && adminCategories.length > 0) {
+      return adminCategories.map((c) => ({
+        id: c.id,
+        name: c.title,
+        title: c.title,
+        slug: c.slug,
+        kanji: c.japaneseTitle || "",
+        japaneseTitle: c.japaneseTitle || "",
+        department: c.parentCategory || "Skincare",
+        parentCategory: c.parentCategory || "Skincare",
+        tagline: c.tagline || c.description || "",
+        description: c.description || "",
+        icon: c.icon || "Sparkles",
+        image: c.image || "",
+        bannerImage: c.bannerImage || "",
+        popularTags: c.popularTags || [],
+        ritualStep: c.ritualStep || null,
+        featured: c.featured,
+        itemCount: c.itemCount,
+      }));
+    }
+    return [];
+  }, [adminCategories]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
     CATEGORIES.forEach((cat) => {
       map[cat] = PRODUCTS.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
     });
-    CATEGORY_DIRECTORY.forEach((c) => {
-      if (!map[c.name]) map[c.name] = 4;
+    displayCategories.forEach((c) => {
+      const name = c.name || c.title || "";
+      if (!map[name]) {
+        map[name] = (c as any).itemCount || 4;
+      }
     });
     return map;
-  }, []);
+  }, [displayCategories]);
 
   const filteredCategories = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return CATEGORY_DIRECTORY.filter((item) => {
-      if (selectedDepartment !== "All" && item.department !== selectedDepartment) {
+    return displayCategories.filter((item) => {
+      const dept = item.department || (item as any).parentCategory || "";
+      if (selectedDepartment !== "All" && dept !== selectedDepartment) {
         return false;
       }
 
       if (query) {
-        const matchesName = item.name.toLowerCase().includes(query);
-        const matchesKanji = item.kanji.toLowerCase().includes(query);
-        const matchesTagline = item.tagline.toLowerCase().includes(query);
-        const matchesTags = item.popularTags.some((t) => t.toLowerCase().includes(query));
-        const matchesDept = item.department.toLowerCase().includes(query);
-        if (!matchesName && !matchesKanji && !matchesTagline && !matchesTags && !matchesDept) {
+        const name = (item.name || item.title || "").toLowerCase();
+        const kanji = (item.kanji || item.japaneseTitle || "").toLowerCase();
+        const tagline = (item.tagline || item.description || "").toLowerCase();
+        const matchesTags = (item.popularTags || []).some((t) => t.toLowerCase().includes(query));
+        const matchesDept = dept.toLowerCase().includes(query);
+        if (!name.includes(query) && !kanji.includes(query) && !tagline.includes(query) && !matchesTags && !matchesDept) {
           return false;
         }
       }
 
       return true;
     });
-  }, [searchQuery, selectedDepartment]);
+  }, [searchQuery, selectedDepartment, displayCategories]);
 
   const departments = useMemo(() => {
     const set = new Set<string>();
-    CATEGORY_DIRECTORY.forEach((c) => set.add(c.department));
+    displayCategories.forEach((c) => {
+      const dept = c.department || (c as any).parentCategory;
+      if (dept) set.add(dept);
+    });
     return ["All", ...Array.from(set)];
-  }, []);
+  }, [displayCategories]);
 
   return (
     <Layout>
@@ -144,13 +178,16 @@ export function CategoriesDirectoryClient() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {filteredCategories.map((item) => (
-              <CategoryDirectoryCard
-                key={item.name}
-                item={item}
-                count={counts[item.name] ?? 4}
-              />
-            ))}
+            {filteredCategories.map((item) => {
+              const catKey = item.name || item.title || "Category";
+              return (
+                <CategoryDirectoryCard
+                  key={item.slug || catKey}
+                  item={item}
+                  count={counts[catKey] ?? 4}
+                />
+              );
+            })}
           </div>
         )}
 

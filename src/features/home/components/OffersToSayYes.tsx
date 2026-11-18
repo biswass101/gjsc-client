@@ -5,10 +5,12 @@ import { formatBDT } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
 import { Check, ShoppingBag, Sparkles, Star } from "lucide-react";
-import b1Img from "@/assets/hero/sakura-spa-skincare-trio.png";
-import b2Img from "@/assets/hero/japanese-inspired-foaming-skincare-ritual.png";
-import b3Img from "@/assets/hero/bright-spa-skincare-commercial-scene.png";
-import b4Img from "@/assets/hero/Japanese Skincare Serenity Trio.png";
+import {
+  sakuraSpa as b1Img,
+  foamingRitual as b2Img,
+  heroSpa as b3Img,
+  serenityTrio as b4Img,
+} from "@/lib/cloudinaryAssets";
 
 interface BundleDeal {
   id: string;

@@ -44,21 +44,49 @@ export default function AdminSettingsPage() {
     setSteadfastApiKey,
     codEnabled,
     setCodEnabled,
+    codMinAmount,
+    setCodMinAmount,
+    codMaxAmount,
+    setCodMaxAmount,
+    codInstructions,
+    setCodInstructions,
     bkashEnabled,
     setBkashEnabled,
     bkashMerchantNumber,
     setBkashMerchantNumber,
+    bkashAccountType,
+    setBkashAccountType,
+    bkashInstructions,
+    setBkashInstructions,
     nagadEnabled,
     setNagadEnabled,
     nagadMerchantNumber,
     setNagadMerchantNumber,
+    nagadAccountType,
+    setNagadAccountType,
+    nagadInstructions,
+    setNagadInstructions,
+    cardEnabled,
+    setCardEnabled,
+    cardGateway,
+    setCardGateway,
+    cardStoreId,
+    setCardStoreId,
+    cardInstructions,
+    setCardInstructions,
+    cardTestMode,
+    setCardTestMode,
     lowStockWarningQty,
     setLowStockWarningQty,
     enableSmsAlerts,
     setEnableSmsAlerts,
     enableWhatsappUpdates,
     setEnableWhatsappUpdates,
+    isSaving,
+    isSavingPayment,
     handleSave,
+    handleSavePaymentGateways,
+    handleToggleGateway,
     handleExportDatabase,
     handleReset,
   } = useAdminSettingsForm();
@@ -105,14 +133,41 @@ export default function AdminSettingsPage() {
         <SettingsPaymentGatewaysCard
           codEnabled={codEnabled}
           setCodEnabled={setCodEnabled}
+          codMinAmount={codMinAmount}
+          setCodMinAmount={setCodMinAmount}
+          codMaxAmount={codMaxAmount}
+          setCodMaxAmount={setCodMaxAmount}
+          codInstructions={codInstructions}
+          setCodInstructions={setCodInstructions}
           bkashEnabled={bkashEnabled}
           setBkashEnabled={setBkashEnabled}
           bkashMerchantNumber={bkashMerchantNumber}
           setBkashMerchantNumber={setBkashMerchantNumber}
+          bkashAccountType={bkashAccountType}
+          setBkashAccountType={setBkashAccountType}
+          bkashInstructions={bkashInstructions}
+          setBkashInstructions={setBkashInstructions}
           nagadEnabled={nagadEnabled}
           setNagadEnabled={setNagadEnabled}
           nagadMerchantNumber={nagadMerchantNumber}
           setNagadMerchantNumber={setNagadMerchantNumber}
+          nagadAccountType={nagadAccountType}
+          setNagadAccountType={setNagadAccountType}
+          nagadInstructions={nagadInstructions}
+          setNagadInstructions={setNagadInstructions}
+          cardEnabled={cardEnabled}
+          setCardEnabled={setCardEnabled}
+          cardGateway={cardGateway}
+          setCardGateway={setCardGateway}
+          cardStoreId={cardStoreId}
+          setCardStoreId={setCardStoreId}
+          cardInstructions={cardInstructions}
+          setCardInstructions={setCardInstructions}
+          cardTestMode={cardTestMode}
+          setCardTestMode={setCardTestMode}
+          onSavePaymentGateways={handleSavePaymentGateways}
+          isSavingPayment={isSavingPayment}
+          onToggleGateway={handleToggleGateway}
         />
 
         <SettingsAlertsNotificationsCard
@@ -127,8 +182,13 @@ export default function AdminSettingsPage() {
         <SettingsDisasterRecoveryCard onReset={handleReset} />
 
         <div className="flex justify-end pt-2">
-          <Button type="submit" size="sm" className="rounded-full text-xs px-8 h-9 shadow-sm">
-            Save All Configurations
+          <Button
+            type="submit"
+            size="sm"
+            disabled={isSaving}
+            className="rounded-full text-xs px-8 h-9 shadow-sm"
+          >
+            {isSaving ? "Saving..." : "Save All Configurations"}
           </Button>
         </div>
       </form>

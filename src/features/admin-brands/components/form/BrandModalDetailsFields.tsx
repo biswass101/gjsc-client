@@ -68,7 +68,7 @@ export function BrandModalDetailsFields({
             id="brand-logo"
             value={logo}
             onChange={(e) => setLogo(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
+            placeholder="https://res.cloudinary.com/..."
             required
             className="flex-1"
           />

@@ -1,21 +1,6 @@
-import i1 from "@/assets/new_products_images/i1.jpg";
-import i2 from "@/assets/new_products_images/i2.jpg";
-import i3 from "@/assets/new_products_images/i3.jpg";
-import i4 from "@/assets/new_products_images/i4.jpg";
-import i5 from "@/assets/new_products_images/i5.jpg";
-import i6 from "@/assets/new_products_images/i6.jpg";
-import i7 from "@/assets/new_products_images/i7.jpg";
-import i8 from "@/assets/new_products_images/i8.jpg";
-import i9 from "@/assets/new_products_images/i9.jpg";
-import i10 from "@/assets/new_products_images/i10.jpg";
-import i11 from "@/assets/new_products_images/i11.jpg";
-import i12 from "@/assets/new_products_images/i12.jpg";
-import i13 from "@/assets/new_products_images/i13.jpg";
-import i14 from "@/assets/new_products_images/i14.jpg";
-import i15 from "@/assets/new_products_images/i15.jpg";
-import i16 from "@/assets/new_products_images/i16.jpg";
+import { PRODUCT_IMAGE_URLS } from "@/lib/cloudinaryAssets";
 
-import type { Product, CategoryGroup } from "@/types";
+import type { Product, CategoryGroup, AdminProduct } from "@/types";
 import {
   SEEDS,
   LOREM,
@@ -24,7 +9,7 @@ import {
   PRE_ORDER_SEEDS,
   SHEIN_SEEDS,
 } from "./catalog/seeds";
-export type { Product, CategoryGroup };
+export type { Product, CategoryGroup, AdminProduct };
 export { slugify };
 export { BLOG_POSTS, TESTIMONIALS } from "./catalog/editorial";
 
@@ -128,24 +113,7 @@ export const BRANDS = [
   "Curel",
 ] as const;
 
-export const PRODUCT_IMAGES: string[] = [
-  i1.src,
-  i2.src,
-  i3.src,
-  i4.src,
-  i5.src,
-  i6.src,
-  i7.src,
-  i8.src,
-  i9.src,
-  i10.src,
-  i11.src,
-  i12.src,
-  i13.src,
-  i14.src,
-  i15.src,
-  i16.src,
-];
+export const PRODUCT_IMAGES: string[] = PRODUCT_IMAGE_URLS;
 
 const IMAGES = PRODUCT_IMAGES;
 
@@ -195,7 +163,7 @@ export const PRODUCTS: Product[] = [
   ...SHEIN_PRODUCTS,
 ];
 
-export const bySlug = (slug: string): Product | undefined => {
+export const bySlug = (slug: string, source: Product[] = PRODUCTS): Product | undefined => {
   if (!slug) return undefined;
   let decoded = slug.trim().toLowerCase();
   try {
@@ -204,7 +172,7 @@ export const bySlug = (slug: string): Product | undefined => {
     // Keep raw slug if malformed URL encoding
   }
   const normalized = slugify(decoded);
-  return PRODUCTS.find(
+  return source.find(
     (p) =>
       p.slug.toLowerCase() === decoded ||
       p.slug.toLowerCase() === normalized ||
@@ -213,5 +181,101 @@ export const bySlug = (slug: string): Product | undefined => {
       p.name.toLowerCase() === decoded,
   );
 };
+
+export function adminProductToStorefront(ap: any): Product {
+  return {
+    id: String(ap.id),
+    slug: ap.slug,
+    name: ap.name,
+    japaneseName: ap.japaneseName || undefined,
+    brand: ap.brand || ap.brandName || "Authentic Japan",
+    category: ap.category || ap.categoryName || "Skincare",
+    price: Number(ap.price || 0),
+    compareAt: ap.compareAt ? Number(ap.compareAt) : undefined,
+    rating: Number(ap.rating || 5),
+    reviews: Number(ap.reviewsCount ?? ap.reviews ?? 0),
+    image: ap.image || (ap.images && ap.images[0]) || "",
+    images: Array.isArray(ap.images) && ap.images.length > 0 ? ap.images : [ap.image || ""],
+    short: ap.short || "",
+    description: ap.description || "",
+    ingredients: Array.isArray(ap.ingredients) ? ap.ingredients : [],
+    benefits: Array.isArray(ap.benefits) ? ap.benefits : [],
+    howTo: ap.howTo || "",
+    skinTypes: Array.isArray(ap.skinTypes) ? ap.skinTypes : [],
+    concerns: Array.isArray(ap.concerns) ? ap.concerns : [],
+    stock: Number(ap.stock || 0),
+    badge: ap.badge || undefined,
+    sizes: Array.isArray(ap.sizes) ? ap.sizes : ["Standard"],
+    type: ap.productType || ap.type || "in-stock",
+    origin: ap.origin || "Tokyo, Japan",
+    texture: ap.texture || undefined,
+    pao: ap.pao || undefined,
+    spf: ap.spf || undefined,
+    barcode: ap.barcode || undefined,
+    sku: ap.sku || undefined,
+  };
+}
+
+export function mergeStorefrontProducts(
+  adminProducts: AdminProduct[] | undefined,
+  staticProducts: Product[] = PRODUCTS,
+): Product[] {
+  if (!adminProducts || adminProducts.length === 0) {
+    return staticProducts;
+  }
+
+  // Active admin products converted to storefront format
+  const activeAdmin = adminProducts
+    .filter((p) => p.status === "active")
+    .map(adminProductToStorefront);
+
+  // Map strictly by normalized slug so DB auto-increment IDs never collide with unrelated static seed IDs
+  const adminMap = new Map<string, Product>();
+  const adminAllBySlug = new Map<string, AdminProduct>();
+  adminProducts.forEach((ap) => {
+    if (ap.slug) {
+      adminAllBySlug.set(ap.slug.toLowerCase(), ap);
+    }
+  });
+  activeAdmin.forEach((p) => {
+    if (p.slug) {
+      adminMap.set(p.slug.toLowerCase(), p);
+    }
+  });
+
+  const matchedAdminSlugs = new Set<string>();
+  const mergedStatic: Product[] = [];
+
+  for (const sp of staticProducts) {
+    const slugKey = sp.slug.toLowerCase();
+
+    // Check if this product was modified, deleted, or archived in adminProducts (strictly by slug)
+    const foundInAdminAll = adminAllBySlug.get(slugKey);
+
+    if (foundInAdminAll) {
+      if (foundInAdminAll.status === "active") {
+        const activeItem = adminMap.get(slugKey);
+        if (activeItem) {
+          mergedStatic.push(activeItem);
+          matchedAdminSlugs.add(slugKey);
+        }
+      }
+      // If status is draft or archived, it is omitted from the storefront
+    } else {
+      mergedStatic.push(sp);
+    }
+  }
+
+  // Add newly created admin products that weren't in base list
+  for (const ap of activeAdmin) {
+    const slugKey = ap.slug.toLowerCase();
+    if (!matchedAdminSlugs.has(slugKey)) {
+      mergedStatic.unshift(ap); // Newly created products appear first!
+      matchedAdminSlugs.add(slugKey);
+    }
+  }
+
+  return mergedStatic;
+}
 
 export const formatBDT = (n: number) => `৳${n.toLocaleString("en-BD")}`;

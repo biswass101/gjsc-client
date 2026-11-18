@@ -5,6 +5,7 @@ import { useAdmin } from "@/context/admin-context";
 import { Sakura } from "./SakuraFallingAnimation";
 import { BackgroundSlider, HERO_IMAGES, HeroSlide } from "./BackgroundSlider";
 import { CarouselIndicators } from "./CarouselIndicators";
+import { resolveBannerImageUrl } from "@/features/admin-banners";
 
 export function Hero() {
   const { banners } = useAdmin();
@@ -13,12 +14,12 @@ export function Hero() {
   const heroSlides = useMemo<HeroSlide[]>(() => {
     const activeHero = (banners || [])
       .filter((b) => b.pageKey === "home_hero" && b.active !== false)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (activeHero.length > 0) {
       return activeHero.map((b) => ({
-        src: b.imageUrl,
-        mobileSrc: b.mobileImageUrl,
+        src: resolveBannerImageUrl(b.imageUrl),
+        mobileSrc: b.mobileImageUrl ? resolveBannerImageUrl(b.mobileImageUrl) : undefined,
         ctaLink: b.ctaLink,
         ctaText: b.ctaText,
         title: b.title,

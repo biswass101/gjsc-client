@@ -26,4 +26,10 @@ export interface OrderConfirmationData {
   payment: PaymentMethod;
   date: string;
   items: CheckoutCartItem[];
+  trxId?: string;
+  paymentStatus?: "Paid" | "Pending";
+  cardBrand?: string;
+  cardLast4?: string;
+  selectedBank?: string;
+  cardPaymentType?: "card" | "netbanking";
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Product } from "@/types";
-import { ProductCard } from "@/features/products";
+import { ProductCard, ProductCardSkeleton } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, PackageSearch, RotateCcw } from "lucide-react";
 
@@ -14,6 +14,7 @@ export interface CatalogProductGridProps {
   onResetFilters: () => void;
   emptyTitle?: string;
   emptyMessage?: string;
+  isLoading?: boolean;
 }
 
 export function CatalogProductGrid({
@@ -25,7 +26,30 @@ export function CatalogProductGrid({
   onResetFilters,
   emptyTitle = "No Products Match Your Criteria",
   emptyMessage = "We couldn't find any products matching your active filters. Try adjusting your price range, skin type, or category filters.",
+  isLoading = false,
 }: CatalogProductGridProps) {
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        {view === "grid" ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <ProductCardSkeleton key={idx} view="grid" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="max-w-2xl">
+                <ProductCardSkeleton view="list" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="text-center py-16 px-4 rounded-xl border border-border/80 bg-card">

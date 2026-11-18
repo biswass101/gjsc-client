@@ -4,6 +4,7 @@ import { Link } from "@/lib/navigation";
 import { Gem, MapPin, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
 import { BRAND_DEFINITIONS } from "../data/brandMetadata";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface BrandDirectoryHeroProps {
   searchQuery: string;
@@ -12,21 +13,29 @@ interface BrandDirectoryHeroProps {
 
 export function BrandDirectoryHero({ searchQuery, onSearchChange }: BrandDirectoryHeroProps) {
   const { banners } = useAdmin();
-  const brandsBanner = (banners || []).find(
-    (b) => b.pageKey === "brands" && b.active !== false,
-  );
+  const brandsBanner = (banners || [])
+    .filter((b) => b.pageKey === "brands" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+
+  const brandImgUrl = brandsBanner?.imageUrl
+    ? resolveBannerImageUrl(brandsBanner.imageUrl)
+    : undefined;
+  const mobileImgUrl = brandsBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(brandsBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-cream/60 via-cream/30 to-background py-10 sm:py-14">
-      {brandsBanner?.imageUrl && (
+      {brandImgUrl && (
         <div className="absolute inset-0 z-0">
           <picture>
-            {brandsBanner.mobileImageUrl && (
-              <source media="(max-width: 640px)" srcSet={brandsBanner.mobileImageUrl} />
+            {mobileImgUrl && (
+              <source media="(max-width: 640px)" srcSet={mobileImgUrl} />
             )}
             <img
-              src={brandsBanner.imageUrl}
-              alt={brandsBanner.title}
+              src={brandImgUrl}
+              alt={brandsBanner?.title || "Brands Banner"}
+              onError={handleBannerImageError}
               className="w-full h-full object-cover"
             />
           </picture>

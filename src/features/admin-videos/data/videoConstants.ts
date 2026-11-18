@@ -1,49 +1,70 @@
 export const AVATAR_PRESETS = [
   {
     name: "Tasnim",
-    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     name: "Meghla",
-    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     name: "Dr. Sultana",
-    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     name: "Nafisa",
-    url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     name: "Anika",
-    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
   {
     name: "Samira",
-    url: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
   },
 ];
 
 export const THUMBNAIL_PRESETS = [
-  { label: "Tokyo Girl Routine", url: "/hero/hero-with-japanese-girl.png" },
-  { label: "Spa Commercial", url: "/hero/bright-spa-skincare-commercial-scene.png" },
-  { label: "Sakura Spa Trio", url: "/hero/sakura-spa-skincare-trio.png" },
-  { label: "Foaming Cleanser", url: "/hero/japanese-inspired-foaming-skincare-ritual.png" },
-  { label: "Serenity Trio", url: "/hero/Japanese Skincare Serenity Trio (1).png" },
-  { label: "Cozy Night Ritual", url: "/hero/Cozy Japanese Skincare Routine.png" },
-  { label: "Spring Glow", url: "/hero/Glorious Japan Skincare Spring Glow.png" },
+  {
+    label: "Tokyo Girl Routine",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
+  },
+  {
+    label: "Spa Commercial",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760843/glorious_japan_skin_care/hero/bright-spa-skincare-commercial-scene.png",
+  },
+  {
+    label: "Sakura Spa Trio",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760854/glorious_japan_skin_care/hero/sakura-spa-skincare-trio.png",
+  },
+  {
+    label: "Foaming Cleanser",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760851/glorious_japan_skin_care/hero/japanese-inspired-foaming-skincare-ritual.png",
+  },
+  {
+    label: "Serenity Trio",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760837/glorious_japan_skin_care/hero/Japanese_Skincare_Serenity_Trio_1.png",
+  },
+  {
+    label: "Cozy Night Ritual",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760831/glorious_japan_skin_care/hero/Cozy_Japanese_Skincare_Routine.png",
+  },
+  {
+    label: "Spring Glow",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760834/glorious_japan_skin_care/hero/Glorious_Japan_Skincare_Spring_Glow.png",
+  },
   {
     label: "Glass Skin Essence",
-    url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
   },
   {
     label: "Tokyo Sunscreen Milk",
-    url: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760878/glorious_japan_skin_care/new_products_images/i2.jpg",
   },
   {
     label: "Luxury Care Ritual",
-    url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+    url: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760879/glorious_japan_skin_care/new_products_images/i3.jpg",
   },
 ];
 

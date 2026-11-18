@@ -1,33 +1,53 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { PRODUCTS } from "@/lib/catalog";
+import { mergeStorefrontProducts } from "@/lib/catalog";
+import { useAdmin } from "@/context/admin-context";
+import { catalogApi } from "@/lib/api";
 import type { ShopFilterState, ShopSortOption } from "../types";
 import type { Product } from "@/types";
-import { catalogApi } from "@/lib/api";
 
 export const PER_PAGE = 12;
 
 export function useShopCatalog(priceBounds: { min: number; max: number }) {
   const searchParams = useSearchParams();
-  const [liveProducts, setLiveProducts] = useState<Product[]>(PRODUCTS);
+  const { products: adminProducts } = useAdmin();
 
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Fetch pure database catalog products on mount
   useEffect(() => {
+    let isMounted = true;
     catalogApi
-      .getProducts({ limit: 100 })
-      .then((res) => {
-        if (res?.products && res.products.length > 0) {
+      .getProducts({ limit: 50 })
+      .then((res: any) => {
+        if (!isMounted) return;
+        if (res && Array.isArray(res.products)) {
           const formatted = res.products.map((p: any) => ({
             ...p,
+            id: String(p.id),
             brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
             category: p.categoryName || p.category?.name || p.category || "Skincare",
           }));
-          setLiveProducts(formatted);
+          setDbProducts(formatted);
         }
       })
-      .catch(() => {
-        /* fallback to PRODUCTS */
+      .catch((err) => {
+        console.warn("Failed to load catalog products from API:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  // Dynamically synchronize database products with Admin panel CRUD
+  const liveProducts = useMemo<Product[]>(() => {
+    return mergeStorefrontProducts(adminProducts, dbProducts);
+  }, [adminProducts, dbProducts]);
 
   const [filters, setFilters] = useState<ShopFilterState>(() => {
     const paramCategory = searchParams?.get("category");
@@ -206,7 +226,7 @@ export function useShopCatalog(priceBounds: { min: number; max: number }) {
 
       return true;
     });
-  }, [filters]);
+  }, [filters, liveProducts]);
 
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
@@ -267,5 +287,7 @@ export function useShopCatalog(priceBounds: { min: number; max: number }) {
     startIdx,
     handlePageChange,
     headerTitle,
+    isLoading,
+    totalLiveProducts: liveProducts.length,
   };
 }

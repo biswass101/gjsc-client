@@ -38,7 +38,7 @@ export const BATCH_STATUSES: BatchStatusConfig[] = [
 ];
 
 export const DEFAULT_PREORDER_IMAGES = [
-  "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1608248597359-299318b7623a?w=800&auto=format&fit=crop&q=80",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760878/glorious_japan_skin_care/new_products_images/i2.jpg",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760879/glorious_japan_skin_care/new_products_images/i3.jpg",
 ];

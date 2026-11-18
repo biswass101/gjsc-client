@@ -1,7 +1,9 @@
-import f1Img from "@/assets/new_products_images/i6.jpg";
-import f2Img from "@/assets/new_products_images/i10.jpg";
-import f3Img from "@/assets/new_products_images/i4.jpg";
-import f4Img from "@/assets/new_products_images/i14.jpg";
+import {
+  i6 as f1Img,
+  i10 as f2Img,
+  i4 as f3Img,
+  i14 as f4Img,
+} from "@/lib/cloudinaryAssets";
 
 export interface FlashItem {
   id: string;

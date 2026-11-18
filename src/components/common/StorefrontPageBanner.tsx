@@ -5,6 +5,7 @@ import { Link } from "@/lib/navigation";
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
 import { AdminBanner } from "@/types";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface StorefrontPageBannerProps {
   pageKey: AdminBanner["pageKey"];
@@ -27,7 +28,7 @@ export function StorefrontPageBanner({
   breadcrumb,
   centered = false,
 }: StorefrontPageBannerProps) {
-  const { banners } = useAdmin();
+  const { banners, isLoadingBanners } = useAdmin();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const matchingBanners = useMemo(() => {
@@ -51,8 +52,11 @@ export function StorefrontPageBanner({
   const badge = activeBanner?.badge || defaultBadge;
   const ctaText = activeBanner?.ctaText || defaultCtaText;
   const ctaLink = activeBanner?.ctaLink || defaultCtaLink;
-  const imageUrl = activeBanner?.imageUrl;
-  const mobileImageUrl = activeBanner?.mobileImageUrl;
+  const rawImageUrl = !isLoadingBanners ? activeBanner?.imageUrl : undefined;
+  const imageUrl = rawImageUrl ? resolveBannerImageUrl(rawImageUrl) : undefined;
+  const mobileImageUrl = !isLoadingBanners && activeBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(activeBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-primary/10 via-cream/40 to-background py-8 sm:py-12 group">
@@ -62,7 +66,12 @@ export function StorefrontPageBanner({
             {mobileImageUrl && (
               <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
             )}
-            <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+            <img
+              src={imageUrl}
+              alt={title}
+              onError={handleBannerImageError}
+              className="w-full h-full object-cover"
+            />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
         </div>

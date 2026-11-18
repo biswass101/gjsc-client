@@ -1,6 +1,4 @@
-import p1Img from "@/assets/new_products_images/i1.jpg";
-import p2Img from "@/assets/new_products_images/i3.jpg";
-import p3Img from "@/assets/new_products_images/i5.jpg";
+import { i1 as p1Img, i3 as p2Img, i5 as p3Img } from "@/lib/cloudinaryAssets";
 
 export interface PodiumProduct {
   rank: 1 | 2 | 3;

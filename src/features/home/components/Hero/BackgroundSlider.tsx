@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { Link } from "@/lib/navigation";
 import { Sparkles } from "lucide-react";
-import { resolveBannerGradient } from "@/features/admin-banners/constants";
-import pujaSale from "@/assets/hero/puja-sale.png";
-import hero1 from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
-import hero2 from "@/assets/hero/Perfect Whip Fresh Beauty Ritual.png";
+import {
+  resolveBannerGradient,
+  handleBannerImageError,
+  resolveBannerImageUrl,
+  DEFAULT_FALLBACK_BANNER,
+} from "@/features/admin-banners";
+import { pujaSale, heroSpring, heroWhip } from "@/lib/cloudinaryAssets";
 
-const HERO_IMAGES = [pujaSale, hero1, hero2];
+const HERO_IMAGES = [pujaSale, heroSpring, heroWhip];
 
 export interface HeroSlide {
   src: string;
@@ -30,7 +33,11 @@ const SLIDE_DURATION_MS = 1000;
 export function BackgroundSlider({ currentIndex, slides }: BackgroundSliderProps) {
   const activeSlides: HeroSlide[] =
     slides && slides.length > 0
-      ? slides
+      ? slides.map((s) => ({
+          ...s,
+          src: resolveBannerImageUrl(s.src),
+          mobileSrc: s.mobileSrc ? resolveBannerImageUrl(s.mobileSrc) : undefined,
+        }))
       : HERO_IMAGES.map((img) => ({ src: img.src }));
 
   const [indexes, setIndexes] = useState({
@@ -53,6 +60,8 @@ export function BackgroundSlider({ currentIndex, slides }: BackgroundSliderProps
         const hasText = Boolean(slide.title?.trim() || slide.subtitle?.trim());
         const hasOverlayContent = Boolean(slide.title || slide.subtitle || slide.badge);
         const gradientCss = hasText ? resolveBannerGradient(slide.gradient) : "none";
+        const fallbackImg =
+          HERO_IMAGES[index % HERO_IMAGES.length]?.src || DEFAULT_FALLBACK_BANNER;
 
         const content = (
           <div
@@ -77,6 +86,7 @@ export function BackgroundSlider({ currentIndex, slides }: BackgroundSliderProps
                 loading={index === 0 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "low"}
                 decoding={index === 0 ? "sync" : "async"}
+                onError={(e) => handleBannerImageError(e, fallbackImg)}
                 className="absolute inset-0 h-full w-full object-cover object-center"
               />
             </picture>

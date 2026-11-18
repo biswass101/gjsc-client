@@ -86,6 +86,7 @@ export function CollectionPageClient({ slug }: CollectionPageClientProps) {
     totalPages,
     paginatedProducts,
     handlePageChange,
+    isLoading,
   } = useCollectionProducts(meta);
 
   return (
@@ -151,6 +152,7 @@ export function CollectionPageClient({ slug }: CollectionPageClientProps) {
               view={view}
               currentPage={currentPage}
               totalPages={totalPages}
+              isLoading={isLoading}
               onPageChange={handlePageChange}
               onResetFilters={handleResetFilters}
             />

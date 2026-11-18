@@ -1,6 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { PRODUCTS, slugify } from "@/lib/catalog";
+import { slugify, mergeStorefrontProducts } from "@/lib/catalog";
+import { useAdmin } from "@/context/admin-context";
+import { catalogApi } from "@/lib/api";
 import type { Product } from "@/types";
 import type { BrandMeta } from "../data/brandMetadata";
 import type { BrandFilterState } from "../components/BrandFilters";
@@ -11,11 +13,48 @@ export const ITEMS_PER_PAGE = 12;
 
 export function useBrandProducts(meta: BrandMeta) {
   const searchParams = useSearchParams();
+  const { products: adminProducts, isLoadingProducts } = useAdmin();
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [isLoadingApi, setIsLoadingApi] = useState<boolean>(true);
+
+  // Fetch pure database catalog products on mount
+  useEffect(() => {
+    let isMounted = true;
+    catalogApi
+      .getProducts({ limit: 50 })
+      .then((res: any) => {
+        if (!isMounted) return;
+        if (res && Array.isArray(res.products)) {
+          const formatted = res.products.map((p: any) => ({
+            ...p,
+            id: String(p.id),
+            brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
+            category: p.categoryName || p.category?.name || p.category || "Skincare",
+          }));
+          setDbProducts(formatted);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load brand products from API:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingApi(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const allProducts = useMemo(() => {
+    return mergeStorefrontProducts(adminProducts, dbProducts);
+  }, [adminProducts, dbProducts]);
+
+  const isLoading = isLoadingApi && (!adminProducts || adminProducts.length === 0 || Boolean(isLoadingProducts));
 
   // All products belonging to this brand
   const brandProducts = useMemo(() => {
-    // 1. Direct brand name / alias match
-    const directMatches = PRODUCTS.filter((p) => {
+    return allProducts.filter((p) => {
       const pBrand = p.brand.toLowerCase();
       const metaName = meta.name.toLowerCase();
       const metaSlug = meta.slug.toLowerCase();
@@ -25,24 +64,7 @@ export function useBrandProducts(meta: BrandMeta) {
       if (p.name.toLowerCase().includes(metaName)) return true;
       return false;
     });
-
-    if (directMatches.length >= 3) return directMatches;
-
-    // 2. Fallback complement so all 36 Japanese brands display rich product lines
-    const complementary = PRODUCTS.filter((p) => !directMatches.includes(p)).slice(
-      0,
-      8 - directMatches.length,
-    );
-
-    return [
-      ...directMatches,
-      ...complementary.map((p) => ({
-        ...p,
-        id: `${meta.slug}-${p.id}`,
-        brand: meta.name,
-      })),
-    ];
-  }, [meta]);
+  }, [allProducts, meta]);
 
   // Compute price bounds from brand products
   const priceBounds = useMemo(() => {
@@ -171,6 +193,7 @@ export function useBrandProducts(meta: BrandMeta) {
     totalPages,
     paginatedProducts,
     filterProps,
+    isLoading,
   };
 }
 

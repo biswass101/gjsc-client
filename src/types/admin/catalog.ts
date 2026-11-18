@@ -42,10 +42,14 @@ export interface AdminCategory {
   japaneseTitle?: string | undefined;
   tagline: string;
   description: string;
+  metaDescription?: string | undefined;
   image: string;
   bannerImage?: string | undefined;
+  icon?: string | undefined;
   parentCategory: string; // e.g. "Skincare", "Hair", "Body", "Makeup"
   subcategories: string[];
+  popularTags?: string[] | undefined;
+  ritualStep?: { step: string; label: string } | null | undefined;
   featured: boolean;
   itemCount: number;
 }

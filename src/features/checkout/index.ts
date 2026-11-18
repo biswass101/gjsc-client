@@ -9,3 +9,6 @@ export * from "./components/CheckoutPaymentMethod";
 export * from "./components/CheckoutGiftWrap";
 export * from "./components/CheckoutOrderSummary";
 export * from "./components/CheckoutConfirmation";
+export * from "./components/payment/CardInstructions";
+export * from "./components/payment/BkashInstructions";
+export * from "./components/payment/NagadInstructions";

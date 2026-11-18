@@ -4,6 +4,12 @@ import { generateInitialProducts } from "../admin-seed";
 import type { AddActivityLogFn } from "./types";
 import { adminApi } from "@/lib/api";
 
+function notifyCatalogUpdated() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("gjsc_catalog_updated"));
+  }
+}
+
 function toSafeArray(val: any, fallback: string[] = []): string[] {
   if (Array.isArray(val)) return val.map(String);
   if (typeof val === "string") {
@@ -38,7 +44,7 @@ export function formatApiProduct(p: any): AdminProduct {
     lowStockThreshold: typeof p.lowStockThreshold === "number" ? p.lowStockThreshold : 5,
     sku: p.sku || `GJ-${p.slug?.slice(0, 4).toUpperCase()}`,
     image: p.image || "",
-    images: toSafeArray(p.images, [p.image || ""]),
+    images: toSafeArray(p.images, p.image ? [p.image] : []).filter(Boolean),
     rating: Number(p.rating || 5),
     reviewsCount: Number(p.reviewsCount || 0),
     salesCount: Number(p.salesCount || 0),
@@ -61,18 +67,30 @@ export function formatApiProduct(p: any): AdminProduct {
 }
 
 export function useProductSlice(addActivityLog: AddActivityLogFn) {
-  const [products, setProducts] = useState<AdminProduct[]>(generateInitialProducts);
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     adminApi
-      .getProducts({ limit: 25 })
+      .getProducts({ limit: 50 })
       .then((res) => {
+        if (!isMounted) return;
         if (res && Array.isArray(res.products)) {
           const formatted: AdminProduct[] = res.products.map(formatApiProduct);
           setProducts(formatted);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn("Failed to fetch products from backend:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingProducts(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const addProduct = useCallback(
@@ -137,15 +155,10 @@ export function useProductSlice(addActivityLog: AddActivityLogFn) {
           saved.name,
           `Initial stock: ${saved.stock}, Price: ৳${saved.price}`,
         );
+        notifyCatalogUpdated();
         return saved;
       } catch (err) {
-        console.warn("API createProduct error, keeping optimistic fallback:", err);
-        setProducts((prev) => [optimisticProduct, ...prev]);
-        addActivityLog(
-          "Created Product (Local)",
-          optimisticProduct.name,
-          `Initial stock: ${optimisticProduct.stock}, Price: ৳${optimisticProduct.price}`,
-        );
+        console.error("API createProduct error:", err);
         throw err;
       }
     },
@@ -184,6 +197,7 @@ export function useProductSlice(addActivityLog: AddActivityLogFn) {
           updates.name || id,
           `Fields: ${Object.keys(updates).join(", ")}`,
         );
+        notifyCatalogUpdated();
       } catch (err) {
         console.warn("API updateProduct error:", err);
         throw err;
@@ -202,6 +216,7 @@ export function useProductSlice(addActivityLog: AddActivityLogFn) {
 
       try {
         await adminApi.deleteProduct(id);
+        notifyCatalogUpdated();
       } catch (err) {
         console.warn("API deleteProduct error:", err);
       }
@@ -237,11 +252,8 @@ export function useProductSlice(addActivityLog: AddActivityLogFn) {
             status: "draft",
             rating: 5,
             reviewsCount: 0,
-            image:
-              "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
-            ],
+            image: "",
+            images: [],
             short: "Japanese skincare formulation.",
             description: "Authentic imported formula.",
             ingredients: ["Sakura Extract", "Rice Ferment Filtrate", "Hyaluronic Acid"],
@@ -299,6 +311,7 @@ export function useProductSlice(addActivityLog: AddActivityLogFn) {
   return {
     products,
     setProducts,
+    isLoadingProducts,
     addProduct,
     updateProduct,
     deleteProduct,

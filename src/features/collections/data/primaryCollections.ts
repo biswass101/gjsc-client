@@ -1,9 +1,11 @@
-import heroSpring from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
-import heroWhip from "@/assets/hero/Perfect Whip Fresh Beauty Ritual.png";
-import heroSpa from "@/assets/hero/bright-spa-skincare-commercial-scene.png";
-import heroSakuraPink from "@/assets/hero/hero-sakura-pink.png";
-import heroSakuraTrio from "@/assets/hero/sakura-spa-skincare-trio.png";
-import heroCulture from "@/assets/hero/hero-japanses-culture-bg.png";
+import {
+  heroSpring,
+  heroWhip,
+  heroSpa,
+  heroSakuraPink,
+  sakuraSpa as heroSakuraTrio,
+  heroCulture,
+} from "@/lib/cloudinaryAssets";
 import type { CollectionMeta } from "./types";
 
 export const PRIMARY_COLLECTIONS: CollectionMeta[] = [

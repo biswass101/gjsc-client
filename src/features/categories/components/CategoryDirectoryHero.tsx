@@ -3,6 +3,7 @@
 import { Link } from "@/lib/navigation";
 import { Compass, Search } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface CategoryDirectoryHeroProps {
   searchQuery: string;
@@ -14,21 +15,29 @@ export function CategoryDirectoryHero({
   onSearchChange,
 }: CategoryDirectoryHeroProps) {
   const { banners } = useAdmin();
-  const catBanner = (banners || []).find(
-    (b) => b.pageKey === "categories" && b.active !== false,
-  );
+  const catBanner = (banners || [])
+    .filter((b) => b.pageKey === "categories" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+
+  const catImgUrl = catBanner?.imageUrl
+    ? resolveBannerImageUrl(catBanner.imageUrl)
+    : undefined;
+  const mobileImgUrl = catBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(catBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-cream/60 via-cream/30 to-background py-10 sm:py-14">
-      {catBanner?.imageUrl && (
+      {catImgUrl && (
         <div className="absolute inset-0 z-0">
           <picture>
-            {catBanner.mobileImageUrl && (
-              <source media="(max-width: 640px)" srcSet={catBanner.mobileImageUrl} />
+            {mobileImgUrl && (
+              <source media="(max-width: 640px)" srcSet={mobileImgUrl} />
             )}
             <img
-              src={catBanner.imageUrl}
-              alt={catBanner.title}
+              src={catImgUrl}
+              alt={catBanner?.title || "Categories Banner"}
+              onError={handleBannerImageError}
               className="w-full h-full object-cover"
             />
           </picture>

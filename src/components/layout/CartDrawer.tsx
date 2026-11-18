@@ -30,7 +30,7 @@ export function CartDrawer() {
           <>
             <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
               {lines.map(({ product, qty, size }) => (
-                <div key={product.slug} className="flex gap-4">
+                <div key={`${product.slug}-${size}`} className="flex gap-4">
                   <Link
                     to="/product/$slug"
                     params={{ slug: product.slug }}
@@ -61,7 +61,7 @@ export function CartDrawer() {
                         <button
                           aria-label="Decrease quantity"
                           className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary"
-                          onClick={() => setQty(product.slug, qty - 1)}
+                          onClick={() => setQty(product.slug, qty - 1, size)}
                         >
                           <Minus className="h-3 w-3" />
                         </button>
@@ -69,7 +69,7 @@ export function CartDrawer() {
                         <button
                           aria-label="Increase quantity"
                           className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary"
-                          onClick={() => setQty(product.slug, qty + 1)}
+                          onClick={() => setQty(product.slug, qty + 1, size)}
                         >
                           <Plus className="h-3 w-3" />
                         </button>
@@ -79,7 +79,7 @@ export function CartDrawer() {
                   </div>
                   <button
                     aria-label={`Remove ${product.name}`}
-                    onClick={() => removeFromCart(product.slug)}
+                    onClick={() => removeFromCart(product.slug, size)}
                     className="self-start text-muted-foreground transition-colors hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" strokeWidth={1.5} />

@@ -33,8 +33,8 @@ export const catalogApi = {
     return apiClient.get<ProductsResponse>('/products', params);
   },
 
-  getProductBySlug(slug: string): Promise<{ product: Product; relatedProducts: Product[] }> {
-    return apiClient.get<{ product: Product; relatedProducts: Product[] }>(`/products/${slug}`);
+  getProductBySlug(slug: string): Promise<any> {
+    return apiClient.get<any>(`/products/${slug}`);
   },
 
   getBrands(): Promise<any[]> {

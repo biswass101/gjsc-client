@@ -8,6 +8,8 @@ export interface CategoryMeta {
   subcategories: string[];
   matchedCategories: string[];
   aliases: string[];
+  image?: string | undefined;
+  bannerImage?: string | undefined;
 }
 
 export const CATEGORY_DEFINITIONS: CategoryMeta[] = [

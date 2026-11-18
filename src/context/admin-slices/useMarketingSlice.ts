@@ -4,6 +4,7 @@ import { INITIAL_DISCOUNTS, INITIAL_BANNERS, INITIAL_FEATURED_VIDEOS } from "../
 import type { AddActivityLogFn } from "./types";
 import { adminApi, systemApi } from "@/lib/api";
 import { STORAGE_KEY } from "./useAdminStorage";
+import { resolveBannerImageUrl } from "@/features/admin-banners";
 
 export function formatApiBanner(b: any): AdminBanner {
   return {
@@ -13,8 +14,8 @@ export function formatApiBanner(b: any): AdminBanner {
     title: b.title || "",
     subtitle: b.subtitle ? String(b.subtitle) : undefined,
     badge: b.badge ? String(b.badge) : undefined,
-    imageUrl: b.imageUrl,
-    mobileImageUrl: b.mobileImageUrl ? String(b.mobileImageUrl) : undefined,
+    imageUrl: resolveBannerImageUrl(b.imageUrl),
+    mobileImageUrl: b.mobileImageUrl ? resolveBannerImageUrl(b.mobileImageUrl) : undefined,
     ctaText: b.ctaText ? String(b.ctaText) : undefined,
     ctaLink: b.ctaLink ? String(b.ctaLink) : undefined,
     active: b.active !== false,
@@ -31,10 +32,14 @@ export function formatApiVideo(v: any): AdminFeaturedVideo {
     caption: v.caption || "",
     creatorName: v.creatorName || "",
     creatorHandle: v.creatorHandle || "",
-    creatorAvatar: v.creatorAvatar || "/hero/hero-with-japanese-girl.png",
+    creatorAvatar:
+      v.creatorAvatar ||
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     duration: v.duration || "0:45",
     views: String(v.views || "10K"),
-    thumbnail: v.thumbnail || "/hero/hero-with-japanese-girl.png",
+    thumbnail:
+      v.thumbnail ||
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     videoUrl: v.videoUrl || undefined,
     product: {
       name: v.product?.name || v.productName || "Featured Product",
@@ -51,7 +56,7 @@ export function formatApiVideo(v: any): AdminFeaturedVideo {
         v.product?.image ||
         v.productImage ||
         v.thumbnail ||
-        "/hero/sakura-spa-skincare-trio.png",
+        "https://res.cloudinary.com/soakj9w7/image/upload/v1794760854/glorious_japan_skin_care/hero/sakura-spa-skincare-trio.png",
     },
     active: v.active !== false,
     order: Number(v.order || 0),
@@ -62,7 +67,8 @@ export function formatApiVideo(v: any): AdminFeaturedVideo {
 
 export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
   const [discounts, setDiscounts] = useState<AdminDiscount[]>(INITIAL_DISCOUNTS);
-  const [banners, setBanners] = useState<AdminBanner[]>(INITIAL_BANNERS);
+  const [banners, setBanners] = useState<AdminBanner[]>([]);
+  const [isLoadingBanners, setIsLoadingBanners] = useState<boolean>(true);
   const [featuredVideos, setFeaturedVideos] =
     useState<AdminFeaturedVideo[]>(INITIAL_FEATURED_VIDEOS);
 
@@ -98,33 +104,45 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed.banners) && parsed.banners.length > 0) {
-          setBanners(parsed.banners);
+          setBanners(parsed.banners.map(formatApiBanner));
         }
       }
     } catch {}
 
     // 2. Fetch fresh data from backend MySQL database
-    adminApi
-      .getBanners()
-      .catch(() => systemApi.getBanners())
-      .then((data) => {
-        if (!isMounted || !Array.isArray(data) || data.length === 0) return;
-        const formatted = data.map(formatApiBanner);
-        setBanners(formatted);
+    const fetchBanners = async () => {
+      try {
+        let data: any[] | null = null;
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          const current = raw ? JSON.parse(raw) : {};
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, banners: formatted }));
-        } catch (e) {
-          console.warn("Could not cache banners to storage:", e);
+          data = await adminApi.getBanners();
+        } catch {
+          data = await systemApi.getBanners();
         }
-      })
-      .catch((err) => {
+        if (!isMounted) return;
+        if (Array.isArray(data)) {
+          const formatted = data.map(formatApiBanner);
+          setBanners(formatted);
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const current = raw ? JSON.parse(raw) : {};
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, banners: formatted }));
+          } catch (e) {
+            console.warn("Could not cache banners to storage:", e);
+          }
+        }
+      } catch (err) {
         console.warn(
-          "Could not fetch banners from backend, using seed fallback:",
-          err?.message || err,
+          "Could not fetch banners from backend:",
+          err,
         );
-      });
+      } finally {
+        if (isMounted) {
+          setIsLoadingBanners(false);
+        }
+      }
+    };
+
+    fetchBanners();
 
     return () => {
       isMounted = false;
@@ -170,7 +188,17 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
   const addBanner = useCallback(
     async (banner: Omit<AdminBanner, "id">): Promise<AdminBanner> => {
       const tempId = `ban-${Date.now()}`;
-      const newBanner: AdminBanner = { ...banner, id: tempId };
+      const resolvedImageUrl = resolveBannerImageUrl(banner.imageUrl);
+      const resolvedMobileUrl = banner.mobileImageUrl
+        ? resolveBannerImageUrl(banner.mobileImageUrl)
+        : undefined;
+
+      const newBanner: AdminBanner = {
+        ...banner,
+        id: tempId,
+        imageUrl: resolvedImageUrl,
+        mobileImageUrl: resolvedMobileUrl,
+      };
       setBanners((prev) => {
         const next = [newBanner, ...prev];
         if (typeof window !== "undefined") {
@@ -186,18 +214,18 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
 
       try {
         const saved = await adminApi.createBanner({
-          pageKey: banner.pageKey,
-          pageTitle: banner.pageTitle,
-          title: banner.title,
-          subtitle: banner.subtitle,
-          badge: banner.badge,
-          imageUrl: banner.imageUrl,
-          mobileImageUrl: banner.mobileImageUrl,
-          ctaText: banner.ctaText,
-          ctaLink: banner.ctaLink,
-          active: banner.active,
-          order: banner.order,
-          gradient: banner.gradient,
+          pageKey: newBanner.pageKey,
+          pageTitle: newBanner.pageTitle,
+          title: newBanner.title,
+          subtitle: newBanner.subtitle,
+          badge: newBanner.badge,
+          imageUrl: newBanner.imageUrl,
+          mobileImageUrl: newBanner.mobileImageUrl,
+          ctaText: newBanner.ctaText,
+          ctaLink: newBanner.ctaLink,
+          active: newBanner.active,
+          order: newBanner.order,
+          gradient: newBanner.gradient,
         });
         if (saved && (saved.id || saved.numericId)) {
           const formatted = formatApiBanner(saved);
@@ -225,9 +253,15 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
 
   const updateBanner = useCallback(
     async (id: string, updates: Partial<AdminBanner>) => {
+      const safeUpdates = {
+        ...updates,
+        ...(updates.imageUrl ? { imageUrl: resolveBannerImageUrl(updates.imageUrl) } : {}),
+        ...(updates.mobileImageUrl ? { mobileImageUrl: resolveBannerImageUrl(updates.mobileImageUrl) } : {}),
+      };
+
       // 1. Optimistically update state and localStorage immediately
       setBanners((prev) => {
-        const next = prev.map((b) => (b.id === id ? { ...b, ...updates } : b));
+        const next = prev.map((b) => (b.id === id ? { ...b, ...safeUpdates } : b));
         if (typeof window !== "undefined") {
           try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -242,22 +276,22 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
       const targetBanner = banners.find((b) => b.id === id);
       const merged = {
         ...(targetBanner || {}),
-        ...updates,
+        ...safeUpdates,
       };
 
       const cleanPayload = {
         pageKey: merged.pageKey,
         pageTitle: merged.pageTitle,
         title: merged.title ?? "",
-        subtitle: updates.subtitle !== undefined ? updates.subtitle : merged.subtitle ?? null,
-        badge: updates.badge !== undefined ? updates.badge : merged.badge ?? null,
+        subtitle: safeUpdates.subtitle !== undefined ? safeUpdates.subtitle : merged.subtitle ?? null,
+        badge: safeUpdates.badge !== undefined ? safeUpdates.badge : merged.badge ?? null,
         imageUrl: merged.imageUrl,
-        mobileImageUrl: updates.mobileImageUrl !== undefined ? updates.mobileImageUrl : merged.mobileImageUrl ?? null,
-        ctaText: updates.ctaText !== undefined ? updates.ctaText : merged.ctaText ?? null,
-        ctaLink: updates.ctaLink !== undefined ? updates.ctaLink : merged.ctaLink ?? null,
+        mobileImageUrl: safeUpdates.mobileImageUrl !== undefined ? safeUpdates.mobileImageUrl : merged.mobileImageUrl ?? null,
+        ctaText: safeUpdates.ctaText !== undefined ? safeUpdates.ctaText : merged.ctaText ?? null,
+        ctaLink: safeUpdates.ctaLink !== undefined ? safeUpdates.ctaLink : merged.ctaLink ?? null,
         active: merged.active,
         order: merged.order,
-        gradient: updates.gradient !== undefined ? updates.gradient : merged.gradient ?? null,
+        gradient: safeUpdates.gradient !== undefined ? safeUpdates.gradient : merged.gradient ?? null,
       };
 
       const numericId = parseInt(id, 10);
@@ -504,6 +538,7 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
     setDiscounts,
     banners,
     setBanners,
+    isLoadingBanners,
     featuredVideos,
     setFeaturedVideos,
     addDiscount,

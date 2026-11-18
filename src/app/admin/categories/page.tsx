@@ -79,12 +79,25 @@ export default function AdminCategoriesPage() {
         setJapaneseTitle={modalForm.setJapaneseTitle}
         parentCategory={modalForm.parentCategory}
         setParentCategory={modalForm.setParentCategory}
+        icon={modalForm.icon}
+        setIcon={modalForm.setIcon}
+        ritualStepNumber={modalForm.ritualStepNumber}
+        setRitualStepNumber={modalForm.setRitualStepNumber}
+        ritualStepLabel={modalForm.ritualStepLabel}
+        setRitualStepLabel={modalForm.setRitualStepLabel}
         tagline={modalForm.tagline}
         setTagline={modalForm.setTagline}
         description={modalForm.description}
         setDescription={modalForm.setDescription}
+        metaDescription={modalForm.metaDescription}
+        setMetaDescription={modalForm.setMetaDescription}
         image={modalForm.image}
         setImage={modalForm.setImage}
+        bannerImage={modalForm.bannerImage}
+        setBannerImage={modalForm.setBannerImage}
+        handleFileUpload={modalForm.handleFileUpload}
+        isUploadingImage={modalForm.isUploadingImage}
+        isUploadingBanner={modalForm.isUploadingBanner}
         featured={modalForm.featured}
         setFeatured={modalForm.setFeatured}
         itemCount={modalForm.itemCount}
@@ -94,6 +107,11 @@ export default function AdminCategoriesPage() {
         setNewSubcatInput={modalForm.setNewSubcatInput}
         onAddSubcat={modalForm.handleAddSubcat}
         onRemoveSubcat={modalForm.handleRemoveSubcat}
+        popularTags={modalForm.popularTags}
+        newTagInput={modalForm.newTagInput}
+        setNewTagInput={modalForm.setNewTagInput}
+        onAddTag={modalForm.handleAddTag}
+        onRemoveTag={modalForm.handleRemoveTag}
       />
 
       <CategoryDeleteDialog

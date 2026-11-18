@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AdminBanner, useAdmin } from "@/context/admin-context";
 import { PAGE_KEYS, DEFAULT_BANNER_PRESETS } from "../constants";
+import { resolveBannerImageUrl } from "../utils/bannerImageHelper";
 
 function hexToRgba(hex: string, alpha: number) {
   const cleanHex = hex.replace("#", "");
@@ -69,8 +70,8 @@ export function useBannerModalForm() {
     setTitle(banner.title || "");
     setSubtitle(banner.subtitle || "");
     setBadge(banner.badge || "");
-    setImageUrl(banner.imageUrl || "");
-    setMobileImageUrl(banner.mobileImageUrl || "");
+    setImageUrl(banner.imageUrl ? resolveBannerImageUrl(banner.imageUrl) : "");
+    setMobileImageUrl(banner.mobileImageUrl ? resolveBannerImageUrl(banner.mobileImageUrl) : "");
     setCtaText(banner.ctaText || "");
     setCtaLink(banner.ctaLink || "");
     setActive(banner.active);
@@ -110,9 +111,9 @@ export function useBannerModalForm() {
       title: title.trim() || "",
       subtitle: subtitle.trim() ? subtitle.trim() : null,
       badge: badge.trim() ? badge.trim() : null,
-      imageUrl: imageUrl.trim(),
-      mobileImageUrl: mobileImageUrl.trim() ? mobileImageUrl.trim() : null,
-      ctaText: null,
+      imageUrl: resolveBannerImageUrl(imageUrl.trim()),
+      mobileImageUrl: mobileImageUrl.trim() ? resolveBannerImageUrl(mobileImageUrl.trim()) : null,
+      ctaText: ctaText.trim() ? ctaText.trim() : null,
       ctaLink: ctaLink.trim() ? ctaLink.trim() : null,
       active,
       order: parseInt(order, 10) || 1,

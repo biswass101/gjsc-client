@@ -1,9 +1,11 @@
-import bKyoto from "@/assets/brands/kyoto-botanicals.jpg";
-import heroSpring from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
-import heroWhip from "@/assets/hero/Perfect Whip Fresh Beauty Ritual.png";
-import heroSakura from "@/assets/hero/hero-sakura.png";
-import heroSpa from "@/assets/hero/bright-spa-skincare-commercial-scene.png";
-import heroCulture from "@/assets/hero/hero-japanses-culture-bg.png";
+import {
+  bKyoto,
+  heroSpring,
+  heroWhip,
+  heroSakura,
+  heroSpa,
+  heroCulture,
+} from "@/lib/cloudinaryAssets";
 import { PRODUCT_IMAGES } from "@/lib/catalog";
 import type { BrandMeta } from "./types";
 

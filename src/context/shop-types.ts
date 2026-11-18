@@ -13,9 +13,9 @@ export interface ShopContextType {
   recent: string[];
   user: User | null;
   notifications: Notification[];
-  addToCart: (slug: string, qty?: number, size?: string) => void;
-  setQty: (slug: string, qty: number) => void;
-  removeFromCart: (slug: string) => void;
+  addToCart: (slug: string, qty?: number, size?: string, product?: Product) => void;
+  setQty: (slug: string, qty: number, size?: string) => void;
+  removeFromCart: (slug: string, size?: string) => void;
   clearCart: () => void;
   toggleWishlist: (slug: string) => void;
   addRecent: (slug: string) => void;

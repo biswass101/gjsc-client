@@ -2,9 +2,8 @@
 
 import { Sparkles } from "lucide-react";
 import { Layout, GoToTop } from "@/components/layout";
-import { ProductCard } from "@/features/products";
+import { ProductCard, ProductCardSkeleton } from "@/features/products";
 import { Button } from "@/components/ui/button";
-import { PRODUCTS } from "@/lib/catalog";
 import {
   ShopFilterSidebar,
   ShopFilterDrawer,
@@ -41,6 +40,8 @@ export function ShopClient() {
     startIdx,
     handlePageChange,
     headerTitle,
+    isLoading,
+    totalLiveProducts,
   } = useShopCatalog(priceBounds);
 
   const filterProps = {
@@ -67,7 +68,7 @@ export function ShopClient() {
 
           <main className="flex-1 min-w-0">
             <ShopActiveFilters
-              totalResults={PRODUCTS.length}
+              totalResults={totalLiveProducts}
               filteredCount={sortedProducts.length}
               startIdx={startIdx}
               perPage={PER_PAGE}
@@ -82,8 +83,20 @@ export function ShopClient() {
               drawerTriggerSlot={<ShopFilterDrawer {...filterProps} />}
             />
 
-            {sortedProducts.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-card p-10 sm:p-16 text-center">
+            {isLoading ? (
+              <div
+                className={
+                  view === "grid"
+                    ? "grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4 animate-fade-in"
+                    : "space-y-4 sm:space-y-6 animate-fade-in"
+                }
+              >
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <ProductCardSkeleton key={idx} view={view} />
+                ))}
+              </div>
+            ) : sortedProducts.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-card p-10 sm:p-16 text-center animate-fade-in">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground mb-4">
                   <Sparkles className="h-6 w-6" />
                 </div>
@@ -105,8 +118,8 @@ export function ShopClient() {
               <div
                 className={
                   view === "grid"
-                    ? "grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-                    : "space-y-4 sm:space-y-6"
+                    ? "grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4 animate-fade-in"
+                    : "space-y-4 sm:space-y-6 animate-fade-in"
                 }
               >
                 {pagedProducts.map((product) => (

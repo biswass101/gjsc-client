@@ -1,9 +1,11 @@
-import heroSakura from "@/assets/hero/hero-sakura.png";
-import heroPuja from "@/assets/hero/puja-sale.png";
-import heroSerenity from "@/assets/hero/Japanese Skincare Serenity Trio.png";
-import heroSerenity1 from "@/assets/hero/Japanese Skincare Serenity Trio (1).png";
-import heroCozy from "@/assets/hero/Cozy Japanese Skincare Routine.png";
-import heroGirl from "@/assets/hero/hero-with-japanese-girl.png";
+import {
+  heroSakura,
+  pujaSale as heroPuja,
+  serenityTrio as heroSerenity,
+  serenityTrio1 as heroSerenity1,
+  cozyRoutine as heroCozy,
+  heroWithJapaneseGirl as heroGirl,
+} from "@/lib/cloudinaryAssets";
 import type { CollectionMeta } from "./types";
 
 export const SECONDARY_COLLECTIONS: CollectionMeta[] = [

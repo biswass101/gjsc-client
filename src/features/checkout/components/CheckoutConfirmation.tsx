@@ -1,8 +1,11 @@
 "use client";
 
-import { CheckCircle2, ExternalLink, MessageSquare, Phone, Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { CheckCircle2, ExternalLink, MessageSquare, Phone, Sparkles, Copy, Check, ShieldCheck } from "lucide-react";
 import { Link } from "@/lib/navigation";
 import { formatBDT } from "@/lib/catalog";
+import { useAdmin } from "@/context/admin-context";
+import { toast } from "sonner";
 import type { OrderConfirmationData } from "../types";
 
 export interface CheckoutConfirmationProps {
@@ -10,13 +13,19 @@ export interface CheckoutConfirmationProps {
 }
 
 export function CheckoutConfirmation({ order }: CheckoutConfirmationProps) {
+  const { settings } = useAdmin();
+  const [copiedTrx, setCopiedTrx] = useState(false);
+
   const isDhaka = order.zone === "dhaka_metro" || order.zone === "dhaka_suburbs";
   const estimatedDelivery = isDhaka
     ? "Within 24–48 Hours (Tomorrow or Day After)"
-    : "Within 48–72 Hours via Steadfast / Pathao";
+    : "Within 48–72 Hours via Steadfast / Pathao Express";
+
+  const rawPhone = settings.contactPhone || "+880 1700-000000";
+  const cleanAdminPhone = rawPhone.replace(/\D/g, "");
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Glorious Japan! I just placed order #${order.orderId} for ৳${order.total.toLocaleString("en-BD")}. My phone is ${order.phone}. Please confirm tracking updates.`,
+    `Hello Glorious Japan! I just placed order #${order.orderId} for ৳${order.total.toLocaleString("en-BD")}. My phone is ${order.phone}. Payment Method: ${order.payment.toUpperCase()}${order.trxId ? ` (TrxID: ${order.trxId})` : ""}. Please confirm tracking updates.`,
   );
 
   const paymentLabel =
@@ -26,7 +35,19 @@ export function CheckoutConfirmation({ order }: CheckoutConfirmationProps) {
         ? "bKash Mobile Payment"
         : order.payment === "nagad"
           ? "Nagad Mobile Payment"
-          : "Debit / Credit Card";
+          : order.cardPaymentType === "card"
+            ? `Debit / Credit Card (${order.cardBrand || "Card"}${order.cardLast4 ? ` •••• ${order.cardLast4}` : ""})`
+            : order.cardPaymentType === "netbanking"
+              ? `Internet Banking (${order.selectedBank?.replace(/_/g, " ").toUpperCase() || "Authorized"})`
+              : "Debit / Credit Card / Internet Banking";
+
+  const handleCopyTrx = () => {
+    if (!order.trxId) return;
+    navigator.clipboard.writeText(order.trxId);
+    setCopiedTrx(true);
+    toast.success("Transaction ID copied to clipboard!");
+    setTimeout(() => setCopiedTrx(false), 2000);
+  };
 
   return (
     <div className="container-lux py-12 sm:py-16">
@@ -54,13 +75,12 @@ export function CheckoutConfirmation({ order }: CheckoutConfirmationProps) {
         <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-left space-y-2">
           <p className="font-semibold text-foreground flex items-center gap-2">
             <Phone className="h-3.5 w-3.5 text-primary" />
-            Confirmation Call & WhatsApp Notice
+            Confirmation & Dispatch Notice
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Our representative will contact your phone{" "}
-            <strong className="text-foreground font-medium">{order.phone}</strong> before shipping.
-            You will also receive SMS and WhatsApp tracking as soon as the package is handed over to
-            our delivery partner.
+            Our customer relations team will contact your phone{" "}
+            <strong className="text-foreground font-medium">{order.phone}</strong> before handover.
+            Real-time SMS and WhatsApp parcel tracking will be issued as soon as our central Tokyo/Dhaka warehouse dispatches the parcel.
           </p>
         </div>
 
@@ -70,24 +90,62 @@ export function CheckoutConfirmation({ order }: CheckoutConfirmationProps) {
             <span className="text-muted-foreground">Order Date:</span>
             <span className="font-medium text-foreground">{order.date}</span>
           </div>
+
           <div className="flex justify-between border-b border-border/40 pb-2.5">
             <span className="text-muted-foreground">Payment Method:</span>
-            <span className="font-medium text-foreground capitalize">{paymentLabel}</span>
+            <span className="font-medium text-foreground">{paymentLabel}</span>
           </div>
+
+          <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+            <span className="text-muted-foreground">Payment Status:</span>
+            {order.payment === "card" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <CheckCircle2 className="h-3 w-3" /> Paid & Authorized
+              </span>
+            ) : order.payment === "cod" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                Cash on Delivery
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                Pending Verification
+              </span>
+            )}
+          </div>
+
+          {order.trxId && (
+            <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+              <span className="text-muted-foreground">Transaction / Auth Ref:</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-foreground font-semibold bg-background px-2 py-0.5 rounded border border-border text-[11px]">
+                {order.trxId}
+                <button
+                  type="button"
+                  onClick={handleCopyTrx}
+                  className="text-primary hover:opacity-75"
+                  title="Copy Reference"
+                >
+                  {copiedTrx ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                </button>
+              </span>
+            </div>
+          )}
+
           <div className="flex justify-between border-b border-border/40 pb-2.5">
             <span className="text-muted-foreground">Delivery Timeline:</span>
             <span className="font-medium text-emerald-600 dark:text-emerald-400">
               {estimatedDelivery}
             </span>
           </div>
+
           <div className="flex justify-between border-b border-border/40 pb-2.5">
             <span className="text-muted-foreground">Delivery Destination:</span>
             <span className="font-medium text-foreground text-right max-w-[280px]">
               {order.address}
             </span>
           </div>
+
           <div className="flex justify-between pt-1 text-sm font-semibold">
-            <span>Total Amount Paid / Payable:</span>
+            <span>Total Payable / Processed:</span>
             <span className="font-display text-base text-primary">{formatBDT(order.total)}</span>
           </div>
         </div>
@@ -95,7 +153,7 @@ export function CheckoutConfirmation({ order }: CheckoutConfirmationProps) {
         {/* Action buttons */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
-            href={`https://wa.me/8801700000000?text=${whatsappMessage}`}
+            href={`https://wa.me/${cleanAdminPhone || "8801700000000"}?text=${whatsappMessage}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-xs font-bold text-white hover:bg-[#20ba59] transition-all shadow-sm"

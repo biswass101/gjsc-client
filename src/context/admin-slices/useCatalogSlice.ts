@@ -27,6 +27,30 @@ export function formatApiCategory(cat: any): AdminCategory {
     (s: any) => typeof s === "string" && s.trim().length > 0
   );
 
+  let popularTags: string[] = [];
+  if (Array.isArray(cat.popularTags)) {
+    popularTags = cat.popularTags;
+  } else if (typeof cat.popularTags === "string") {
+    try {
+      const parsed = JSON.parse(cat.popularTags);
+      if (Array.isArray(parsed)) popularTags = parsed;
+    } catch {
+      popularTags = [];
+    }
+  }
+  popularTags = popularTags.filter(
+    (s: any) => typeof s === "string" && s.trim().length > 0
+  );
+
+  let ritualStep = cat.ritualStep || null;
+  if (typeof ritualStep === "string") {
+    try {
+      ritualStep = JSON.parse(ritualStep);
+    } catch {
+      ritualStep = null;
+    }
+  }
+
   return {
     id: String(cat.id),
     slug: cat.slug || "",
@@ -34,10 +58,14 @@ export function formatApiCategory(cat: any): AdminCategory {
     japaneseTitle: cat.japaneseTitle || undefined,
     tagline: cat.tagline || "",
     description: cat.description || "",
+    metaDescription: cat.metaDescription || undefined,
     image: cat.image || "",
     bannerImage: cat.bannerImage || undefined,
+    icon: cat.icon || undefined,
     parentCategory: cat.parentCategory || "Skincare",
     subcategories,
+    popularTags,
+    ritualStep,
     featured: Boolean(cat.featured),
     itemCount: Number(cat.itemCount || 0),
   };
@@ -111,14 +139,14 @@ export function formatApiPreOrder(po: any): AdminPreOrder {
     image:
       po.image ||
       po.product?.image ||
-      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
     active: po.active !== undefined ? Boolean(po.active) : true,
     notes: po.notes || "",
   };
 }
 
 export function useCatalogSlice(addActivityLog: AddActivityLogFn) {
-  const [categories, setCategories] = useState<AdminCategory[]>(INITIAL_CATEGORIES);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [collections, setCollections] = useState<AdminCollection[]>(INITIAL_COLLECTIONS);
   const [brands, setBrands] = useState<AdminBrand[]>(INITIAL_BRANDS);
   const [preOrders, setPreOrders] = useState<AdminPreOrder[]>(INITIAL_PREORDERS);
@@ -127,12 +155,15 @@ export function useCatalogSlice(addActivityLog: AddActivityLogFn) {
     adminApi
       .getCategories()
       .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
+        if (Array.isArray(res)) {
           setCategories(res.map(formatApiCategory));
+        } else {
+          setCategories([]);
         }
       })
       .catch((err) => {
         console.warn("Could not fetch categories from API:", err);
+        setCategories([]);
       });
 
     adminApi
@@ -189,8 +220,12 @@ export function useCatalogSlice(addActivityLog: AddActivityLogFn) {
         if (cat.japaneseTitle) payload["japaneseTitle"] = cat.japaneseTitle;
         if (cat.tagline) payload["tagline"] = cat.tagline;
         if (cat.description) payload["description"] = cat.description;
+        if (cat.metaDescription) payload["metaDescription"] = cat.metaDescription;
         if (cat.image) payload["image"] = cat.image;
         if (cat.bannerImage) payload["bannerImage"] = cat.bannerImage;
+        if (cat.icon) payload["icon"] = cat.icon;
+        if (cat.popularTags) payload["popularTags"] = cat.popularTags;
+        if (cat.ritualStep) payload["ritualStep"] = cat.ritualStep;
 
         const created = await adminApi.createCategory(payload);
         const formatted = formatApiCategory(created);
@@ -217,10 +252,14 @@ export function useCatalogSlice(addActivityLog: AddActivityLogFn) {
         if (updates.japaneseTitle !== undefined) payload["japaneseTitle"] = updates.japaneseTitle;
         if (updates.tagline !== undefined) payload["tagline"] = updates.tagline;
         if (updates.description !== undefined) payload["description"] = updates.description;
+        if (updates.metaDescription !== undefined) payload["metaDescription"] = updates.metaDescription;
         if (updates.image !== undefined) payload["image"] = updates.image;
         if (updates.bannerImage !== undefined) payload["bannerImage"] = updates.bannerImage;
+        if (updates.icon !== undefined) payload["icon"] = updates.icon;
         if (updates.parentCategory !== undefined) payload["parentCategory"] = updates.parentCategory;
         if (updates.subcategories !== undefined) payload["subcategories"] = updates.subcategories;
+        if (updates.popularTags !== undefined) payload["popularTags"] = updates.popularTags;
+        if (updates.ritualStep !== undefined) payload["ritualStep"] = updates.ritualStep;
         if (updates.featured !== undefined) payload["featured"] = updates.featured;
         if (updates.itemCount !== undefined) payload["itemCount"] = updates.itemCount;
 
@@ -515,7 +554,18 @@ export function useCatalogSlice(addActivityLog: AddActivityLogFn) {
     [addActivityLog],
   );
 
-  const resetCategories = useCallback(() => setCategories(INITIAL_CATEGORIES), []);
+  const resetCategories = useCallback(() => {
+    adminApi
+      .getCategories()
+      .then((res) => {
+        if (Array.isArray(res)) {
+          setCategories(res.map(formatApiCategory));
+        } else {
+          setCategories([]);
+        }
+      })
+      .catch(() => setCategories([]));
+  }, []);
   const resetCollections = useCallback(() => setCollections(INITIAL_COLLECTIONS), []);
   const resetBrands = useCallback(() => setBrands(INITIAL_BRANDS), []);
   const resetPreOrders = useCallback(() => setPreOrders(INITIAL_PREORDERS), []);

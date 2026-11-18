@@ -1,15 +1,17 @@
-import i1 from "@/assets/new_products_images/i1.jpg";
-import i2 from "@/assets/new_products_images/i2.jpg";
-import i3 from "@/assets/new_products_images/i3.jpg";
-import i4 from "@/assets/new_products_images/i4.jpg";
-import i5 from "@/assets/new_products_images/i5.jpg";
-import i6 from "@/assets/new_products_images/i6.jpg";
-import i7 from "@/assets/new_products_images/i7.jpg";
-import i8 from "@/assets/new_products_images/i8.jpg";
-import i9 from "@/assets/new_products_images/i9.jpg";
-import i10 from "@/assets/new_products_images/i10.jpg";
-import i11 from "@/assets/new_products_images/i11.jpg";
-import i12 from "@/assets/new_products_images/i12.jpg";
+import {
+  i1,
+  i2,
+  i3,
+  i4,
+  i5,
+  i6,
+  i7,
+  i8,
+  i9,
+  i10,
+  i11,
+  i12,
+} from "@/lib/cloudinaryAssets";
 import type { DemoSeed } from "./seeds";
 
 export const PRE_ORDER_SEEDS: DemoSeed[] = [

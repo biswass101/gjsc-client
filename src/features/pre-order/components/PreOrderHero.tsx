@@ -2,6 +2,7 @@
 
 import { Link } from "@/lib/navigation";
 import { useAdmin } from "@/context/admin-context";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 import {
   Globe,
   Plane,
@@ -42,21 +43,29 @@ export const PRE_ORDER_STEPS = [
 
 export function PreOrderHero() {
   const { banners } = useAdmin();
-  const preOrderBanner = (banners || []).find(
-    (b) => b.pageKey === "pre_order" && b.active !== false,
-  );
+  const preOrderBanner = (banners || [])
+    .filter((b) => b.pageKey === "pre_order" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+
+  const preOrderImgUrl = preOrderBanner?.imageUrl
+    ? resolveBannerImageUrl(preOrderBanner.imageUrl)
+    : undefined;
+  const mobileImgUrl = preOrderBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(preOrderBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-primary/10 via-cream/40 to-background py-10 sm:py-16">
-      {preOrderBanner?.imageUrl && (
+      {preOrderImgUrl && (
         <div className="absolute inset-0 z-0">
           <picture>
-            {preOrderBanner.mobileImageUrl && (
-              <source media="(max-width: 640px)" srcSet={preOrderBanner.mobileImageUrl} />
+            {mobileImgUrl && (
+              <source media="(max-width: 640px)" srcSet={mobileImgUrl} />
             )}
             <img
-              src={preOrderBanner.imageUrl}
-              alt={preOrderBanner.title}
+              src={preOrderImgUrl}
+              alt={preOrderBanner?.title || "Pre-Order Banner"}
+              onError={handleBannerImageError}
               className="w-full h-full object-cover"
             />
           </picture>

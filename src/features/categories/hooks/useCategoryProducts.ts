@@ -1,6 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { PRODUCTS } from "@/lib/catalog";
+import { mergeStorefrontProducts } from "@/lib/catalog";
+import { useAdmin } from "@/context/admin-context";
+import { catalogApi } from "@/lib/api";
+import type { Product } from "@/types";
 import type { CategoryMeta } from "../data/categoryMetadata";
 import type { CategoryFilterState } from "../components/CategoryFilters";
 import type { SortOption } from "../components/CategoryActiveFilters";
@@ -9,9 +12,47 @@ export const ITEMS_PER_PAGE = 12;
 
 export function useCategoryProducts(meta: CategoryMeta) {
   const searchParams = useSearchParams();
+  const { products: adminProducts, isLoadingProducts } = useAdmin();
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [isLoadingApi, setIsLoadingApi] = useState<boolean>(true);
+
+  // Fetch pure database catalog products on mount
+  useEffect(() => {
+    let isMounted = true;
+    catalogApi
+      .getProducts({ limit: 50 })
+      .then((res: any) => {
+        if (!isMounted) return;
+        if (res && Array.isArray(res.products)) {
+          const formatted = res.products.map((p: any) => ({
+            ...p,
+            id: String(p.id),
+            brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
+            category: p.categoryName || p.category?.name || p.category || "Skincare",
+          }));
+          setDbProducts(formatted);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load category products from API:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingApi(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const allProducts = useMemo(() => {
+    return mergeStorefrontProducts(adminProducts, dbProducts);
+  }, [adminProducts, dbProducts]);
+
+  const isLoading = isLoadingApi && (!adminProducts || adminProducts.length === 0 || Boolean(isLoadingProducts));
 
   const categoryProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return allProducts.filter((p) => {
       const inMatched = meta.matchedCategories.some(
         (cat) => cat.toLowerCase() === p.category.toLowerCase(),
       );
@@ -22,7 +63,7 @@ export function useCategoryProducts(meta: CategoryMeta) {
 
       return false;
     });
-  }, [meta]);
+  }, [allProducts, meta]);
 
   const priceBounds = useMemo(() => {
     if (categoryProducts.length === 0) return { min: 0, max: 15000 };
@@ -222,6 +263,7 @@ export function useCategoryProducts(meta: CategoryMeta) {
     setSortBy,
     view,
     setView,
+    isLoading,
   };
 }
 

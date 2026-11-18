@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Monitor, Smartphone, Edit2, Trash2 } from "lucide-react";
 import { AdminBanner, useAdmin } from "@/context/admin-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { PAGE_KEYS, resolveBannerGradient } from "../constants";
+import { resolveBannerImageUrl, handleBannerImageError } from "../utils/bannerImageHelper";
 
 interface BannerCardProps {
   banner: AdminBanner;
@@ -15,6 +16,7 @@ interface BannerCardProps {
 
 export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerCardProps) {
   const { banners } = useAdmin();
+  const [viewDevice, setViewDevice] = useState<"desktop" | "mobile">("desktop");
   const pageConfig = PAGE_KEYS.find((p) => p.key === banner.pageKey);
 
   const pageBanners = (banners || [])
@@ -25,6 +27,11 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
   const hasText = Boolean(banner.title?.trim() || banner.subtitle?.trim());
   const gradientCss = hasText ? resolveBannerGradient(banner.gradient) : "none";
 
+  const displayImageUrl =
+    viewDevice === "mobile" && banner.mobileImageUrl
+      ? resolveBannerImageUrl(banner.mobileImageUrl)
+      : resolveBannerImageUrl(banner.imageUrl);
+
   return (
     <div
       className={`rounded-xl border overflow-hidden bg-card shadow-xs transition-all duration-200 flex flex-col justify-between ${
@@ -33,17 +40,18 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
           : "border-border/40 opacity-75"
       }`}
     >
-      {/* Live Preview Container (Simulating Desktop Banner) */}
+      {/* Live Preview Container (Simulating Desktop/Mobile Banner) */}
       <div className="relative h-56 w-full overflow-hidden bg-muted">
         <img
-          src={banner.imageUrl}
-          alt={banner.title}
-          className="w-full h-full object-cover"
+          src={displayImageUrl}
+          alt={banner.title || "Banner"}
+          className={`w-full h-full ${
+            viewDevice === "mobile" && banner.mobileImageUrl
+              ? "object-contain bg-neutral-900"
+              : "object-cover"
+          }`}
           loading="lazy"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src =
-              "/hero/Glorious Japan Skincare Spring Glow.png";
-          }}
+          onError={handleBannerImageError}
         />
 
         {/* Status & Page Badge in preview top-left */}
@@ -102,24 +110,38 @@ export function BannerCard({ banner, onEdit, onDelete, onToggleActive }: BannerC
       {/* Information & Action Footer */}
       <div className="p-4 bg-card/60 flex items-center justify-between gap-4 border-t border-border/60">
         <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground flex-wrap">
-          <div className="flex items-center gap-1">
-            <Monitor className="h-3.5 w-3.5 text-primary" />
-            <span>Desktop Ready</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setViewDevice("desktop")}
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
+              viewDevice === "desktop"
+                ? "bg-primary/15 text-primary font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Monitor className="h-3.5 w-3.5" />
+            <span>Desktop</span>
+          </button>
           {banner.mobileImageUrl ? (
-            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+            <button
+              type="button"
+              onClick={() =>
+                setViewDevice((prev) => (prev === "mobile" ? "desktop" : "mobile"))
+              }
+              className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
+                viewDevice === "mobile"
+                  ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold"
+                  : "text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
+              }`}
+              title="Click to toggle mobile preview"
+            >
               <Smartphone className="h-3.5 w-3.5" />
-              <span>Custom Mobile Asset</span>
-            </div>
+              <span>Mobile {viewDevice === "mobile" ? "Active" : "Ready"}</span>
+            </button>
           ) : (
             <div className="flex items-center gap-1 text-muted-foreground">
               <Smartphone className="h-3.5 w-3.5" />
               <span>Auto Responsive</span>
-            </div>
-          )}
-          {banner.imageUrl && (
-            <div className="flex items-center gap-1 text-primary font-medium">
-              <span>Image Ready</span>
             </div>
           )}
         </div>

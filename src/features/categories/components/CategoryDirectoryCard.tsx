@@ -1,16 +1,89 @@
+import React from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowRight } from "lucide-react";
+import {
+  Sparkles,
+  Zap,
+  Sunrise,
+  Layers,
+  Beaker,
+  Droplets,
+  Smile,
+  Palette,
+  Eye,
+  Leaf,
+  Wind,
+  Shield,
+  Package,
+  Scissors,
+  Gift,
+  ShoppingBag,
+  FolderTree,
+  ArrowRight,
+  type LucideIcon,
+} from "lucide-react";
 import { slugify } from "@/lib/catalog";
 import type { CategoryDetail } from "../data/categoryDirectoryData";
 
+export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  Sparkles,
+  Zap,
+  Sunrise,
+  Layers,
+  Beaker,
+  Droplets,
+  Smile,
+  Palette,
+  Eye,
+  Leaf,
+  Wind,
+  Shield,
+  Package,
+  Scissors,
+  Gift,
+  ShoppingBag,
+  FolderTree,
+};
+
+export interface UnifiedCategoryCardItem {
+  name?: string;
+  title?: string;
+  slug?: string;
+  kanji?: string;
+  japaneseTitle?: string;
+  department?: string;
+  parentCategory?: string;
+  tagline?: string;
+  description?: string;
+  icon?: any;
+  image?: string;
+  popularTags?: string[];
+  ritualStep?: {
+    step: string;
+    label: string;
+  } | null;
+}
+
 interface CategoryDirectoryCardProps {
-  item: CategoryDetail;
+  item: CategoryDetail | UnifiedCategoryCardItem;
   count: number;
 }
 
 export function CategoryDirectoryCard({ item, count }: CategoryDirectoryCardProps) {
-  const Icon = item.icon;
-  const categorySlug = slugify(item.name);
+  const name = item.name || (item as any).title || "Category";
+  const categorySlug = (item as any).slug || slugify(name);
+  const kanji = item.kanji || (item as any).japaneseTitle || "";
+  const department = item.department || (item as any).parentCategory || "Skincare";
+  const tagline = item.tagline || (item as any).description || "";
+  const popularTags = (item.popularTags && Array.isArray(item.popularTags)) ? item.popularTags : [];
+  const imageUrl = item.image || "";
+
+  // Resolve Icon component dynamically
+  let Icon: React.ElementType = Sparkles;
+  if (typeof item.icon === "string") {
+    Icon = CATEGORY_ICON_MAP[item.icon] || Sparkles;
+  } else if (item.icon) {
+    Icon = item.icon;
+  }
 
   return (
     <div className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md">
@@ -19,22 +92,24 @@ export function CategoryDirectoryCard({ item, count }: CategoryDirectoryCardProp
         <div className="relative aspect-16/9 w-full overflow-hidden bg-cream/70 border-b border-border/50">
           <Link to={`/category/${categorySlug}`} className="block h-full w-full">
             <img
-              src={item.image}
-              alt={item.name}
+              src={imageUrl}
+              alt={name}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
           </Link>
 
-          <span className="absolute top-2 right-2 rounded-full bg-background/85 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-foreground border border-border/50">
-            {item.kanji}
-          </span>
+          {kanji && (
+            <span className="absolute top-2 right-2 rounded-full bg-background/85 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-foreground border border-border/50">
+              {kanji}
+            </span>
+          )}
 
           <span className="absolute bottom-2 left-2 rounded-full bg-primary/90 text-primary-foreground text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 backdrop-blur-xs shadow-2xs">
-            {item.department}
+            {department}
           </span>
 
-          {item.ritualStep && (
+          {item.ritualStep?.step && (
             <span className="absolute top-2 left-2 rounded-full bg-background/90 text-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 backdrop-blur-xs border border-border/60">
               {item.ritualStep.step}
             </span>
@@ -50,7 +125,7 @@ export function CategoryDirectoryCard({ item, count }: CategoryDirectoryCardProp
 
             <div className="min-w-0">
               <h3 className="font-display text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                <Link to={`/category/${categorySlug}`}>{item.name}</Link>
+                <Link to={`/category/${categorySlug}`}>{name}</Link>
               </h3>
               <span className="text-[11px] text-muted-foreground font-medium">
                 {count} Products
@@ -59,11 +134,11 @@ export function CategoryDirectoryCard({ item, count }: CategoryDirectoryCardProp
           </div>
 
           <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed line-clamp-2">
-            {item.tagline}
+            {tagline}
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-border/50">
-            {item.popularTags.slice(0, 3).map((tag) => (
+            {popularTags.slice(0, 3).map((tag) => (
               <Link
                 key={tag}
                 to={`/category/${categorySlug}`}

@@ -32,7 +32,7 @@ export function PreOrderModalMediaFields({
             id="po-image"
             value={image}
             onChange={(e) => setImage(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
+            placeholder="https://res.cloudinary.com/..."
             required
             className="flex-1"
           />

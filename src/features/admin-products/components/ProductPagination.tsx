@@ -70,7 +70,7 @@ export function ProductPagination({
   const handleApplyCustomLimit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const val = parseInt(customLimitInput, 10);
-    if (!isNaN(val) && val > 0 && val <= 250) {
+    if (!isNaN(val) && val > 0 && val <= 50) {
       onPageSizeChange(val);
       setIsCustomLimit(false);
     }
@@ -98,7 +98,7 @@ export function ProductPagination({
             <Input
               type="number"
               min={1}
-              max={250}
+              max={50}
               value={customLimitInput}
               onChange={(e) => setCustomLimitInput(e.target.value)}
               className="h-7 w-16 text-xs text-center font-mono rounded-md"

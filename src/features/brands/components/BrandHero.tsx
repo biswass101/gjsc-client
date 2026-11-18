@@ -4,6 +4,7 @@ import { useAdmin } from "@/context/admin-context";
 import { BrandBreadcrumb } from "./BrandBreadcrumb";
 import type { BrandMeta } from "../data/brandMetadata";
 import { ShieldCheck, MapPin, Sparkles, Building2 } from "lucide-react";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface BrandHeroProps {
   meta: BrandMeta;
@@ -11,7 +12,7 @@ interface BrandHeroProps {
 }
 
 export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
-  const { banners } = useAdmin();
+  const { banners, isLoadingBanners } = useAdmin();
   const normalizedSlug = meta.slug.replace(/-/g, "_");
   const matchingBanners = (banners || [])
     .filter(
@@ -24,8 +25,11 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const activeBanner = matchingBanners[0];
-  const bgImage = activeBanner?.imageUrl || meta.bannerImage;
-  const mobileBgImage = activeBanner?.mobileImageUrl;
+  const rawBg = !isLoadingBanners ? (activeBanner?.imageUrl || meta.bannerImage) : meta.bannerImage;
+  const bgImage = resolveBannerImageUrl(rawBg);
+  const mobileBgImage = !isLoadingBanners && activeBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(activeBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-cream/60 via-cream/30 to-background">
@@ -43,11 +47,16 @@ export function BrandHero({ meta, totalProducts }: BrandHeroProps) {
               {mobileBgImage && (
                 <source media="(max-width: 640px)" srcSet={mobileBgImage} />
               )}
-              <img
-                src={bgImage}
-                alt={activeBanner?.title || meta.name}
-                className="h-full w-full object-cover object-center"
-              />
+              {bgImage ? (
+                <img
+                  src={bgImage}
+                  alt={activeBanner?.title || meta.name}
+                  onError={handleBannerImageError}
+                  className="h-full w-full object-cover object-center"
+                />
+              ) : (
+                <div className="h-full w-full bg-muted/40 animate-pulse" />
+              )}
             </picture>
             <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
             <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/40 to-transparent" />

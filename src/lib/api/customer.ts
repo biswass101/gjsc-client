@@ -1,23 +1,49 @@
 import { apiClient } from '../api-client';
 
+export interface BackendCartProduct {
+  id: number | string;
+  name: string;
+  japaneseName?: string | null;
+  slug: string;
+  image: string;
+  images?: string[];
+  brand: string;
+  category: string;
+  price: number;
+  compareAt?: number | null;
+  stock: number;
+  badge?: string | null;
+  rating?: number;
+  reviews?: number;
+  short?: string;
+  sizes?: string[];
+}
+
 export interface BackendCartItem {
   id: number;
   productId: number;
   slug: string;
-  name: string;
-  brand: string;
   size: string;
-  price: number;
-  compareAt?: number | null;
-  image: string;
   qty: number;
-  lineTotal: number;
+  unitPrice: number;
+  compareAt?: number | null;
+  itemTotal: number;
+  inStock?: boolean;
+  maxStock?: number;
+  product?: BackendCartProduct | null;
 }
 
 export interface BackendCartResponse {
   items: BackendCartItem[];
-  subtotal: number;
-  totalItems: number;
+  summary?: {
+    itemCount: number;
+    totalQty: number;
+    subtotal: number;
+    totalSavings: number;
+    currency: string;
+  };
+  subtotal?: number;
+  totalItems?: number;
 }
 
 export interface CustomerAddress {
@@ -129,6 +155,10 @@ export const customerApi = {
 
   removeFromCart(itemId: number): Promise<BackendCartResponse> {
     return apiClient.delete<BackendCartResponse>(`/cart/${itemId}`);
+  },
+
+  clearCart(): Promise<BackendCartResponse> {
+    return apiClient.delete<BackendCartResponse>('/cart');
   },
 
   mergeCart(items: { slug: string; qty: number; size?: string }[]): Promise<BackendCartResponse> {

@@ -56,7 +56,7 @@ export function CollectionModalColorBannerFields({
             id="col-banner"
             value={bannerImage}
             onChange={(e) => setBannerImage(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
+            placeholder="https://res.cloudinary.com/..."
             required
             className="flex-1"
           />

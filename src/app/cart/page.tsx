@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link } from "@/lib/navigation";
 import { Layout } from "@/components/layout";
@@ -10,16 +10,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { PRODUCTS, formatBDT } from "@/lib/catalog";
+import { formatBDT } from "@/lib/catalog";
+import { catalogApi } from "@/lib/api";
 import { useShop } from "@/context";
+import type { Product } from "@/types";
 
 export default function CartPage() {
   const { lines, setQty, removeFromCart, subtotal } = useShop();
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
   const [gift, setGift] = useState(false);
+  const [recommended, setRecommended] = useState<Product[]>([]);
   const shipping = subtotal > 5000 || subtotal === 0 ? 0 : 80;
   const total = subtotal - discount + shipping + (gift ? 150 : 0);
+
+  useEffect(() => {
+    let active = true;
+    catalogApi
+      .getProducts({ limit: 4 })
+      .then((res: any) => {
+        if (!active || !Array.isArray(res?.products)) return;
+        setRecommended(
+          res.products.map((p: any) => ({
+            ...p,
+            id: String(p.id),
+            brand: p.brandName || p.brand?.name || p.brand || "Authentic Japan",
+            category: p.categoryName || p.category?.name || p.category || "Skincare",
+            reviews: Number(p.reviewsCount ?? p.reviews ?? 0),
+          })),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <Layout>
@@ -43,7 +68,7 @@ export default function CartPage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
             <div className="space-y-6">
               {lines.map(({ product, qty, size }) => (
-                <div key={product.slug} className="surface-card flex gap-5 p-5">
+                <div key={`${product.slug}-${size}`} className="surface-card flex gap-5 p-5">
                   <Link to="/product/$slug" params={{ slug: product.slug }} className="shrink-0 overflow-hidden rounded-md group">
                     <img src={product.image} alt={product.name} width={900} height={900} loading="lazy" className="h-28 w-24 rounded-md object-cover transition-transform duration-300 group-hover:scale-105" />
                   </Link>
@@ -55,14 +80,14 @@ export default function CartPage() {
                     <p className="text-xs text-muted-foreground">{size}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-full border border-border">
-                        <button aria-label="Decrease quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty - 1)}><Minus className="h-3 w-3" /></button>
+                        <button aria-label="Decrease quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty - 1, size)}><Minus className="h-3 w-3" /></button>
                         <span className="w-7 text-center text-sm">{qty}</span>
-                        <button aria-label="Increase quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty + 1)}><Plus className="h-3 w-3" /></button>
+                        <button aria-label="Increase quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty + 1, size)}><Plus className="h-3 w-3" /></button>
                       </div>
                       <span className="font-semibold">{formatBDT(product.price * qty)}</span>
                     </div>
                   </div>
-                  <button aria-label={`Remove ${product.name}`} onClick={() => removeFromCart(product.slug)} className="self-start text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" strokeWidth={1.5} /></button>
+                  <button aria-label={`Remove ${product.name}`} onClick={() => removeFromCart(product.slug, size)} className="self-start text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" strokeWidth={1.5} /></button>
                 </div>
               ))}
             </div>
@@ -102,12 +127,16 @@ export default function CartPage() {
           </div>
         )}
 
-        <section className="mt-20">
-          <h2 className="mb-8 font-display text-3xl">Recommended for you</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PRODUCTS.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </section>
+        {recommended.length > 0 && (
+          <section className="mt-20">
+            <h2 className="mb-8 font-display text-3xl">Recommended for you</h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {recommended.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </Layout>
   );

@@ -4,13 +4,13 @@ import { useState, useMemo, useEffect } from "react";
 import { PRODUCTS } from "@/lib/catalog";
 import type { Product } from "@/types";
 
-export function useProductBundle(product: Product) {
+export function useProductBundle(product: Product, catalogSource?: Product[]) {
   const [qty, setQty] = useState(1);
-  const [size, setSize] = useState(product.sizes?.[0] ?? "50ml");
+  const [size, setSize] = useState(product.sizes?.[0] ?? "Standard");
 
   useEffect(() => {
     setQty(1);
-    setSize(product.sizes?.[0] ?? "50ml");
+    setSize(product.sizes?.[0] ?? "Standard");
   }, [product.slug, product.sizes]);
 
   const discountPct = product.compareAt
@@ -18,17 +18,18 @@ export function useProductBundle(product: Product) {
     : 0;
   const savingsAmount = product.compareAt ? product.compareAt - product.price : 0;
 
-  // Complementary product for "Complete the Ritual" bundle
+  // Complementary product for "Complete the Ritual" bundle (prefer live catalog)
   const companionProduct = useMemo(() => {
-    const fromSameBrand = PRODUCTS.find(
+    const pool = catalogSource && catalogSource.length > 0 ? catalogSource : PRODUCTS;
+    const fromSameBrand = pool.find(
       (p) => p.brand === product.brand && p.slug !== product.slug,
     );
     if (fromSameBrand) return fromSameBrand;
-    const fromCategory = PRODUCTS.find(
+    const fromCategory = pool.find(
       (p) => p.category !== product.category && p.slug !== product.slug,
     );
-    return fromCategory || PRODUCTS.find((p) => p.slug !== product.slug);
-  }, [product]);
+    return fromCategory || pool.find((p) => p.slug !== product.slug);
+  }, [product, catalogSource]);
 
   // Bundle calculations (with extra 5% bundled discount)
   const bundleBaseTotal = product.price + (companionProduct ? companionProduct.price : 0);

@@ -6,6 +6,7 @@ import { Sparkles, Truck, Gift, Flame, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAdmin } from "@/context/admin-context";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 
 export const PROMO_CODES = [
@@ -43,21 +44,29 @@ export function OffersPromoHeader() {
   };
 
   const { banners } = useAdmin();
-  const offersBanner = (banners || []).find(
-    (b) => b.pageKey === "offers" && b.active !== false,
-  );
+  const offersBanner = (banners || [])
+    .filter((b) => b.pageKey === "offers" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+
+  const offersImgUrl = offersBanner?.imageUrl
+    ? resolveBannerImageUrl(offersBanner.imageUrl)
+    : undefined;
+  const mobileImgUrl = offersBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(offersBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-rose-500/10 via-cream/40 to-background py-10 sm:py-14">
-      {offersBanner?.imageUrl && (
+      {offersImgUrl && (
         <div className="absolute inset-0 z-0">
           <picture>
-            {offersBanner.mobileImageUrl && (
-              <source media="(max-width: 640px)" srcSet={offersBanner.mobileImageUrl} />
+            {mobileImgUrl && (
+              <source media="(max-width: 640px)" srcSet={mobileImgUrl} />
             )}
             <img
-              src={offersBanner.imageUrl}
-              alt={offersBanner.title}
+              src={offersImgUrl}
+              alt={offersBanner?.title || "Offers Banner"}
+              onError={handleBannerImageError}
               className="w-full h-full object-cover"
             />
           </picture>

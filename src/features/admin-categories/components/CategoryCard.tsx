@@ -48,6 +48,11 @@ export function CategoryCard({
               Featured
             </Badge>
           )}
+          {category.ritualStep?.step && (
+            <Badge className="bg-primary/90 text-primary-foreground border-none text-[10px] shadow-xs">
+              {category.ritualStep.step}
+            </Badge>
+          )}
         </div>
 
         {/* Japanese Kanji / Hiragana Stamp */}
@@ -60,7 +65,9 @@ export function CategoryCard({
         {/* Bottom Title Bar */}
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div>
-            <h3 className="text-lg font-bold text-foreground leading-tight">{category.title}</h3>
+            <h3 className="text-lg font-bold text-foreground leading-tight flex items-center gap-1.5">
+              <span>{category.title}</span>
+            </h3>
             <p className="text-xs text-muted-foreground line-clamp-1">{category.tagline}</p>
           </div>
           <span className="shrink-0 text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -95,6 +102,25 @@ export function CategoryCard({
             )}
           </div>
         </div>
+
+        {/* Popular Search Tags */}
+        {category.popularTags && category.popularTags.length > 0 && (
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Popular Tags ({category.popularTags.length})
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {category.popularTags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center rounded-md bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-[10px] font-medium"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Actions Footer */}
         <div className="pt-3 border-t border-border/70 flex items-center justify-between">

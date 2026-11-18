@@ -32,7 +32,7 @@ export const INITIAL_ORDERS: AdminOrder[] = [
         qty: 2,
         size: "50ml",
         image:
-          "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
+          "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
       },
       {
         slug: "hada-labo-gokujyun",
@@ -42,7 +42,7 @@ export const INITIAL_ORDERS: AdminOrder[] = [
         qty: 1,
         size: "170ml",
         image:
-          "https://images.unsplash.com/photo-1608248597359-2f5b40cf302a?auto=format&fit=crop&w=400&q=80",
+          "https://res.cloudinary.com/soakj9w7/image/upload/v1794760878/glorious_japan_skin_care/new_products_images/i2.jpg",
       },
     ],
     notes: "Please pack with extra bubble wrap for fragile glass dropper bottles.",
@@ -114,7 +114,7 @@ export const INITIAL_ORDERS: AdminOrder[] = [
         qty: 1,
         size: "60ml",
         image:
-          "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=400&q=80",
+          "https://res.cloudinary.com/soakj9w7/image/upload/v1794760875/glorious_japan_skin_care/new_products_images/i13.jpg",
       },
     ],
     timeline: [

@@ -3,34 +3,43 @@
 import { Link } from "@/lib/navigation";
 import { Sparkles } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface ShopHeaderProps {
   headerTitle: string;
 }
 
 export function ShopHeader({ headerTitle }: ShopHeaderProps) {
-  const { banners } = useAdmin();
-  const shopBanner = (banners || []).find(
-    (b) => b.pageKey === "shop" && b.active !== false,
-  );
+  const { banners, isLoadingBanners } = useAdmin();
+  const shopBanner = (banners || [])
+    .filter((b) => b.pageKey === "shop" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+
+  const shopImgUrl = !isLoadingBanners && shopBanner?.imageUrl
+    ? resolveBannerImageUrl(shopBanner.imageUrl)
+    : undefined;
+  const mobileImgUrl = !isLoadingBanners && shopBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(shopBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border bg-linear-to-b from-primary/10 via-cream/40 to-background py-8 sm:py-12">
-      {shopBanner?.imageUrl && (
-        <div className="absolute inset-0 z-0">
+      {shopImgUrl ? (
+        <div className="absolute inset-0 z-0 transition-opacity duration-700">
           <picture>
-            {shopBanner.mobileImageUrl && (
-              <source media="(max-width: 640px)" srcSet={shopBanner.mobileImageUrl} />
+            {mobileImgUrl && (
+              <source media="(max-width: 640px)" srcSet={mobileImgUrl} />
             )}
             <img
-              src={shopBanner.imageUrl}
-              alt={shopBanner.title}
+              src={shopImgUrl}
+              alt={shopBanner?.title || "Shop Banner"}
+              onError={handleBannerImageError}
               className="w-full h-full object-cover"
             />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
         </div>
-      )}
+      ) : null}
       <div className="container-lux relative z-10">
         <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground mb-3">
           <Link to="/" className="hover:text-primary transition-colors">

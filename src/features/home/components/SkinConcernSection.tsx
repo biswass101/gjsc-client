@@ -2,16 +2,18 @@
 
 import { Link } from "@/lib/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
-import dryImg from "@/assets/skin/dry.jpg";
-import oilyImg from "@/assets/skin/oily.jpg";
-import combImg from "@/assets/skin/combination.jpg";
-import sensImg from "@/assets/skin/sensitive.jpg";
-import normImg from "@/assets/skin/normal.jpg";
-import acneImg from "@/assets/skin/acne.jpg";
-import spotsImg from "@/assets/skin/dark-spots.jpg";
-import pigmImg from "@/assets/skin/pigmentation.jpg";
-import agingImg from "@/assets/skin/anti-aging.jpg";
-import hydrImg from "@/assets/skin/hydration.jpg";
+import {
+  dryImg,
+  oilyImg,
+  combImg,
+  sensImg,
+  normImg,
+  acneImg,
+  spotsImg,
+  pigmImg,
+  agingImg,
+  hydrImg,
+} from "@/lib/cloudinaryAssets";
 
 interface SkinCardItem {
   name: string;

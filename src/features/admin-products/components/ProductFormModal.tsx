@@ -87,6 +87,11 @@ export function ProductFormModal({ modal }: ProductFormModalProps) {
     setNewGalleryInput,
     handleAddGalleryImage,
     handleRemoveGalleryImage,
+    isUploadingCover,
+    isUploadingGallery,
+    handleUploadCover,
+    handleUploadGallery,
+    handleClearCover,
     computedMargin,
     handleGenerateSku,
     handleGenerateBarcode,
@@ -197,6 +202,11 @@ export function ProductFormModal({ modal }: ProductFormModalProps) {
               onNewGalleryInputChange={setNewGalleryInput}
               onAddGalleryImage={handleAddGalleryImage}
               onRemoveGalleryImage={handleRemoveGalleryImage}
+              isUploadingCover={isUploadingCover}
+              isUploadingGallery={isUploadingGallery}
+              onUploadCover={handleUploadCover}
+              onUploadGallery={handleUploadGallery}
+              onClearCover={handleClearCover}
             />
           )}
 

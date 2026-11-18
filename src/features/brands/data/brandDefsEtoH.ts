@@ -1,11 +1,13 @@
-import bGlorious from "@/assets/brands/glorious-japan.jpg";
-import bHikari from "@/assets/brands/hikari-beauty.jpg";
-import bHada from "@/assets/brands/hada-labo.jpg";
-import heroSpring from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
-import heroWhip from "@/assets/hero/Perfect Whip Fresh Beauty Ritual.png";
-import heroSakura from "@/assets/hero/hero-sakura.png";
-import heroSpa from "@/assets/hero/bright-spa-skincare-commercial-scene.png";
-import heroCulture from "@/assets/hero/hero-japanses-culture-bg.png";
+import {
+  bGlorious,
+  bHikari,
+  bHada,
+  heroSpring,
+  heroWhip,
+  heroSakura,
+  heroSpa,
+  heroCulture,
+} from "@/lib/cloudinaryAssets";
 import { PRODUCT_IMAGES } from "@/lib/catalog";
 import type { BrandMeta } from "./types";
 

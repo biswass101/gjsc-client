@@ -19,7 +19,7 @@ import type {
   AdminActivityLog,
 } from "@/types";
 
-export const STORAGE_KEY = "gjsc_admin_state_v8";
+export const STORAGE_KEY = "gjsc_admin_state_v9";
 
 interface StorageParams {
   products: AdminProduct[];
@@ -141,7 +141,15 @@ export function useAdminStorage(params: StorageParams) {
         }
         if (parsed.customers) setCustomers(parsed.customers);
         if (parsed.discounts) setDiscounts(parsed.discounts);
-        if (parsed.categories) setCategories(parsed.categories);
+        if (parsed.categories && Array.isArray(parsed.categories)) {
+          // Do not restore legacy mock categories (e.g. initial 5 static categories with cat- IDs)
+          const isLegacyMock =
+            parsed.categories.length <= 5 &&
+            parsed.categories.some((c: any) => typeof c.id === "string" && (c.id === "cat-1" || c.id === "cat-2"));
+          if (!isLegacyMock && parsed.categories.length > 0) {
+            setCategories(parsed.categories);
+          }
+        }
         if (parsed.collections) setCollections(parsed.collections);
         if (parsed.brands) setBrands(parsed.brands);
         if (parsed.preOrders) setPreOrders(parsed.preOrders);
@@ -163,7 +171,7 @@ export function useAdminStorage(params: StorageParams) {
         if (parsed.reviews) setReviews(parsed.reviews);
         if (parsed.faqs) setFaqs(parsed.faqs);
         if (parsed.merchandising) setMerchandising(parsed.merchandising);
-        if (parsed.settings) setSettings(parsed.settings);
+        if (parsed.settings) setSettings((prev) => ({ ...prev, ...parsed.settings }));
         if (parsed.notifications) setNotifications(parsed.notifications);
         if (parsed.activityLogs) setActivityLogs(parsed.activityLogs);
       }

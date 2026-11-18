@@ -26,7 +26,7 @@ export function BrandCard({ brand, onEdit, onDelete, onToggleFeatured }: BrandCa
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
-                  "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&auto=format&fit=crop&q=80";
+                  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760860/glorious_japan_skin_care/brands/shiseido.jpg";
               }}
             />
           </div>

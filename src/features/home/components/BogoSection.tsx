@@ -5,10 +5,12 @@ import { formatBDT } from "@/lib/catalog";
 import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
 import { ArrowRight, Gift, Heart, Plus, Sparkles, Star } from "lucide-react";
-import p1Img from "@/assets/new_products_images/i10.jpg";
-import p2Img from "@/assets/new_products_images/i7.jpg";
-import p3Img from "@/assets/new_products_images/i8.jpg";
-import p4Img from "@/assets/new_products_images/i12.jpg";
+import {
+  i10 as p1Img,
+  i7 as p2Img,
+  i8 as p3Img,
+  i12 as p4Img,
+} from "@/lib/cloudinaryAssets";
 import { cn } from "@/lib/utils";
 
 interface BogoItem {

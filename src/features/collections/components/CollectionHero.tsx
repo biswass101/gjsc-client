@@ -5,14 +5,18 @@ import { Link } from "@/lib/navigation";
 import { useAdmin } from "@/context/admin-context";
 import type { CollectionMeta } from "../data/collectionMetadata";
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
-import { resolveBannerGradient } from "@/features/admin-banners/constants";
+import {
+  resolveBannerGradient,
+  resolveBannerImageUrl,
+  handleBannerImageError,
+} from "@/features/admin-banners";
 
 interface CollectionHeroProps {
   meta: CollectionMeta;
 }
 
 export function CollectionHero({ meta }: CollectionHeroProps) {
-  const { banners } = useAdmin();
+  const { banners, isLoadingBanners } = useAdmin();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const normalizedSlug = meta.slug.replace(/-/g, "_");
@@ -37,6 +41,17 @@ export function CollectionHero({ meta }: CollectionHeroProps) {
     return () => clearInterval(interval);
   }, [matchingBanners.length]);
 
+  if (isLoadingBanners) {
+    return (
+      <section
+        aria-label={`${meta.title} Banner Loading`}
+        className="container-lux pt-2 sm:pt-3 pb-2 sm:pb-3 animate-pulse"
+      >
+        <div className="relative w-full h-44 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-md sm:rounded-xl border border-border/40 bg-muted/50" />
+      </section>
+    );
+  }
+
   const activeBanner = matchingBanners[currentIndex] ?? matchingBanners[0];
 
   // If no database banners configured yet, fall back gracefully to the metadata image
@@ -48,8 +63,9 @@ export function CollectionHero({ meta }: CollectionHeroProps) {
       >
         <div className="relative w-full h-44 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-md sm:rounded-xl border border-border/40 bg-muted shadow-2xs">
           <img
-            src={meta.bannerImage}
+            src={resolveBannerImageUrl(meta.bannerImage)}
             alt={`${meta.title} Banner`}
+            onError={handleBannerImageError}
             className="h-full w-full object-cover object-center"
           />
         </div>
@@ -59,6 +75,10 @@ export function CollectionHero({ meta }: CollectionHeroProps) {
 
   const hasText = Boolean(activeBanner.title?.trim() || activeBanner.subtitle?.trim());
   const gradientCss = hasText ? resolveBannerGradient(activeBanner.gradient) : "none";
+  const bgImg = resolveBannerImageUrl(activeBanner.imageUrl);
+  const mobileImg = activeBanner.mobileImageUrl
+    ? resolveBannerImageUrl(activeBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <section
@@ -68,13 +88,14 @@ export function CollectionHero({ meta }: CollectionHeroProps) {
       <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-md sm:rounded-xl border border-border/50 bg-muted shadow-md group">
         {/* Banner Picture with Responsive Mobile Art-Direction */}
         <picture>
-          {activeBanner.mobileImageUrl && (
-            <source media="(max-width: 640px)" srcSet={activeBanner.mobileImageUrl} />
+          {mobileImg && (
+            <source media="(max-width: 640px)" srcSet={mobileImg} />
           )}
           <img
-            src={activeBanner.imageUrl}
-            alt={activeBanner.title || meta.title}
-            className="h-full w-full object-cover object-center transition-all duration-700"
+            src={bgImg}
+            alt={activeBanner.title || `${meta.title} Banner`}
+            onError={handleBannerImageError}
+            className="h-full w-full object-cover object-center"
           />
         </picture>
 

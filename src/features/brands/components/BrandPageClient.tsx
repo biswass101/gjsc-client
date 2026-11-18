@@ -64,6 +64,7 @@ export function BrandPageClient({ slug }: BrandPageClientProps) {
     totalPages,
     paginatedProducts,
     filterProps,
+    isLoading,
   } = useBrandProducts(meta);
 
   return (
@@ -104,6 +105,7 @@ export function BrandPageClient({ slug }: BrandPageClientProps) {
                 view={view}
                 currentPage={currentPage}
                 totalPages={totalPages}
+                isLoading={isLoading}
                 onPageChange={(page) => {
                   setCurrentPage(page);
                   window.scrollTo({ top: 500, behavior: "smooth" });

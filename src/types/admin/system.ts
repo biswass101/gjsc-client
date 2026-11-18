@@ -10,11 +10,27 @@ export interface AdminSettings {
   outsideDhakaRate: number;
   expressDeliveryRate: number;
   freeShippingMin: number;
+  // Payment Gateways & MFS Options
   codEnabled: boolean;
+  codMinAmount?: number | undefined;
+  codMaxAmount?: number | undefined;
+  codInstructions?: string | undefined;
+
   bkashEnabled: boolean;
   bkashMerchantNumber: string;
+  bkashAccountType?: "Merchant" | "Personal" | "Send Money" | undefined;
+  bkashInstructions?: string | undefined;
+
   nagadEnabled: boolean;
   nagadMerchantNumber: string;
+  nagadAccountType?: "Merchant" | "Personal" | "Send Money" | undefined;
+  nagadInstructions?: string | undefined;
+
+  cardEnabled: boolean;
+  cardGateway?: string | undefined;
+  cardStoreId?: string | undefined;
+  cardInstructions?: string | undefined;
+  cardTestMode?: boolean | undefined;
   autoAssignCourier: boolean;
   defaultCourier: string;
   pathaoApiKey: string;

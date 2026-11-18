@@ -1,4 +1,4 @@
-import story from "@/assets/story.jpg";
+import { story } from "@/lib/cloudinaryAssets";
 import { Layout } from "@/components/layout";
 import { StorefrontPageBanner } from "@/components/common";
 import type { Metadata } from "next";

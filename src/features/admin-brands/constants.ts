@@ -17,8 +17,8 @@ export const BRAND_CATEGORIES = [
 ];
 
 export const DEFAULT_LOGOS = [
-  "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1608248597359-299318b7623a?w=300&auto=format&fit=crop&q=80",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760860/glorious_japan_skin_care/brands/shiseido.jpg",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760856/glorious_japan_skin_care/brands/hada-labo.jpg",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760860/glorious_japan_skin_care/brands/sk-ii.jpg",
 ];
 

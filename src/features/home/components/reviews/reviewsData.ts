@@ -20,7 +20,7 @@ export const REVIEWS: ReviewItem[] = [
     name: "Nusrat Ahmed",
     city: "Gulshan 2, Dhaka",
     avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     rating: 5,
     date: "3 days ago",
     verified: true,
@@ -37,7 +37,7 @@ export const REVIEWS: ReviewItem[] = [
     name: "Farhana Karim",
     city: "Panchlaish, Chattogram",
     avatar:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     rating: 5,
     date: "1 week ago",
     verified: true,
@@ -54,7 +54,7 @@ export const REVIEWS: ReviewItem[] = [
     name: "Tasnim Rahman",
     city: "Kumarpara, Sylhet",
     avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     rating: 5,
     date: "2 weeks ago",
     verified: true,
@@ -71,7 +71,7 @@ export const REVIEWS: ReviewItem[] = [
     name: "Raisa Mahbub",
     city: "Uttara, Dhaka",
     avatar:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760850/glorious_japan_skin_care/hero/hero-with-japanese-girl.png",
     rating: 5,
     date: "3 weeks ago",
     verified: true,

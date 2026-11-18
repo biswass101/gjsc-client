@@ -19,6 +19,14 @@ export const adminApi = {
     return apiClient.put('/admin/settings', data);
   },
 
+  getPaymentSettings(): Promise<Record<string, any>> {
+    return apiClient.get('/admin/settings/payment');
+  },
+
+  updatePaymentSettings(data: Record<string, any>): Promise<Record<string, any>> {
+    return apiClient.put('/admin/settings/payment', data);
+  },
+
   // Products
   getProducts(params?: Record<string, any>): Promise<any> {
     return apiClient.get('/admin/products', params);
@@ -88,7 +96,7 @@ export const adminApi = {
 
   // Categories
   getCategories(): Promise<any[]> {
-    return apiClient.get('/admin/categories');
+    return apiClient.get('/categories');
   },
 
   createCategory(data: any): Promise<any> {
@@ -105,7 +113,7 @@ export const adminApi = {
 
   // Collections
   getCollections(): Promise<any[]> {
-    return apiClient.get('/admin/collections');
+    return apiClient.get('/collections');
   },
 
   createCollection(data: any): Promise<any> {
@@ -122,7 +130,7 @@ export const adminApi = {
 
   // Brands
   getBrands(): Promise<any[]> {
-    return apiClient.get('/admin/brands');
+    return apiClient.get('/brands');
   },
 
   createBrand(data: any): Promise<any> {
@@ -139,7 +147,7 @@ export const adminApi = {
 
   // Pre-Orders
   getPreOrders(): Promise<any[]> {
-    return apiClient.get('/admin/pre-orders');
+    return apiClient.get('/pre-orders');
   },
 
   createPreOrder(data: any): Promise<any> {

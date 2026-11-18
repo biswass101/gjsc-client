@@ -25,18 +25,39 @@ export async function generateStaticParams() {
   return params;
 }
 
+async function resolveProductBySlug(slug: string) {
+  try {
+    const res: any = await catalogApi.getProductBySlug(slug);
+    const rawProduct = res?.product || (res?.id || res?.slug ? res : null);
+    if (rawProduct) {
+      return {
+        ...rawProduct,
+        id: String(rawProduct.id),
+        brand: rawProduct.brandName || rawProduct.brand?.name || rawProduct.brand || "Authentic Japan",
+        category: rawProduct.categoryName || rawProduct.category?.name || rawProduct.category || "Skincare",
+        reviews: Number(rawProduct.reviewsCount ?? rawProduct.reviews ?? 0),
+      };
+    }
+  } catch {
+    /* fallback to static lookup if API is offline during static build */
+  }
+  return bySlug(slug) || null;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = bySlug(slug);
+  const product = await resolveProductBySlug(slug);
+
   if (!product) {
-    return { title: "Product Not Found | Glorious Japan Skin Care" };
+    return { title: "Authentic Japanese Skincare | Glorious Japan" };
   }
+
   return {
     title: `${product.name} — ${product.brand} | Glorious Japan`,
-    description: `${product.name} by ${product.brand}. ${product.short} 100% authentic Japanese import with nationwide express shipping.`,
+    description: `${product.name} by ${product.brand}. ${product.short || "100% authentic Japanese import with nationwide express shipping."}`,
     openGraph: {
       title: `${product.name} | Glorious Japan`,
-      description: product.short,
+      description: product.short || undefined,
       type: "website",
     },
     twitter: {
@@ -47,26 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  let product = bySlug(slug);
+  const product = await resolveProductBySlug(slug);
 
-  if (!product) {
-    try {
-      const res = await catalogApi.getProductBySlug(slug);
-      if (res?.product) {
-        product = {
-          ...res.product,
-          brand: (res.product as any).brandName || (res.product as any).brand?.name || res.product.brand || "Authentic Japan",
-          category: (res.product as any).categoryName || (res.product as any).category?.name || res.product.category || "Skincare",
-        };
-      }
-    } catch {
-      /* fallback to notFound */
-    }
-  }
-
-  if (!product) {
-    notFound();
-  }
-
-  return <ProductPageClient product={product} />;
+  return <ProductPageClient slug={slug} initialProduct={product} />;
 }

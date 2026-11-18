@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout";
 import { ProductCard } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { PRODUCTS } from "@/lib/catalog";
-import { customerApi, tokenStorage } from "@/lib/api";
+import { catalogApi, customerApi, tokenStorage } from "@/lib/api";
 import { useShop } from "@/context";
 import type { Product } from "@/types";
 
@@ -42,21 +42,34 @@ export default function WishlistPage() {
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    if (!user || !tokenStorage.get()) {
-      setDbProducts([]);
-      return;
-    }
     let cancelled = false;
-    customerApi
-      .getWishlist()
-      .then((list) => {
-        if (!cancelled && Array.isArray(list)) {
-          setDbProducts(list.map(mapDbProduct));
-        }
-      })
-      .catch(() => {
-        /* fallback gracefully */
-      });
+
+    if (user && tokenStorage.get()) {
+      customerApi
+        .getWishlist()
+        .then((list) => {
+          if (!cancelled && Array.isArray(list)) {
+            setDbProducts(list.map(mapDbProduct));
+          }
+        })
+        .catch(() => {
+          /* fallback gracefully */
+        });
+    } else if (wishlist.length > 0) {
+      catalogApi
+        .getProducts({ limit: 50 })
+        .then((res: any) => {
+          if (!cancelled && Array.isArray(res?.products)) {
+            setDbProducts(res.products.map(mapDbProduct));
+          }
+        })
+        .catch(() => {
+          /* fallback gracefully */
+        });
+    } else {
+      setDbProducts([]);
+    }
+
     return () => {
       cancelled = true;
     };

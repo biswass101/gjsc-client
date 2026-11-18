@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { BRANDS, CATEGORIES } from "@/lib/catalog";
+import { adminApi } from "@/lib/api";
 import type { AdminProduct } from "@/context/admin-context";
 import { FORM_TABS } from "../data/productConstants";
 import type { ProductFormTab } from "../types";
@@ -50,6 +51,99 @@ export function useProductFormState() {
   const [formImage, setFormImage] = useState("");
   const [formGallery, setFormGallery] = useState<string[]>([]);
   const [newGalleryInput, setNewGalleryInput] = useState("");
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
+
+  const handleUploadCover = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (JPG, PNG, WEBP).");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error("Image exceeds 10MB limit. Please choose a smaller file.");
+      return;
+    }
+
+    setIsUploadingCover(true);
+    try {
+      const data = await adminApi.uploadImage(file);
+      if (data?.url) {
+        setFormImage(data.url);
+        setFormGallery((prev) => [data.url, ...prev.filter((img) => img !== data.url)]);
+        toast.success("Cover image uploaded to Cloudinary! ☁️");
+      } else {
+        toast.error("Failed to upload image to Cloudinary.");
+      }
+    } catch (err: any) {
+      console.error("Cover upload error:", err);
+      toast.error(err?.message || "Cloudinary upload failed. Please try again.");
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
+  const handleUploadGallery = async (filesInput: File | File[]) => {
+    const rawFiles = Array.isArray(filesInput) ? filesInput : [filesInput];
+    const validFiles = rawFiles.filter((file) => {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`Skipped "${file.name}" — not a valid image file.`);
+        return false;
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        toast.error(`Skipped "${file.name}" — exceeds 10MB limit.`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    setIsUploadingGallery(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (const file of validFiles) {
+        const data = await adminApi.uploadImage(file);
+        if (data?.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setFormGallery((prev) => {
+          const next = [...prev];
+          for (const url of uploadedUrls) {
+            if (!next.includes(url)) next.push(url);
+          }
+          return next;
+        });
+        setFormImage((prevCover) => prevCover.trim() || uploadedUrls[0] || "");
+        toast.success(
+          uploadedUrls.length === 1
+            ? "Gallery photo uploaded to Cloudinary! ☁️"
+            : `${uploadedUrls.length} gallery photos uploaded to Cloudinary! ☁️`,
+        );
+      } else {
+        toast.error("Failed to upload gallery image(s) to Cloudinary.");
+      }
+    } catch (err: any) {
+      console.error("Gallery upload error:", err);
+      toast.error(err?.message || "Cloudinary upload failed. Please try again.");
+    } finally {
+      setIsUploadingGallery(false);
+    }
+  };
+
+  const handleClearCover = () => {
+    const currentCover = formImage;
+    setFormGallery((prev) => {
+      const remaining = prev.filter((img) => img !== currentCover);
+      setFormImage(remaining[0] || "");
+      return remaining;
+    });
+  };
 
   const computedMargin = useMemo(() => {
     const p = parseFloat(formPrice) || 0;
@@ -126,18 +220,19 @@ export function useProductFormState() {
   const handleAddGalleryImage = (url?: string) => {
     const target = (url || newGalleryInput).trim();
     if (!target) return;
-    if (!formGallery.includes(target)) {
-      setFormGallery((prev) => [...prev, target]);
-    }
+    setFormGallery((prev) => (prev.includes(target) ? prev : [...prev, target]));
+    setFormImage((prevCover) => prevCover.trim() || target);
     setNewGalleryInput("");
   };
 
   const handleRemoveGalleryImage = (url: string) => {
-    setFormGallery((prev) => prev.filter((img) => img !== url));
-    if (formImage === url && formGallery.length > 1) {
-      const nextCover = formGallery.find((img) => img !== url);
-      if (nextCover) setFormImage(nextCover);
-    }
+    setFormGallery((prev) => {
+      const remaining = prev.filter((img) => img !== url);
+      if (formImage === url) {
+        setFormImage(remaining[0] || "");
+      }
+      return remaining;
+    });
   };
 
   const handleNextTab = () => {
@@ -229,6 +324,11 @@ export function useProductFormState() {
     setNewGalleryInput,
     handleAddGalleryImage,
     handleRemoveGalleryImage,
+    isUploadingCover,
+    isUploadingGallery,
+    handleUploadCover,
+    handleUploadGallery,
+    handleClearCover,
     computedMargin,
     handleGenerateSku,
     handleGenerateBarcode,

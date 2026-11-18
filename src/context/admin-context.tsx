@@ -141,6 +141,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       value={{
         // Products
         products: productSlice.products,
+        isLoadingProducts: productSlice.isLoadingProducts,
         addProduct: productSlice.addProduct,
         updateProduct: productSlice.updateProduct,
         deleteProduct: productSlice.deleteProduct,
@@ -183,6 +184,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         // Marketing (Discounts, Banners, Videos)
         discounts: marketingSlice.discounts,
         banners: marketingSlice.banners,
+        isLoadingBanners: marketingSlice.isLoadingBanners,
         featuredVideos: marketingSlice.featuredVideos,
         addDiscount: marketingSlice.addDiscount,
         toggleDiscount: marketingSlice.toggleDiscount,
@@ -215,6 +217,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         deleteFaq: systemSlice.deleteFaq,
         updateMerchandising: systemSlice.updateMerchandising,
         updateSettings: systemSlice.updateSettings,
+        updatePaymentSettings: systemSlice.updatePaymentSettings,
+        refreshSettings: systemSlice.refreshSettings,
         markNotificationRead: systemSlice.markNotificationRead,
         markAllNotificationsRead: systemSlice.markAllNotificationsRead,
         clearNotifications: systemSlice.clearNotifications,

@@ -6,14 +6,17 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 import { PRODUCTS } from "@/lib/catalog";
 import type { Product, CartLine, User, Notification } from "@/types";
 import { DEMO_NOTIFICATIONS, ShopContextType, type ProfileUpdateInput } from "./shop-types";
-import { authApi, customerApi, tokenStorage } from "@/lib/api";
+import { authApi, catalogApi, customerApi, tokenStorage } from "@/lib/api";
 import type { GoogleAuthPayload, FacebookAuthPayload } from "@/lib/api/auth";
+import type { BackendCartResponse } from "@/lib/api/customer";
 
 export type { ShopContextType };
 
@@ -44,14 +47,165 @@ function normalizeAuthUser(raw: any): User {
   };
 }
 
+function normalizeCatalogProduct(raw: any): Product {
+  const image = String(raw.image || (Array.isArray(raw.images) ? raw.images[0] : "") || "");
+  const images =
+    Array.isArray(raw.images) && raw.images.length > 0
+      ? raw.images.filter((u: unknown): u is string => typeof u === "string" && u.trim().length > 0)
+      : image
+        ? [image]
+        : [];
+
+  return {
+    id: String(raw.id ?? raw.slug),
+    slug: String(raw.slug),
+    name: String(raw.name || ""),
+    japaneseName: raw.japaneseName || undefined,
+    brand: String(raw.brandName || raw.brand?.name || raw.brand || "Glorious Japan"),
+    category: String(raw.categoryName || raw.category?.name || raw.category || "Skincare"),
+    price: Number(raw.price || 0),
+    compareAt: raw.compareAt ? Number(raw.compareAt) : undefined,
+    rating: Number(raw.rating || 5),
+    reviews: Number(raw.reviewsCount ?? raw.reviews ?? 0),
+    image,
+    images,
+    short: String(raw.short || ""),
+    description: String(raw.description || ""),
+    ingredients: Array.isArray(raw.ingredients) ? raw.ingredients : [],
+    benefits: Array.isArray(raw.benefits) ? raw.benefits : [],
+    howTo: String(raw.howTo || ""),
+    skinTypes: Array.isArray(raw.skinTypes) ? raw.skinTypes : [],
+    concerns: Array.isArray(raw.concerns) ? raw.concerns : [],
+    stock: Number(raw.stock ?? 0),
+    badge: raw.badge || undefined,
+    sizes: Array.isArray(raw.sizes) && raw.sizes.length > 0 ? raw.sizes : ["Standard"],
+    type: raw.productType || raw.type || "in-stock",
+    origin: raw.origin || "Tokyo, Japan",
+    texture: raw.texture || undefined,
+    pao: raw.pao || undefined,
+    spf: raw.spf || undefined,
+    barcode: raw.barcode || undefined,
+    sku: raw.sku || undefined,
+  };
+}
+
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [catalogMap, setCatalogMap] = useState<Record<string, Product>>({});
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>(DEMO_NOTIFICATIONS);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  // Track slugs we've already attempted on-demand fetch for so we don't loop
+  const fetchedSlugsRef = useRef<Set<string>>(new Set());
+  // Keep latest cart ref for async handlers (setQty/removeFromCart)
+  const cartRef = useRef<CartLine[]>(cart);
+  useEffect(() => {
+    cartRef.current = cart;
+  }, [cart]);
+
+  // Cache a batch of normalized DB products keyed strictly by lowercase slug
+  const upsertCatalogProducts = useCallback((items: Product[]) => {
+    if (!items.length) return;
+    setCatalogMap((prev) => {
+      const next = { ...prev };
+      for (const p of items) {
+        if (p?.slug) {
+          next[p.slug.toLowerCase()] = p;
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  // Hydrate live DB products on mount and whenever admin creates/updates products
+  const refreshCatalogCache = useCallback(() => {
+    catalogApi
+      .getProducts({ limit: 50 })
+      .then((res: any) => {
+        if (res && Array.isArray(res.products)) {
+          const normalized = res.products
+            .filter((p: any) => p && p.slug)
+            .map(normalizeCatalogProduct);
+          upsertCatalogProducts(normalized);
+        }
+      })
+      .catch(() => {
+        /* non-fatal */
+      });
+  }, [upsertCatalogProducts]);
+
+  useEffect(() => {
+    refreshCatalogCache();
+
+    const handleCatalogUpdate = () => {
+      fetchedSlugsRef.current.clear();
+      refreshCatalogCache();
+    };
+    window.addEventListener("gjsc_catalog_updated", handleCatalogUpdate);
+    return () => {
+      window.removeEventListener("gjsc_catalog_updated", handleCatalogUpdate);
+    };
+  }, [refreshCatalogCache]);
+
+  // Apply authoritative backend cart response to both cart lines & live catalogMap
+  const applyBackendCart = useCallback(
+    (res: BackendCartResponse | null | undefined) => {
+      if (!res || !Array.isArray(res.items)) return;
+
+      const discoveredProducts: Product[] = [];
+      const mapped: CartLine[] = res.items
+        .filter((item) => Boolean(item?.slug || item?.product?.slug))
+        .map((item) => {
+          const prod = item.product ? normalizeCatalogProduct(item.product) : undefined;
+          if (prod) discoveredProducts.push(prod);
+          return {
+            id: item.id,
+            slug: prod?.slug || item.slug,
+            qty: item.qty,
+            size: item.size || prod?.sizes?.[0] || "Standard",
+            product: prod,
+          };
+        });
+
+      if (discoveredProducts.length > 0) {
+        upsertCatalogProducts(discoveredProducts);
+      }
+      setCart(mapped);
+    },
+    [upsertCatalogProducts],
+  );
+
+  // On-demand DB fetch for any cart line slug not yet in catalogMap (e.g. newly created product in guest cart)
+  useEffect(() => {
+    const missingSlugs = cart
+      .map((l) => l.slug)
+      .filter((slug) => {
+        const key = slug.toLowerCase();
+        return !catalogMap[key] && !fetchedSlugsRef.current.has(key);
+      });
+
+    if (missingSlugs.length === 0) return;
+
+    missingSlugs.forEach((slug) => {
+      const key = slug.toLowerCase();
+      fetchedSlugsRef.current.add(key);
+      catalogApi
+        .getProductBySlug(slug)
+        .then((res: any) => {
+          const raw = res?.product || (res?.id || res?.slug ? res : null);
+          if (raw?.slug) {
+            upsertCatalogProducts([normalizeCatalogProduct(raw)]);
+          }
+        })
+        .catch(() => {
+          /* non-fatal */
+        });
+    });
+  }, [cart, catalogMap, upsertCatalogProducts]);
 
   const syncWishlistFromBackend = useCallback(async (guestSlugs: string[] = []) => {
     if (!tokenStorage.get()) return;
@@ -63,7 +217,6 @@ export function ShopProvider({ children }: { children: ReactNode }) {
             .filter((s: unknown): s is string => typeof s === "string" && s.length > 0)
         : [];
 
-      // Best-effort merge of guest wishlist slugs that weren't saved yet
       const missingGuest = guestSlugs.filter((s) => !dbSlugs.includes(s));
       if (missingGuest.length > 0) {
         await Promise.allSettled(missingGuest.map((slug) => customerApi.toggleWishlist(slug)));
@@ -87,15 +240,15 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   // 1. Initial rehydration from localStorage & Backend JWT Profile
   useEffect(() => {
     const token = tokenStorage.get();
-    let initialWishlist: string[] = [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const d = JSON.parse(raw);
-        setCart(d.cart ?? []);
-        initialWishlist = Array.isArray(d.wishlist) ? d.wishlist : [];
-        setWishlist(initialWishlist);
-        setRecent(d.recent ?? []);
+        if (Array.isArray(d.cart)) {
+          setCart(d.cart);
+        }
+        setWishlist(Array.isArray(d.wishlist) ? d.wishlist : []);
+        setRecent(Array.isArray(d.recent) ? d.recent : []);
         if (d.user && token) {
           setUser(d.user);
         }
@@ -111,25 +264,16 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         .then((backendUser) => {
           if (backendUser) {
             setUser(normalizeAuthUser(backendUser));
-            // Sync backend cart
+            // Sync authoritative backend cart (including full DB product objects)
             customerApi
               .getCart()
               .then((res) => {
-                if (res?.items && res.items.length > 0) {
-                  setCart(
-                    res.items.map((i) => ({
-                      slug: i.slug,
-                      qty: i.qty,
-                      size: i.size || "50ml",
-                    })),
-                  );
-                }
+                applyBackendCart(res);
               })
               .catch(() => {
                 /* fallback to local cart if offline */
               });
 
-            // Sync backend wishlist (no guest overwrite when rehydrating active session)
             void syncWishlistFromBackend([]);
           }
         })
@@ -146,7 +290,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     } else {
       setIsAuthLoading(false);
     }
-  }, [syncWishlistFromBackend]);
+  }, [syncWishlistFromBackend, applyBackendCart]);
 
   // 2. Persist local cache
   useEffect(() => {
@@ -157,69 +301,157 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, wishlist, recent, user]);
 
-  const addToCart = useCallback((slug: string, qty = 1, size = "50ml") => {
-    setCart((c) => {
-      const found = c.find((l) => l.slug === slug);
-      if (found) return c.map((l) => (l.slug === slug ? { ...l, qty: l.qty + qty } : l));
-      return [...c, { slug, qty, size }];
-    });
-    setCartOpen(true);
+  const addToCart = useCallback(
+    (slug: string, qty = 1, size?: string, productSnapshot?: Product) => {
+      const cleanSlug = slug.trim();
+      if (!cleanSlug) return;
 
-    // Sync to backend if authenticated
-    if (tokenStorage.get()) {
-      customerApi.addToCart({ slug, qty, size }).catch(() => {
-        /* optimistic update remains */
+      const resolvedSize = size || productSnapshot?.sizes?.[0] || "Standard";
+
+      // Immediately cache the real product snapshot so the bag displays the exact product right away
+      if (productSnapshot) {
+        upsertCatalogProducts([productSnapshot]);
+      }
+
+      setCart((c) => {
+        const existingIdx = c.findIndex(
+          (l) => l.slug.toLowerCase() === cleanSlug.toLowerCase() && l.size === resolvedSize,
+        );
+        if (existingIdx >= 0) {
+          return c.map((l, idx) =>
+            idx === existingIdx
+              ? { ...l, qty: l.qty + qty, product: productSnapshot || l.product }
+              : l,
+          );
+        }
+        return [
+          ...c,
+          { slug: cleanSlug, qty, size: resolvedSize, product: productSnapshot },
+        ];
       });
+      setCartOpen(true);
+
+      // Sync to backend MySQL cart if authenticated
+      if (tokenStorage.get()) {
+        customerApi
+          .addToCart({ slug: cleanSlug, qty, size: resolvedSize })
+          .then((res) => {
+            applyBackendCart(res);
+          })
+          .catch((err: any) => {
+            if (err?.status === 400 || err?.status === 404) {
+              toast.error(err?.message || "Could not add item to bag");
+              customerApi.getCart().then(applyBackendCart).catch(() => {});
+            }
+          });
+      }
+    },
+    [upsertCatalogProducts, applyBackendCart],
+  );
+
+  const setQty = useCallback(
+    (slug: string, qty: number, size?: string) => {
+      const slugLower = slug.toLowerCase();
+      const target = cartRef.current.find(
+        (l) => l.slug.toLowerCase() === slugLower && (size ? l.size === size : true),
+      );
+
+      setCart((c) =>
+        qty <= 0
+          ? c.filter((l) => !(l.slug.toLowerCase() === slugLower && (size ? l.size === size : true)))
+          : c.map((l) =>
+              l.slug.toLowerCase() === slugLower && (size ? l.size === size : true)
+                ? { ...l, qty }
+                : l,
+            ),
+      );
+
+      if (tokenStorage.get() && target?.id) {
+        const req =
+          qty <= 0
+            ? customerApi.removeFromCart(target.id)
+            : customerApi.updateCartQty(target.id, qty);
+        req
+          .then(applyBackendCart)
+          .catch((err: any) => {
+            if (err?.message) toast.error(err.message);
+            customerApi.getCart().then(applyBackendCart).catch(() => {});
+          });
+      }
+    },
+    [applyBackendCart],
+  );
+
+  const removeFromCart = useCallback(
+    (slug: string, size?: string) => {
+      const slugLower = slug.toLowerCase();
+      const targets = cartRef.current.filter(
+        (l) => l.slug.toLowerCase() === slugLower && (size ? l.size === size : true),
+      );
+
+      setCart((c) =>
+        c.filter((l) => !(l.slug.toLowerCase() === slugLower && (size ? l.size === size : true))),
+      );
+
+      if (tokenStorage.get() && targets.length > 0) {
+        Promise.allSettled(
+          targets.filter((t) => typeof t.id === "number").map((t) => customerApi.removeFromCart(t.id!)),
+        )
+          .then(() => customerApi.getCart())
+          .then(applyBackendCart)
+          .catch(() => {});
+      }
+    },
+    [applyBackendCart],
+  );
+
+  const clearCart = useCallback(() => {
+    setCart([]);
+    if (tokenStorage.get()) {
+      customerApi.clearCart().catch(() => {});
     }
   }, []);
 
-  const setQty = useCallback((slug: string, qty: number) => {
-    setCart((c) =>
-      qty <= 0
-        ? c.filter((l) => l.slug !== slug)
-        : c.map((l) => (l.slug === slug ? { ...l, qty } : l)),
-    );
+  const toggleWishlist = useCallback((slug: string) => {
+    setWishlist((w) => (w.includes(slug) ? w.filter((s) => s !== slug) : [...w, slug]));
+    if (tokenStorage.get()) {
+      customerApi.toggleWishlist(slug).catch(() => {
+        /* optimistic */
+      });
+    }
   }, []);
-
-  const removeFromCart = useCallback(
-    (slug: string) => setCart((c) => c.filter((l) => l.slug !== slug)),
-    [],
-  );
-  const clearCart = useCallback(() => setCart([]), []);
-
-  const toggleWishlist = useCallback(
-    (slug: string) => {
-      setWishlist((w) => (w.includes(slug) ? w.filter((s) => s !== slug) : [...w, slug]));
-      if (tokenStorage.get()) {
-        customerApi.toggleWishlist(slug).catch(() => {
-          /* optimistic */
-        });
-      }
-    },
-    [],
-  );
 
   const addRecent = useCallback(
     (slug: string) => setRecent((r) => [slug, ...r.filter((s) => s !== slug)].slice(0, 8)),
     [],
   );
 
-  const login = useCallback(async (email: string, pass: string): Promise<User> => {
-    try {
+  const syncCartAfterAuth = useCallback(
+    async (guestCart: CartLine[]) => {
+      try {
+        if (guestCart.length > 0) {
+          const merged = await customerApi.mergeCart(
+            guestCart.map((i) => ({ slug: i.slug, qty: i.qty, size: i.size || "Standard" })),
+          );
+          applyBackendCart(merged);
+        } else {
+          const dbCart = await customerApi.getCart();
+          applyBackendCart(dbCart);
+        }
+      } catch {
+        /* non-fatal */
+      }
+    },
+    [applyBackendCart],
+  );
+
+  const login = useCallback(
+    async (email: string, pass: string): Promise<User> => {
       const res = await authApi.login(email, pass);
       const authenticatedUser = normalizeAuthUser(res.user);
       setUser(authenticatedUser);
 
-      // Merge existing guest cart if any
-      const existingCart = cart;
-      if (existingCart.length > 0) {
-        try {
-          await customerApi.mergeCart(existingCart);
-        } catch {
-          /* ignore */
-        }
-      }
-
+      await syncCartAfterAuth(cart);
       void syncWishlistFromBackend(wishlist);
 
       setNotifications((prev) => [
@@ -235,10 +467,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       ]);
 
       return authenticatedUser;
-    } catch (err: any) {
-      throw err;
-    }
-  }, [cart, wishlist, syncWishlistFromBackend]);
+    },
+    [cart, wishlist, syncCartAfterAuth, syncWishlistFromBackend],
+  );
 
   const registerUser = useCallback(
     async (name: string, email: string, pass: string, phone?: string): Promise<User> => {
@@ -252,36 +483,21 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       const newUser = normalizeAuthUser(res.user);
       setUser(newUser);
 
-      if (cart.length > 0) {
-        try {
-          await customerApi.mergeCart(cart);
-        } catch {
-          /* ignore */
-        }
-      }
-
+      await syncCartAfterAuth(cart);
       void syncWishlistFromBackend(wishlist);
 
       return newUser;
     },
-    [cart, wishlist, syncWishlistFromBackend]
+    [cart, wishlist, syncCartAfterAuth, syncWishlistFromBackend],
   );
 
   const loginWithGoogle = useCallback(
     async (payload: GoogleAuthPayload): Promise<User> => {
       const res = await authApi.loginWithGoogle(payload);
-
       const authedUser = normalizeAuthUser(res.user);
       setUser(authedUser);
 
-      if (cart.length > 0) {
-        try {
-          await customerApi.mergeCart(cart);
-        } catch {
-          /* ignore */
-        }
-      }
-
+      await syncCartAfterAuth(cart);
       void syncWishlistFromBackend(wishlist);
 
       setNotifications((prev) => [
@@ -298,24 +514,16 @@ export function ShopProvider({ children }: { children: ReactNode }) {
 
       return authedUser;
     },
-    [cart, wishlist, syncWishlistFromBackend]
+    [cart, wishlist, syncCartAfterAuth, syncWishlistFromBackend],
   );
 
   const loginWithFacebook = useCallback(
     async (payload: FacebookAuthPayload): Promise<User> => {
       const res = await authApi.loginWithFacebook(payload);
-
       const authedUser = normalizeAuthUser(res.user);
       setUser(authedUser);
 
-      if (cart.length > 0) {
-        try {
-          await customerApi.mergeCart(cart);
-        } catch {
-          /* ignore */
-        }
-      }
-
+      await syncCartAfterAuth(cart);
       void syncWishlistFromBackend(wishlist);
 
       setNotifications((prev) => [
@@ -332,27 +540,23 @@ export function ShopProvider({ children }: { children: ReactNode }) {
 
       return authedUser;
     },
-    [cart, wishlist, syncWishlistFromBackend]
+    [cart, wishlist, syncCartAfterAuth, syncWishlistFromBackend],
   );
 
   const updateUserProfile = useCallback(async (updates: ProfileUpdateInput) => {
-    try {
-      if (tokenStorage.get()) {
-        const updated = await authApi.updateProfile(updates);
-        const normalized = normalizeAuthUser(updated);
-        setUser((prev) => (prev ? { ...prev, ...normalized } : normalized));
-      } else {
-        setUser((prev) => {
-          const base: User = prev ?? {
-            name: updates.name || "Customer",
-            email: updates.email || "customer@example.com",
-            role: "customer",
-          };
-          return normalizeAuthUser({ ...base, ...updates });
-        });
-      }
-    } catch (err) {
-      throw err;
+    if (tokenStorage.get()) {
+      const updated = await authApi.updateProfile(updates);
+      const normalized = normalizeAuthUser(updated);
+      setUser((prev) => (prev ? { ...prev, ...normalized } : normalized));
+    } else {
+      setUser((prev) => {
+        const base: User = prev ?? {
+          name: updates.name || "Customer",
+          email: updates.email || "customer@example.com",
+          role: "customer",
+        };
+        return normalizeAuthUser({ ...base, ...updates });
+      });
     }
   }, []);
 
@@ -376,6 +580,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setWishlist([]);
+    setCart([]);
   }, []);
 
   const markRead = useCallback((id: string) => {
@@ -386,19 +591,24 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setNotifications((ns) => ns.map((n) => ({ ...n, read: true })));
   }, []);
 
+  // Resolve cart lines strictly by exact slug: Live DB catalog > line product snapshot > static fallback
   const lines = useMemo(
     () =>
       cart
         .map((l) => {
-          const product = PRODUCTS.find((p) => p.slug === l.slug);
+          const slugKey = l.slug.toLowerCase();
+          const product =
+            catalogMap[slugKey] ||
+            l.product ||
+            PRODUCTS.find((p) => p.slug.toLowerCase() === slugKey);
           return product ? { product, qty: l.qty, size: l.size } : null;
         })
         .filter(Boolean) as { product: Product; qty: number; size: string }[],
-    [cart],
+    [cart, catalogMap],
   );
 
   const subtotal = useMemo(() => lines.reduce((s, l) => s + l.product.price * l.qty, 0), [lines]);
-  const count = useMemo(() => cart.reduce((s, l) => s + l.qty, 0), [cart]);
+  const count = useMemo(() => lines.reduce((s, l) => s + l.qty, 0), [lines]);
 
   const value: ShopContextType = {
     cart,

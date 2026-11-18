@@ -3,17 +3,25 @@
 import { Link } from "@/lib/navigation";
 import { ArrowRight, BadgePercent, CheckCircle2, ShieldCheck, Truck } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
-import { resolveBannerGradient } from "@/features/admin-banners/constants";
+import {
+  resolveBannerGradient,
+  resolveBannerImageUrl,
+  handleBannerImageError,
+} from "@/features/admin-banners";
 
 export function FreeDeliveryBanner() {
   const { banners } = useAdmin();
-  const midBanner = (banners || []).find(
-    (b) => b.pageKey === "home_middle" && b.active !== false,
-  );
+  const midBanner = (banners || [])
+    .filter((b) => b.pageKey === "home_middle" && b.active !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
 
   if (midBanner) {
     const hasText = Boolean(midBanner.title?.trim() || midBanner.subtitle?.trim());
     const gradientCss = hasText ? resolveBannerGradient(midBanner.gradient) : "none";
+    const bgUrl = resolveBannerImageUrl(midBanner.imageUrl);
+    const mobileBgUrl = midBanner.mobileImageUrl
+      ? resolveBannerImageUrl(midBanner.mobileImageUrl)
+      : undefined;
 
     return (
       <section className="bg-background py-4 sm:py-6">
@@ -22,12 +30,13 @@ export function FreeDeliveryBanner() {
             {/* Background image container - clean full color, no blackish gradient veil */}
             <div className="absolute inset-0 z-0">
               <picture>
-                {midBanner.mobileImageUrl && (
-                  <source media="(max-width: 640px)" srcSet={midBanner.mobileImageUrl} />
+                {mobileBgUrl && (
+                  <source media="(max-width: 640px)" srcSet={mobileBgUrl} />
                 )}
                 <img
-                  src={midBanner.imageUrl}
+                  src={bgUrl}
                   alt={midBanner.title || "Promotion Banner"}
+                  onError={handleBannerImageError}
                   className="w-full h-full object-cover"
                 />
               </picture>

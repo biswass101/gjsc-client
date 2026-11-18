@@ -2,9 +2,11 @@
 
 import { Link } from "@/lib/navigation";
 import { ArrowRight, BookOpen, Calendar, Clock, Sparkles } from "lucide-react";
-import a1Img from "@/assets/hero/Cozy Japanese Skincare Routine.png";
-import a2Img from "@/assets/hero/bright-spa-skincare-commercial-scene.png";
-import a3Img from "@/assets/hero/sakura-spa-skincare-trio.png";
+import {
+  cozyRoutine as a1Img,
+  heroSpa as a2Img,
+  sakuraSpa as a3Img,
+} from "@/lib/cloudinaryAssets";
 
 interface JournalArticle {
   slug: string;

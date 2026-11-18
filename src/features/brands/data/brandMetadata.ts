@@ -1,4 +1,4 @@
-import heroSpring from "@/assets/hero/Glorious Japan Skincare Spring Glow.png";
+import { heroSpring } from "@/lib/cloudinaryAssets";
 import { PRODUCT_IMAGES, slugify } from "@/lib/catalog";
 import type { BrandMeta } from "./types";
 import { ALPHABET_NUMBER_KEYS } from "./types";

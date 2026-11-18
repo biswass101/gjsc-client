@@ -11,7 +11,7 @@ export const INITIAL_BRANDS: AdminBrand[] = [
     description:
       "Founded in 1872 in Tokyo's Ginza district, Shiseido combines Western scientific expertise with Eastern beauty traditions.",
     category: "Prestige Skincare",
-    logo: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80",
+    logo: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760860/glorious_japan_skin_care/brands/shiseido.jpg",
     established: "Est. 1872",
     featured: true,
     itemCount: 42,
@@ -26,7 +26,7 @@ export const INITIAL_BRANDS: AdminBrand[] = [
     description:
       "Formulated by Rohto Pharmaceutical in Osaka, Japan's #1 hydrating lotion for deep barrier restoration.",
     category: "Hydration Science",
-    logo: "https://images.unsplash.com/photo-1608248597359-2f5b40cf302a?auto=format&fit=crop&w=300&q=80",
+    logo: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760856/glorious_japan_skin_care/brands/hada-labo.jpg",
     established: "Est. 2004",
     featured: true,
     itemCount: 28,
@@ -41,7 +41,7 @@ export const INITIAL_BRANDS: AdminBrand[] = [
     description:
       "Shiseido's sun-care powerhouse utilizing Auto-Booster and Aqua Booster technologies for extreme humidity protection.",
     category: "Sun Defense",
-    logo: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=300&q=80",
+    logo: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760875/glorious_japan_skin_care/new_products_images/i13.jpg",
     established: "Est. 1992",
     featured: true,
     itemCount: 16,
@@ -56,7 +56,7 @@ export const INITIAL_BRANDS: AdminBrand[] = [
     description:
       "Born in a sake brewery in Japan, SK-II's signature bio-ferment Pitera contains over 50 micronutrients.",
     category: "Luxury Anti-Aging",
-    logo: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=300&q=80",
+    logo: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760860/glorious_japan_skin_care/brands/sk-ii.jpg",
     established: "Est. 1980",
     featured: true,
     itemCount: 12,
@@ -71,7 +71,7 @@ export const INITIAL_BRANDS: AdminBrand[] = [
     description:
       "Kao's dermatological brand replenishing natural ceramide function to soothe inflammation.",
     category: "Barrier Repair",
-    logo: "https://images.unsplash.com/photo-1512290900672-1f5be6b4f762?auto=format&fit=crop&w=300&q=80",
+    logo: "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
     established: "Est. 1999",
     featured: true,
     itemCount: 15,
@@ -92,7 +92,7 @@ export const INITIAL_PREORDERS: AdminPreOrder[] = [
     slotsBooked: 18,
     batchStatus: "Tokyo Sourcing",
     image:
-      "https://images.unsplash.com/photo-1608248597359-2f5b40cf302a?auto=format&fit=crop&w=400&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760872/glorious_japan_skin_care/new_products_images/i1.jpg",
     active: true,
     notes: "Direct procurement from Ginza Flagship. Temperature-controlled air shipping.",
   },
@@ -109,7 +109,7 @@ export const INITIAL_PREORDERS: AdminPreOrder[] = [
     slotsBooked: 12,
     batchStatus: "Air-Freight",
     image:
-      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760878/glorious_japan_skin_care/new_products_images/i2.jpg",
     active: true,
     notes: "In air transit on flight JL-741 Tokyo Narita to Dhaka Hazrat Shahjalal.",
   },
@@ -126,7 +126,7 @@ export const INITIAL_PREORDERS: AdminPreOrder[] = [
     slotsBooked: 9,
     batchStatus: "Booking Open",
     image:
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760879/glorious_japan_skin_care/new_products_images/i3.jpg",
     active: true,
     notes: "Rare domestic Tokyo 100ml jumbo pump bottle.",
   },

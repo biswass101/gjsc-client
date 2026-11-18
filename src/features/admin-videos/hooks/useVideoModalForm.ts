@@ -72,7 +72,9 @@ export function useVideoModalForm(
       setProductBrand("Glorious Japan");
       setProductPrice("4850");
       setProductCompareAt("5900");
-      setProductImage("/hero/sakura-spa-skincare-trio.png");
+      setProductImage(
+        "https://res.cloudinary.com/soakj9w7/image/upload/v1794760854/glorious_japan_skin_care/hero/sakura-spa-skincare-trio.png"
+      );
     }
 
     setActive(true);

@@ -5,6 +5,7 @@ import { CategoryMeta } from "../data/categoryMetadata";
 import { CategoryBreadcrumb } from "./CategoryBreadcrumb";
 import { Sparkles, ShieldCheck, Truck, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
 
 interface CategoryHeroProps {
   meta: CategoryMeta;
@@ -19,7 +20,7 @@ export function CategoryHero({
   selectedSubcategory,
   onSelectSubcategory,
 }: CategoryHeroProps) {
-  const { banners } = useAdmin();
+  const { banners, isLoadingBanners } = useAdmin();
   const normalizedSlug = meta.slug.replace(/-/g, "_");
   const matchingBanners = (banners || [])
     .filter(
@@ -35,8 +36,14 @@ export function CategoryHero({
   const title = activeBanner?.title || meta.title;
   const description = activeBanner?.subtitle || meta.description;
   const badge = activeBanner?.badge || meta.japaneseTitle;
-  const bgImage = activeBanner?.imageUrl;
-  const mobileBgImage = activeBanner?.mobileImageUrl;
+  const bgImage = !isLoadingBanners && activeBanner?.imageUrl
+    ? resolveBannerImageUrl(activeBanner.imageUrl)
+    : meta.bannerImage
+    ? resolveBannerImageUrl(meta.bannerImage)
+    : undefined;
+  const mobileBgImage = !isLoadingBanners && activeBanner?.mobileImageUrl
+    ? resolveBannerImageUrl(activeBanner.mobileImageUrl)
+    : undefined;
 
   return (
     <div className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-cream/60 via-background to-background pt-2 pb-6 sm:pb-8">
@@ -46,7 +53,12 @@ export function CategoryHero({
             {mobileBgImage && (
               <source media="(max-width: 640px)" srcSet={mobileBgImage} />
             )}
-            <img src={bgImage} alt={title} className="w-full h-full object-cover" />
+            <img
+              src={bgImage}
+              alt={title}
+              onError={handleBannerImageError}
+              className="w-full h-full object-cover"
+            />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40" />
         </div>

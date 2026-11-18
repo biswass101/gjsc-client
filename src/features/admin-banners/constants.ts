@@ -341,13 +341,13 @@ export const DESTINATION_PRESETS = [
 ];
 
 export const DEFAULT_BANNER_PRESETS = [
-  "/hero/Glorious Japan Skincare Spring Glow.png",
-  "/hero/Perfect Whip Fresh Beauty Ritual.png",
-  "/hero/puja-sale.png",
-  "/hero/Japanese Skincare Serenity Trio.png",
-  "/hero/sakura-spa-skincare-trio.png",
-  "/hero/bright-spa-skincare-commercial-scene.png",
-  "/hero/japanese-inspired-foaming-skincare-ritual.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760834/glorious_japan_skin_care/hero/Glorious_Japan_Skincare_Spring_Glow.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760842/glorious_japan_skin_care/hero/Perfect_Whip_Fresh_Beauty_Ritual.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760853/glorious_japan_skin_care/hero/puja-sale.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760839/glorious_japan_skin_care/hero/Japanese_Skincare_Serenity_Trio.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760854/glorious_japan_skin_care/hero/sakura-spa-skincare-trio.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760843/glorious_japan_skin_care/hero/bright-spa-skincare-commercial-scene.png",
+  "https://res.cloudinary.com/soakj9w7/image/upload/v1794760851/glorious_japan_skin_care/hero/japanese-inspired-foaming-skincare-ritual.png",
 ];
 
 export interface GradientPreset {

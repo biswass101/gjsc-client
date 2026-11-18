@@ -33,7 +33,7 @@ export function ShowcaseCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product.slug);
+    addToCart(product.slug, 1, product.sizes?.[0] || "Standard", product);
     toast.success(`Added ${product.name} to bag`);
   };
 

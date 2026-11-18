@@ -22,7 +22,7 @@ export function ProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product.slug);
+    addToCart(product.slug, 1, product.sizes?.[0] || "Standard", product);
     toast.success("Added to bag", {
       description: `${product.name} is now in your shopping bag.`,
     });

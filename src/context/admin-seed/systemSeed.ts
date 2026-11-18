@@ -32,10 +32,26 @@ export const INITIAL_SETTINGS: AdminSettings = {
   expressDeliveryRate: 150,
   freeShippingMin: 5000,
   codEnabled: true,
+  codMinAmount: 0,
+  codMaxAmount: 30000,
+  codInstructions:
+    "Pay in cash or bKash when courier hands over your sealed Japanese skincare parcel. You can inspect the outer packaging before payment.",
   bkashEnabled: true,
-  bkashMerchantNumber: "01700-000000",
+  bkashMerchantNumber: "01788-990011",
+  bkashAccountType: "Merchant",
+  bkashInstructions:
+    "Send Money or Make Payment to our verified bKash number. Use reference: GLORIOUS",
   nagadEnabled: true,
-  nagadMerchantNumber: "01800-000000",
+  nagadMerchantNumber: "01988-990022",
+  nagadAccountType: "Merchant",
+  nagadInstructions:
+    "Send Money or Make Payment to our verified Nagad number. Use reference: GLORIOUS",
+  cardEnabled: true,
+  cardGateway: "SSLCommerz",
+  cardStoreId: "gloriousjapan_live",
+  cardInstructions:
+    "Pay securely with Visa, Mastercard, AMEX, DBBL Nexus or Internet Banking via SSLCommerz gateway.",
+  cardTestMode: false,
   autoAssignCourier: true,
   defaultCourier: "Pathao Express",
   pathaoApiKey: "pth_live_secret_99812401",

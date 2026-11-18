@@ -40,6 +40,8 @@ export function CategoryPageClient({ slug }: CategoryPageClientProps) {
         japaneseTitle: adminCat.japaneseTitle || staticMeta.japaneseTitle,
         tagline: adminCat.tagline || staticMeta.tagline,
         description: adminCat.description || staticMeta.description,
+        image: adminCat.image || staticMeta.image,
+        bannerImage: adminCat.bannerImage || staticMeta.bannerImage,
         subcategories: mergedSubcats,
         matchedCategories: Array.from(
           new Set([
@@ -73,6 +75,7 @@ export function CategoryPageClient({ slug }: CategoryPageClientProps) {
     setSortBy,
     view,
     setView,
+    isLoading,
   } = useCategoryProducts(meta);
 
   const filterProps = {
@@ -127,6 +130,7 @@ export function CategoryPageClient({ slug }: CategoryPageClientProps) {
                 view={view}
                 currentPage={currentPage}
                 totalPages={totalPages}
+                isLoading={isLoading}
                 onPageChange={(page) => {
                   setCurrentPage(page);
                   window.scrollTo({ top: 400, behavior: "smooth" });

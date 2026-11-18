@@ -195,6 +195,15 @@ export const CATEGORY_DIRECTORY: CategoryDetail[] = [
     image: PRODUCT_IMAGES[1]!,
     popularTags: ["Travel Essentials", "Mini 4-Step Set", "Pouch Ready"],
   },
+  {
+    name: "Skin Care",
+    kanji: "スキンケア",
+    department: "Skincare",
+    tagline: "The Art of Gentle Layering & Barrier Reverence.",
+    icon: Sparkles,
+    image: PRODUCT_IMAGES[0]!,
+    popularTags: ["Double Cleanse", "Tokyo Rituals", "Fermented Rice", "Glass Skin"],
+  },
 ];
 
 export const J_BEAUTY_STEPS = [

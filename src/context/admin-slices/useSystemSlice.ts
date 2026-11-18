@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   AdminPageMeta,
   AdminReview,
@@ -16,6 +16,7 @@ import {
   INITIAL_NOTIFICATIONS,
 } from "../admin-seed";
 import type { AddActivityLogFn } from "./types";
+import { adminApi, systemApi, tokenStorage } from "@/lib/api";
 
 export function useSystemSlice(addActivityLog: AddActivityLogFn) {
   const [pageMetas, setPageMetas] = useState<AdminPageMeta[]>(INITIAL_PAGE_METAS);
@@ -24,6 +25,41 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
   const [merchandising, setMerchandising] = useState<AdminMerchandising>(INITIAL_MERCHANDISING);
   const [settings, setSettings] = useState<AdminSettings>(INITIAL_SETTINGS);
   const [notifications, setNotifications] = useState<AdminNotification[]>(INITIAL_NOTIFICATIONS);
+
+  // Refresh settings from database
+  const refreshSettings = useCallback(async () => {
+    try {
+      const data = tokenStorage.get()
+        ? await adminApi.getSettings().catch(() => systemApi.getSettings())
+        : await systemApi.getSettings();
+      if (data) {
+        setSettings((prev) => ({ ...prev, ...data }));
+        return data as AdminSettings;
+      }
+    } catch {
+      /* non-fatal */
+    }
+    return settings;
+  }, [settings]);
+
+  // Sync settings from backend MySQL database on mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetcher = tokenStorage.get()
+      ? adminApi.getSettings().catch(() => systemApi.getSettings())
+      : systemApi.getSettings();
+
+    fetcher
+      .then((data) => {
+        if (!isMounted || !data) return;
+        setSettings((prev) => ({ ...prev, ...data }));
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // PAGE META ACTIONS
   const updatePageMeta = useCallback(
@@ -103,9 +139,44 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
   );
 
   const updateSettings = useCallback(
-    (updates: Partial<AdminSettings>) => {
+    async (updates: Partial<AdminSettings>) => {
       setSettings((prev) => ({ ...prev, ...updates }));
       addActivityLog("Updated Settings", "Logistics & Payments");
+      try {
+        const persisted = await adminApi.updateSettings(updates);
+        if (persisted) {
+          setSettings((prev) => ({ ...prev, ...persisted }));
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("gjsc_settings_synced", { detail: updates }));
+          localStorage.setItem("gjsc_settings_timestamp", Date.now().toString());
+        }
+      } catch (err) {
+        console.warn("Could not persist settings to backend:", err);
+        throw err;
+      }
+    },
+    [addActivityLog],
+  );
+
+  const updatePaymentSettings = useCallback(
+    async (updates: Record<string, any>) => {
+      setSettings((prev) => ({ ...prev, ...updates }));
+      addActivityLog("Updated Payment Gateways", "COD, bKash, Nagad, Card");
+      try {
+        const persisted = await adminApi.updatePaymentSettings(updates);
+        if (persisted) {
+          setSettings((prev) => ({ ...prev, ...persisted }));
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("gjsc_settings_synced", { detail: updates }));
+          localStorage.setItem("gjsc_settings_timestamp", Date.now().toString());
+        }
+        return persisted;
+      } catch (err) {
+        console.warn("Could not persist payment settings to backend:", err);
+        throw err;
+      }
     },
     [addActivityLog],
   );
@@ -155,6 +226,8 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
     deleteFaq,
     updateMerchandising,
     updateSettings,
+    updatePaymentSettings,
+    refreshSettings,
     markNotificationRead,
     markAllNotificationsRead,
     clearNotifications,

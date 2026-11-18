@@ -25,6 +25,7 @@ export type AddActivityLogFn = (action: string, target: string, details?: string
 export interface AdminContextType {
   // Data stores
   products: AdminProduct[];
+  isLoadingProducts?: boolean;
   orders: AdminOrder[];
   customers: AdminCustomer[];
   discounts: AdminDiscount[];
@@ -33,6 +34,7 @@ export interface AdminContextType {
   brands: AdminBrand[];
   preOrders: AdminPreOrder[];
   banners: AdminBanner[];
+  isLoadingBanners?: boolean;
   featuredVideos: AdminFeaturedVideo[];
   pageMetas: AdminPageMeta[];
   reviews: AdminReview[];
@@ -136,7 +138,9 @@ export interface AdminContextType {
 
   // Merchandising & Settings
   updateMerchandising: (updates: Partial<AdminMerchandising>) => void;
-  updateSettings: (updates: Partial<AdminSettings>) => void;
+  updateSettings: (updates: Partial<AdminSettings>) => Promise<void>;
+  updatePaymentSettings: (updates: Record<string, any>) => Promise<any>;
+  refreshSettings: () => Promise<AdminSettings | void>;
 
   // Notifications
   markNotificationRead: (id: string) => void;

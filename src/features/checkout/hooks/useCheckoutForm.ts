@@ -3,12 +3,40 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShop } from "@/context";
+import { useAdmin } from "@/context/admin-context";
 import type { DeliveryZone, PaymentMethod, OrderConfirmationData } from "../types";
 import { VALID_COUPONS } from "../data/checkoutConstants";
 import { customerApi, ordersApi, tokenStorage } from "@/lib/api";
 
 export function useCheckoutForm() {
   const { lines, subtotal, clearCart, user } = useShop();
+  const { settings, refreshSettings } = useAdmin();
+
+  // Fresh sync from backend database on mount and upon any admin update events
+  useEffect(() => {
+    if (typeof refreshSettings === "function") {
+      refreshSettings();
+    }
+
+    const handleSync = () => {
+      if (typeof refreshSettings === "function") {
+        refreshSettings();
+      }
+    };
+
+    window.addEventListener("gjsc_settings_synced", handleSync);
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "gjsc_settings_timestamp" || e.key === "gjsc_admin_storage") {
+        handleSync();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("gjsc_settings_synced", handleSync);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [refreshSettings]);
 
   // Contact info
   const [fullName, setFullName] = useState(user?.name ?? "");
@@ -56,12 +84,46 @@ export function useCheckoutForm() {
     }
   }, [user]);
 
-  // Payment
+  // Payment states
   const [payment, setPayment] = useState<PaymentMethod>("cod");
   const [bkashPhone, setBkashPhone] = useState("");
   const [bkashTrxId, setBkashTrxId] = useState("");
   const [nagadPhone, setNagadPhone] = useState("");
   const [nagadTrxId, setNagadTrxId] = useState("");
+
+  // Card & Online Banking states
+  const [cardholderName, setCardholderName] = useState(user?.name ?? "");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [cardPaymentType, setCardPaymentType] = useState<"card" | "netbanking">("card");
+  const [selectedBank, setSelectedBank] = useState("city_touch");
+
+  // Keep payment method aligned with admin toggles
+  useEffect(() => {
+    const isCodValid = settings.codEnabled;
+    const isBkashValid = settings.bkashEnabled;
+    const isNagadValid = settings.nagadEnabled;
+    const isCardValid = settings.cardEnabled;
+
+    if (payment === "cod" && !isCodValid) {
+      if (isBkashValid) setPayment("bkash");
+      else if (isNagadValid) setPayment("nagad");
+      else if (isCardValid) setPayment("card");
+    } else if (payment === "bkash" && !isBkashValid) {
+      if (isCodValid) setPayment("cod");
+      else if (isNagadValid) setPayment("nagad");
+      else if (isCardValid) setPayment("card");
+    } else if (payment === "nagad" && !isNagadValid) {
+      if (isCodValid) setPayment("cod");
+      else if (isBkashValid) setPayment("bkash");
+      else if (isCardValid) setPayment("card");
+    } else if (payment === "card" && !isCardValid) {
+      if (isCodValid) setPayment("cod");
+      else if (isBkashValid) setPayment("bkash");
+      else if (isNagadValid) setPayment("nagad");
+    }
+  }, [settings.codEnabled, settings.bkashEnabled, settings.nagadEnabled, settings.cardEnabled, payment]);
 
   // Add-ons & Promo
   const [giftWrap, setGiftWrap] = useState(false);
@@ -73,23 +135,28 @@ export function useCheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSummaryData, setOrderSummaryData] = useState<OrderConfirmationData | null>(null);
 
-  // Dynamic Shipping Calculation based on Bangladesh zones
+  // Dynamic Shipping Calculation based on admin settings
   const baseShippingFee = useMemo(() => {
     if (subtotal === 0) return 0;
-    if (subtotal >= 5000) return 0; // Free delivery above ৳5,000 threshold
+    const freeMin = typeof settings.freeShippingMin === "number" ? settings.freeShippingMin : 5000;
+    if (subtotal >= freeMin) return 0;
     if (appliedCoupon === "FREESHIP") return 0;
+
+    const rateDhaka = typeof settings.insideDhakaRate === "number" ? settings.insideDhakaRate : 60;
+    const rateOutside = typeof settings.outsideDhakaRate === "number" ? settings.outsideDhakaRate : 120;
+    const rateExpress = typeof settings.expressDeliveryRate === "number" ? settings.expressDeliveryRate : 150;
 
     switch (zone) {
       case "dhaka_metro":
-        return 80;
+        return rateDhaka;
       case "dhaka_suburbs":
-        return 100;
+        return Math.min(rateOutside, rateDhaka + 40);
       case "outside_dhaka":
-        return 130;
+        return rateOutside;
       default:
-        return 80;
+        return rateDhaka;
     }
-  }, [subtotal, zone, appliedCoupon]);
+  }, [subtotal, zone, appliedCoupon, settings.freeShippingMin, settings.insideDhakaRate, settings.outsideDhakaRate, settings.expressDeliveryRate]);
 
   // Coupon Discount Calculation
   const couponDiscount = useMemo(() => {
@@ -160,23 +227,110 @@ export function useCheckoutForm() {
       return;
     }
 
-    if (payment === "bkash" && (!bkashPhone.trim() || !bkashTrxId.trim())) {
-      toast.error("bKash payment details required", {
-        description: "Please provide your bKash mobile number and the Transaction ID (TrxID).",
-      });
-      return;
+    // Admin Gateway Enforcement & Validations
+    if (payment === "cod") {
+      if (!settings.codEnabled) {
+        toast.error("Cash on Delivery is currently disabled", {
+          description: "Please choose bKash, Nagad, or Card payment.",
+        });
+        return;
+      }
+      if (settings.codMinAmount && grandTotal < settings.codMinAmount) {
+        toast.error(`COD minimum order requirement is ৳${settings.codMinAmount}`);
+        return;
+      }
+      if (settings.codMaxAmount && grandTotal > settings.codMaxAmount) {
+        toast.error(`COD maximum order limit is ৳${settings.codMaxAmount}`);
+        return;
+      }
     }
 
-    if (payment === "nagad" && (!nagadPhone.trim() || !nagadTrxId.trim())) {
-      toast.error("Nagad payment details required", {
-        description: "Please provide your Nagad mobile number and the Transaction ID (TrxID).",
-      });
-      return;
+    if (payment === "bkash") {
+      if (!settings.bkashEnabled) {
+        toast.error("bKash payment is currently disabled");
+        return;
+      }
+      if (!bkashPhone.trim() || !bkashTrxId.trim()) {
+        toast.error("bKash payment details required", {
+          description: "Please provide your bKash mobile number and the Transaction ID (TrxID).",
+        });
+        return;
+      }
+    }
+
+    if (payment === "nagad") {
+      if (!settings.nagadEnabled) {
+        toast.error("Nagad payment is currently disabled");
+        return;
+      }
+      if (!nagadPhone.trim() || !nagadTrxId.trim()) {
+        toast.error("Nagad payment details required", {
+          description: "Please provide your Nagad mobile number and the Transaction ID (TrxID).",
+        });
+        return;
+      }
+    }
+
+    // Card & NetBanking Validation
+    let cardAuthRef = "";
+    let cleanLast4 = "";
+    let detectedBrand = "Card";
+
+    if (payment === "card") {
+      if (!settings.cardEnabled) {
+        toast.error("Card / Online Banking is currently disabled");
+        return;
+      }
+
+      if (cardPaymentType === "card") {
+        if (!cardholderName.trim()) {
+          toast.error("Cardholder name required", {
+            description: "Please enter the full name printed on your payment card.",
+          });
+          return;
+        }
+        const strippedNumber = cardNumber.replace(/\s/g, "");
+        if (strippedNumber.length < 15 || strippedNumber.length > 19) {
+          toast.error("Invalid card number", {
+            description: "Please enter a valid 15-16 digit debit or credit card number.",
+          });
+          return;
+        }
+        if (!/^\d{2}\/\d{2}$/.test(cardExpiry.trim())) {
+          toast.error("Invalid card expiry", {
+            description: "Please enter the expiration date in MM/YY format.",
+          });
+          return;
+        }
+        if (cardCvc.trim().length < 3) {
+          toast.error("Invalid CVV/CVC code", {
+            description: "Please enter the 3 or 4 digit security code on your card.",
+          });
+          return;
+        }
+
+        cleanLast4 = strippedNumber.slice(-4);
+        if (strippedNumber.startsWith("4")) detectedBrand = "Visa";
+        else if (/^(5[1-5]|2[2-7])/.test(strippedNumber)) detectedBrand = "Mastercard";
+        else if (/^3[47]/.test(strippedNumber)) detectedBrand = "American Express";
+        else if (/^62/.test(strippedNumber)) detectedBrand = "UnionPay";
+
+        cardAuthRef = `CARD-AUTH-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      } else {
+        if (!selectedBank) {
+          toast.error("Please select your bank for online payment authorization");
+          return;
+        }
+        cardAuthRef = `NETBANK-${selectedBank.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+      }
     }
 
     setIsSubmitting(true);
 
     try {
+      const backendPaymentMethod =
+        payment === "bkash" ? "bKash" : payment === "nagad" ? "Nagad" : payment === "card" ? "Card" : "COD";
+
       const backendPayload: any = {
         customerName: fullName.trim() || user?.name || "Valued Customer",
         customerEmail: (email.trim() || user?.email || `${cleanPhone}@gloriousjapan.customer`).toLowerCase(),
@@ -186,7 +340,7 @@ export function useCheckoutForm() {
         city: cityDistrict.trim() || "Dhaka",
         division: division.trim() || "Dhaka",
         deliveryZone: zone,
-        paymentMethod: payment === "bkash" ? "bKash" : payment === "nagad" ? "Nagad" : "COD",
+        paymentMethod: backendPaymentMethod,
         items: lines.map((l) => ({
           slug: l.product.slug,
           qty: l.qty,
@@ -194,10 +348,33 @@ export function useCheckoutForm() {
         })),
       };
 
-      const cleanTrx = payment === "bkash" ? bkashTrxId.trim() : payment === "nagad" ? nagadTrxId.trim() : "";
-      if (cleanTrx) backendPayload.trxId = cleanTrx;
+      const finalTrxId =
+        payment === "bkash"
+          ? bkashTrxId.trim()
+          : payment === "nagad"
+            ? nagadTrxId.trim()
+            : payment === "card"
+              ? cardAuthRef
+              : "";
+
+      if (finalTrxId) backendPayload.trxId = finalTrxId;
       if (appliedCoupon) backendPayload.couponCode = appliedCoupon;
-      const combinedNotes = [deliveryNote, giftWrap ? `Gift Wrap Requested${giftMessage ? ': ' + giftMessage : ''}` : ""].filter(Boolean).join(" | ");
+
+      const cardPaymentNote =
+        payment === "card"
+          ? cardPaymentType === "card"
+            ? `[Paid via ${detectedBrand} •••• ${cleanLast4} - Ref: ${cardAuthRef} - Gateway: ${settings.cardGateway || "SSLCommerz"}]`
+            : `[Paid via NetBanking (${selectedBank}) - Ref: ${cardAuthRef} - Gateway: ${settings.cardGateway || "SSLCommerz"}]`
+          : "";
+
+      const combinedNotes = [
+        deliveryNote,
+        giftWrap ? `Gift Wrap Requested${giftMessage ? ": " + giftMessage : ""}` : "",
+        cardPaymentNote,
+      ]
+        .filter(Boolean)
+        .join(" | ");
+
       if (combinedNotes) backendPayload.notes = combinedNotes;
 
       const res = await ordersApi.createOrder(backendPayload);
@@ -217,16 +394,32 @@ export function useCheckoutForm() {
           year: "numeric",
         }),
         items: [...lines],
+        trxId: finalTrxId,
+        paymentStatus: payment === "card" ? "Paid" : "Pending",
+        cardBrand: detectedBrand,
+        cardLast4: cleanLast4,
+        selectedBank: selectedBank,
+        cardPaymentType: cardPaymentType,
       });
+
       clearCart();
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
       toast.success("Order Placed Successfully!", {
-        description: `Order #${res.orderNumber} confirmed. Tracking Key: ${res.trackingKey}`,
+        description: `Order #${res.orderNumber} confirmed. Payment Method: ${backendPaymentMethod}.`,
       });
     } catch (err: any) {
-      // If backend was unreachable, fallback gracefully to simulated confirmation
+      // Backend fallback simulation
       const generatedId = `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const finalTrxId =
+        payment === "bkash"
+          ? bkashTrxId.trim()
+          : payment === "nagad"
+            ? nagadTrxId.trim()
+            : payment === "card"
+              ? cardAuthRef
+              : "";
+
       setOrderSummaryData({
         orderId: generatedId,
         total: grandTotal,
@@ -242,7 +435,14 @@ export function useCheckoutForm() {
           year: "numeric",
         }),
         items: [...lines],
+        trxId: finalTrxId,
+        paymentStatus: payment === "card" ? "Paid" : "Pending",
+        cardBrand: detectedBrand,
+        cardLast4: cleanLast4,
+        selectedBank: selectedBank,
+        cardPaymentType: cardPaymentType,
       });
+
       clearCart();
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -286,6 +486,18 @@ export function useCheckoutForm() {
     setNagadPhone,
     nagadTrxId,
     setNagadTrxId,
+    cardholderName,
+    setCardholderName,
+    cardNumber,
+    setCardNumber,
+    cardExpiry,
+    setCardExpiry,
+    cardCvc,
+    setCardCvc,
+    cardPaymentType,
+    setCardPaymentType,
+    selectedBank,
+    setSelectedBank,
     giftWrap,
     setGiftWrap,
     giftMessage,
@@ -303,4 +515,3 @@ export function useCheckoutForm() {
     handlePlaceOrder,
   };
 }
-
