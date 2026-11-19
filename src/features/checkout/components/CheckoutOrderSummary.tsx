@@ -1,12 +1,12 @@
 "use client";
 
-import { Lock, RefreshCw, ShieldCheck, Truck } from "lucide-react";
+import { Lock, RefreshCw, ShieldCheck, Truck, Smartphone, ArrowRight } from "lucide-react";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formatBDT } from "@/lib/catalog";
-import type { CheckoutCartItem, DeliveryZone } from "../types";
+import type { CheckoutCartItem, DeliveryZone, PaymentMethod } from "../types";
 import { VALID_COUPONS } from "../data/checkoutConstants";
 
 export interface CheckoutOrderSummaryProps {
@@ -23,6 +23,7 @@ export interface CheckoutOrderSummaryProps {
   giftWrap: boolean;
   grandTotal: number;
   isSubmitting: boolean;
+  payment?: PaymentMethod;
 }
 
 export function CheckoutOrderSummary({
@@ -39,6 +40,7 @@ export function CheckoutOrderSummary({
   giftWrap,
   grandTotal,
   isSubmitting,
+  payment = "cod",
 }: CheckoutOrderSummaryProps) {
   const freeShippingProgress = Math.min(100, Math.round((subtotal / 5000) * 100));
   const amountToFreeShipping = Math.max(0, 5000 - subtotal);
@@ -209,12 +211,29 @@ export function CheckoutOrderSummary({
         <Button
           type="submit"
           disabled={isSubmitting || lines.length === 0}
-          className="mt-5 w-full rounded-full py-6 text-xs uppercase tracking-[0.2em] font-bold shadow-md hover:shadow-lg transition-all"
+          className={`mt-5 w-full rounded-full py-6 text-xs uppercase tracking-[0.15em] font-bold shadow-md hover:shadow-lg transition-all ${
+            payment === "bkash"
+              ? "bg-[#E2136E] text-white hover:bg-[#E2136E]/90 hover:brightness-105"
+              : payment === "nagad"
+              ? "bg-[#F7941D] text-white hover:bg-[#F7941D]/90"
+              : ""
+          }`}
         >
           {isSubmitting ? (
             <span className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4 animate-spin" />
-              Confirming Order...
+              {payment === "bkash" ? "Connecting to bKash..." : "Confirming Order..."}
+            </span>
+          ) : payment === "bkash" ? (
+            <span className="flex items-center justify-center gap-2 font-bold tracking-normal text-sm capitalize">
+              <Smartphone className="h-4 w-4" />
+              Pay {formatBDT(grandTotal)} with bKash
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          ) : payment === "cod" ? (
+            <span className="flex items-center justify-center gap-2">
+              <Lock className="h-3.5 w-3.5" />
+              Confirm Order (Cash on Delivery) · {formatBDT(grandTotal)}
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">

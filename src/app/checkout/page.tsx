@@ -185,6 +185,7 @@ export default function CheckoutPage() {
               giftWrap={giftWrap}
               grandTotal={grandTotal}
               isSubmitting={isSubmitting}
+              payment={payment}
             />
           </form>
         )}

@@ -179,15 +179,14 @@ export function CheckoutPaymentMethod({
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-sm text-foreground flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-[#E2136E]" />
-                    bKash Mobile Payment
+                    bKash Online Payment
                   </span>
-                  <span className="rounded-full bg-[#E2136E]/15 px-2 py-0.5 text-[10px] font-bold text-[#E2136E]">
-                    {settings.bkashAccountType || "Merchant"}
+                  <span className="rounded-full bg-[#E2136E]/15 px-2.5 py-0.5 text-[10px] font-bold text-[#E2136E]">
+                    Instant Gateway
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                  {settings.bkashInstructions ||
-                    "Pay directly using your bKash app or dial *247# to our verified account."}
+                  Fast, automated checkout via official bKash portal with instant verification.
                 </p>
               </div>
             </label>
@@ -255,16 +254,7 @@ export function CheckoutPaymentMethod({
 
       {/* Dynamic Payment Instruction Panels */}
       {payment === "bkash" && settings.bkashEnabled && (
-        <BkashInstructions
-          grandTotal={grandTotal}
-          bkashPhone={bkashPhone}
-          onBkashPhoneChange={onBkashPhoneChange}
-          bkashTrxId={bkashTrxId}
-          onBkashTrxIdChange={onBkashTrxIdChange}
-          merchantNumber={settings.bkashMerchantNumber}
-          accountType={settings.bkashAccountType}
-          instructions={settings.bkashInstructions}
-        />
+        <BkashInstructions grandTotal={grandTotal} />
       )}
 
       {payment === "nagad" && settings.nagadEnabled && (

@@ -1,19 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "../styles.css";
 import { AppProviders } from "./providers";
-
-const displayFont = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
-
-const bodyFont = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Glorious Japan Skin Care",
@@ -34,7 +21,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${displayFont.variable} ${bodyFont.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

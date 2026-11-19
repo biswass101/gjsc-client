@@ -6,7 +6,7 @@ import { useShop } from "@/context";
 import { useAdmin } from "@/context/admin-context";
 import type { DeliveryZone, PaymentMethod, OrderConfirmationData } from "../types";
 import { VALID_COUPONS } from "../data/checkoutConstants";
-import { customerApi, ordersApi, tokenStorage } from "@/lib/api";
+import { customerApi, ordersApi, paymentApi, tokenStorage } from "@/lib/api";
 
 export function useCheckoutForm() {
   const { lines, subtotal, clearCart, user } = useShop();
@@ -250,12 +250,6 @@ export function useCheckoutForm() {
         toast.error("bKash payment is currently disabled");
         return;
       }
-      if (!bkashPhone.trim() || !bkashTrxId.trim()) {
-        toast.error("bKash payment details required", {
-          description: "Please provide your bKash mobile number and the Transaction ID (TrxID).",
-        });
-        return;
-      }
     }
 
     if (payment === "nagad") {
@@ -379,6 +373,24 @@ export function useCheckoutForm() {
 
       const res = await ordersApi.createOrder(backendPayload);
 
+      // If customer selected bKash without manual TrxID, initiate live gateway redirect
+      if (payment === "bkash" && !bkashTrxId.trim()) {
+        try {
+          toast.loading("Connecting to bKash Secure Gateway...", { id: "bkash-gw" });
+          const session = await paymentApi.initiateBkash(res.id, res.paymentAccessToken);
+          if (session?.bkashURL) {
+            clearCart();
+            window.location.href = session.bkashURL;
+            return;
+          }
+        } catch (gwErr: any) {
+          toast.dismiss("bkash-gw");
+          toast.error("bKash gateway initiation failed: " + (gwErr?.message || "Please retry or select another payment method."));
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       setOrderSummaryData({
         orderId: res.orderNumber || `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         total: res.total ? Number(res.total) : grandTotal,
@@ -409,46 +421,8 @@ export function useCheckoutForm() {
         description: `Order #${res.orderNumber} confirmed. Payment Method: ${backendPaymentMethod}.`,
       });
     } catch (err: any) {
-      // Backend fallback simulation
-      const generatedId = `GJ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-      const finalTrxId =
-        payment === "bkash"
-          ? bkashTrxId.trim()
-          : payment === "nagad"
-            ? nagadTrxId.trim()
-            : payment === "card"
-              ? cardAuthRef
-              : "";
-
-      setOrderSummaryData({
-        orderId: generatedId,
-        total: grandTotal,
-        shippingFee: baseShippingFee,
-        discount: couponDiscount,
-        zone,
-        address: `${streetAddress}, ${area ? area + ", " : ""}${cityDistrict}, ${division}`,
-        phone: cleanPhone,
-        payment,
-        date: new Date().toLocaleDateString("en-BD", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
-        items: [...lines],
-        trxId: finalTrxId,
-        paymentStatus: payment === "card" ? "Paid" : "Pending",
-        cardBrand: detectedBrand,
-        cardLast4: cleanLast4,
-        selectedBank: selectedBank,
-        cardPaymentType: cardPaymentType,
-      });
-
-      clearCart();
       setIsSubmitting(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.success("Order Confirmed!", {
-        description: `Order #${generatedId} saved.`,
-      });
+      toast.error(err?.message || "Failed to place order. Please review your details and try again.");
     }
   };
 

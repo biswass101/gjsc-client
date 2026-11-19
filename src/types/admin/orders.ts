@@ -33,8 +33,9 @@ export interface AdminOrder {
   discountAmount: number;
   total: number;
   paymentMethod: "COD" | "bKash" | "Nagad" | "Card";
-  paymentStatus: "Paid" | "Pending" | "Refunded";
+  paymentStatus: "Paid" | "Pending" | "Failed" | "Refunded" | "Partially Refunded";
   trxId?: string | undefined;
+  payment?: any;
   fulfillmentStatus:
     | "Pending"
     | "Processing"
