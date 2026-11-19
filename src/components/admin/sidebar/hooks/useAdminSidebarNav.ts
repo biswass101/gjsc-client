@@ -15,6 +15,7 @@ import {
   Star,
   HelpCircle,
   Video,
+  Zap,
 } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
 import { SidebarNavGroup } from "../types";
@@ -128,6 +129,12 @@ export function useAdminSidebarNav(): SidebarNavGroup[] {
           href: "/admin/merchandising",
           icon: Megaphone,
           badge: null,
+        },
+        {
+          label: "Flash Sales & Drops",
+          href: "/admin/flash-sales",
+          icon: Zap,
+          badge: { text: "Hot Drops", variant: "amber" },
         },
         {
           label: "Discounts & Vouchers",

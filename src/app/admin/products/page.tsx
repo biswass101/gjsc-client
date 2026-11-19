@@ -92,13 +92,6 @@ export default function AdminProductsPage() {
     toast.success(`Duplicated "${name}"`);
   };
 
-  const handleTagFlashSale = () => {
-    bulkUpdateProducts(selectedIds, { badge: "Flash Sale" });
-    refetch();
-    toast.success(`Applied 'Flash Sale' badge to ${selectedIds.length} products!`);
-    handleSelectAll(false);
-  };
-
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header & Quick Action */}
@@ -152,7 +145,6 @@ export default function AdminProductsPage() {
         <ProductBatchActionsBar
           selectedCount={selectedIds.length}
           onBulkRestock={handleBulkRestock}
-          onTagFlashSale={handleTagFlashSale}
           onBulkDelete={handleBulkDelete}
           onDeselectAll={() => handleSelectAll(false)}
         />

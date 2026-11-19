@@ -1,3 +1,5 @@
+"use client";
+
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { Link } from "@/lib/navigation";
 import { formatBDT } from "@/lib/catalog";

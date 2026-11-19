@@ -15,6 +15,7 @@ import {
   Star,
   HelpCircle,
   Video,
+  Zap,
   LucideIcon,
 } from "lucide-react";
 
@@ -87,6 +88,11 @@ export const MARKETING_NAV_ITEMS: NavCommandItem[] = [
     label: "Store Merchandising & Live Announcements",
     path: "/admin/merchandising",
     icon: Megaphone,
+  },
+  {
+    label: "Flash Sales & Hourly Urgency Drops",
+    path: "/admin/flash-sales",
+    icon: Zap,
   },
   {
     label: "Discounts, Coupons & Flash Offers",

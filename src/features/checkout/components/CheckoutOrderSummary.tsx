@@ -15,6 +15,7 @@ export interface CheckoutOrderSummaryProps {
   couponInput: string;
   onCouponInputChange: (val: string) => void;
   appliedCoupon: string | null;
+  appliedCouponLabel?: string | undefined;
   onApplyCoupon: (e: React.FormEvent) => void;
   onRemoveCoupon: () => void;
   couponDiscount: number;
@@ -32,6 +33,7 @@ export function CheckoutOrderSummary({
   couponInput,
   onCouponInputChange,
   appliedCoupon,
+  appliedCouponLabel,
   onApplyCoupon,
   onRemoveCoupon,
   couponDiscount,
@@ -143,11 +145,11 @@ export function CheckoutOrderSummary({
 
           {appliedCoupon && (
             <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-700 dark:text-emerald-400">
-              <span>✓ {VALID_COUPONS[appliedCoupon]?.label}</span>
+              <span>✓ {appliedCouponLabel || VALID_COUPONS[appliedCoupon]?.label || `${appliedCoupon} Applied`}</span>
               <button
                 type="button"
                 onClick={onRemoveCoupon}
-                className="text-[11px] font-semibold underline hover:opacity-80"
+                className="text-[11px] font-semibold underline hover:opacity-80 cursor-pointer"
               >
                 Remove
               </button>

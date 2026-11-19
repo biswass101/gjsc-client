@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Maximize2, Leaf, Droplets, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, Leaf, Droplets, ShieldCheck, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -13,6 +13,7 @@ interface ProductGalleryProps {
   onPrevImage: () => void;
   onNextImage: () => void;
   onOpenLightbox: () => void;
+  isFlashSale?: boolean | undefined;
 }
 
 export function ProductGallery({
@@ -24,19 +25,29 @@ export function ProductGallery({
   onPrevImage,
   onNextImage,
   onOpenLightbox,
+  isFlashSale,
 }: ProductGalleryProps) {
   return (
     <div className="lg:col-span-5 space-y-3.5 max-w-[440px] mx-auto w-full">
       <div className="relative group overflow-hidden rounded-xl border border-border/70 bg-cream shadow-xs aspect-square max-h-[420px] w-full flex items-center justify-center">
         {/* Top Badges */}
         <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-          <span className="rounded-full bg-primary/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground backdrop-blur-xs shadow-xs">
-            {product.badge || "Authentic Japan"}
-          </span>
-          {discountPct > 0 && (
-            <span className="rounded-full bg-rose px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
-              Save {discountPct}%
+          {isFlashSale || product.badge === "Flash Sale" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600 text-white border border-red-700/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider shadow-lg animate-pulse">
+              <Flame className="h-3.5 w-3.5 fill-white shrink-0" />
+              <span>⚡ Flash Sale {discountPct > 0 ? `· Save ${discountPct}%` : ""}</span>
             </span>
+          ) : (
+            <>
+              <span className="rounded-full bg-primary/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground backdrop-blur-xs shadow-xs">
+                {product.badge || "Authentic Japan"}
+              </span>
+              {discountPct > 0 && (
+                <span className="rounded-full bg-rose px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
+                  Save {discountPct}%
+                </span>
+              )}
+            </>
           )}
         </div>
 

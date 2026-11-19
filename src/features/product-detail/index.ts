@@ -14,4 +14,5 @@ export * from "./components/ProductStickyMobileBar";
 export * from "./components/ProductLightboxModal";
 export * from "./components/ProductWriteReviewModal";
 export * from "./components/ProductDetailSkeleton";
+export * from "./components/buybox/ProductFlashSaleBanner";
 

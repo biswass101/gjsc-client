@@ -28,6 +28,8 @@ export interface CouponValidationResult {
   discountAmount: number;
   newSubtotal: number;
   message: string;
+  minSpend?: number | undefined;
+  description?: string | null | undefined;
 }
 
 export const ordersApi = {
@@ -47,7 +49,7 @@ export const ordersApi = {
     return apiClient.get(`/customer/orders/${encodeURIComponent(String(id))}`);
   },
 
-  validateCoupon(code: string, subtotal: number): Promise<CouponValidationResult> {
-    return apiClient.post('/discounts/validate', { code, subtotal });
+  validateCoupon(code: string, subtotal: number, items?: any[]): Promise<CouponValidationResult> {
+    return apiClient.post('/discounts/validate', { code, subtotal, items });
   },
 };

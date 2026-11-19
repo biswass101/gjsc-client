@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Save } from "lucide-react";
+import { Save, Zap, ArrowRight } from "lucide-react";
 import { useAdmin } from "@/context/admin-context";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
 import { MerchandisingHeader } from "@/features/admin-merchandising/components/MerchandisingHeader";
 import { AnnouncementCard } from "@/features/admin-merchandising/components/AnnouncementCard";
-import { FlashSaleCard } from "@/features/admin-merchandising/components/FlashSaleCard";
 import { HeroSettingsCard } from "@/features/admin-merchandising/components/HeroSettingsCard";
 
 export default function AdminMerchandisingPage() {
@@ -17,10 +17,6 @@ export default function AdminMerchandisingPage() {
   const [announcementText, setAnnouncementText] = useState(merchandising.announcementText);
   const [announcementActive, setAnnouncementActive] = useState(merchandising.announcementActive);
   const [announcementLink, setAnnouncementLink] = useState(merchandising.announcementLink);
-
-  const [flashSaleActive, setFlashSaleActive] = useState(merchandising.flashSaleActive);
-  const [flashSaleTitle, setFlashSaleTitle] = useState(merchandising.flashSaleTitle);
-  const [flashSaleEndsAt, setFlashSaleEndsAt] = useState(merchandising.flashSaleEndsAt);
 
   const [heroHeadline, setHeroHeadline] = useState(merchandising.heroHeadline);
   const [heroSubheadline, setHeroSubheadline] = useState(merchandising.heroSubheadline);
@@ -34,9 +30,6 @@ export default function AdminMerchandisingPage() {
       announcementText,
       announcementActive,
       announcementLink,
-      flashSaleActive,
-      flashSaleTitle,
-      flashSaleEndsAt,
       heroHeadline,
       heroSubheadline,
       freeShippingThreshold: parseFloat(freeShippingThreshold) || 5000,
@@ -76,14 +69,37 @@ export default function AdminMerchandisingPage() {
             setAnnouncementLink={setAnnouncementLink}
           />
 
-          <FlashSaleCard
-            flashSaleActive={flashSaleActive}
-            setFlashSaleActive={setFlashSaleActive}
-            flashSaleTitle={flashSaleTitle}
-            setFlashSaleTitle={setFlashSaleTitle}
-            flashSaleEndsAt={flashSaleEndsAt}
-            setFlashSaleEndsAt={setFlashSaleEndsAt}
-          />
+          <div className="surface-card p-5 space-y-4 border border-rose-500/20 bg-rose-500/5 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-rose-500/10 text-rose-600">
+                  <Zap className="h-4 w-4 fill-rose-500" />
+                </div>
+                <div>
+                  <h3 className="font-display text-base font-semibold text-foreground">
+                    Dedicated Flash Sales & Drops Engine
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Active campaigns, countdown clocks & deal quotas
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Flash sales and hourly Tokyo drops have moved to their own dedicated control center. Configure Cloudinary promotional banners, campaign durations, custom deal prices, and stock allocation quotas all in one place.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                to="/admin/flash-sales"
+                className="inline-flex items-center gap-2 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-4 py-2 transition-colors shadow-xs"
+              >
+                <span>Open Flash Sales Manager</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
         </div>
 
         <HeroSettingsCard

@@ -11,18 +11,67 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { formatBDT } from "@/lib/catalog";
-import { catalogApi } from "@/lib/api";
+import { catalogApi, ordersApi } from "@/lib/api";
 import { useShop } from "@/context";
 import type { Product } from "@/types";
 
 export default function CartPage() {
   const { lines, setQty, removeFromCart, subtotal } = useShop();
   const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    label: string;
+    amount: number;
+    isFreeShipping: boolean;
+  } | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
   const [gift, setGift] = useState(false);
   const [recommended, setRecommended] = useState<Product[]>([]);
-  const shipping = subtotal > 5000 || subtotal === 0 ? 0 : 80;
-  const total = subtotal - discount + shipping + (gift ? 150 : 0);
+  const shipping = subtotal > 5000 || subtotal === 0 || appliedCoupon?.isFreeShipping ? 0 : 80;
+  const discount = appliedCoupon?.amount || 0;
+  const total = Math.max(0, subtotal - discount + shipping + (gift ? 150 : 0));
+
+  const handleApplyCoupon = async () => {
+    const clean = coupon.trim().toUpperCase();
+    if (!clean) return;
+
+    setIsApplying(true);
+    try {
+      const cartItems = lines.map((l) => ({
+        productId: Number(l.product.id) || undefined,
+        slug: l.product.slug,
+        price: l.product.price,
+        qty: l.qty,
+        category: l.product.category,
+      }));
+
+      const res = await ordersApi.validateCoupon(clean, subtotal, cartItems);
+      if (res?.valid) {
+        const isFree = res.type === "free_shipping";
+        setAppliedCoupon({
+          code: res.code,
+          label: res.description || `${res.code}: ৳${res.discountAmount} off`,
+          amount: isFree ? 0 : res.discountAmount,
+          isFreeShipping: isFree,
+        });
+        setCoupon("");
+        toast.success("Coupon code applied!", {
+          description: res.message || `${res.code}: ৳${res.discountAmount} off`,
+        });
+      }
+    } catch (err: any) {
+      toast.error("Invalid coupon code", {
+        description: err?.message || "Please check your code or try 'TOKYO10'.",
+      });
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info("Coupon removed");
+  };
 
   useEffect(() => {
     let active = true;
@@ -94,22 +143,42 @@ export default function CartPage() {
 
             <aside className="h-fit surface-card p-6">
               <p className="font-display text-2xl">Order Summary</p>
-              <div className="mt-5 flex gap-2">
-                <Input value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Coupon code" className="rounded-full" />
-                <Button
-                  variant="outline"
-                  className="rounded-full"
-                  onClick={() => {
-                    if (coupon.trim().toUpperCase() === "GLORIOUS10") {
-                      setDiscount(Math.round(subtotal * 0.1));
-                      toast.success("Coupon applied — 10% off");
-                    } else {
-                      toast.error("Invalid coupon code");
-                    }
-                  }}
-                >
-                  Apply
-                </Button>
+              <div className="mt-5 space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                    placeholder="Coupon code (e.g. TOKYO10)"
+                    className="rounded-full text-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleApplyCoupon();
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    className="rounded-full text-xs px-4 font-semibold"
+                    disabled={isApplying || !coupon.trim()}
+                    onClick={handleApplyCoupon}
+                  >
+                    {isApplying ? "Checking..." : "Apply"}
+                  </Button>
+                </div>
+
+                {appliedCoupon && (
+                  <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 text-xs text-emerald-700 dark:text-emerald-400">
+                    <span className="font-medium">✓ {appliedCoupon.code} applied ({appliedCoupon.label})</span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-[11px] font-semibold underline hover:opacity-80 cursor-pointer ml-2"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
               <label className="mt-4 flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
                 <Checkbox checked={gift} onCheckedChange={(v) => setGift(Boolean(v))} /> Add gift wrapping (৳150)

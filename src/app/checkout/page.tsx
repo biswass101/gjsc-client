@@ -67,6 +67,7 @@ export default function CheckoutPage() {
     couponInput,
     setCouponInput,
     appliedCoupon,
+    appliedCouponLabel,
     isSubmitting,
     orderSummaryData,
     baseShippingFee,
@@ -177,6 +178,7 @@ export default function CheckoutPage() {
               couponInput={couponInput}
               onCouponInputChange={setCouponInput}
               appliedCoupon={appliedCoupon}
+              appliedCouponLabel={appliedCouponLabel}
               onApplyCoupon={handleApplyCoupon}
               onRemoveCoupon={handleRemoveCoupon}
               couponDiscount={couponDiscount}

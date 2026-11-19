@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 export interface ProductBatchActionsBarProps {
   selectedCount: number;
   onBulkRestock: (qty: number) => void;
-  onTagFlashSale: () => void;
   onBulkDelete: () => void;
   onDeselectAll: () => void;
 }
@@ -13,7 +12,6 @@ export interface ProductBatchActionsBarProps {
 export function ProductBatchActionsBar({
   selectedCount,
   onBulkRestock,
-  onTagFlashSale,
   onBulkDelete,
   onDeselectAll,
 }: ProductBatchActionsBarProps) {
@@ -36,14 +34,6 @@ export function ProductBatchActionsBar({
           className="rounded-full text-xs h-7 px-3 bg-card cursor-pointer"
         >
           +25 Restock All
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onTagFlashSale}
-          className="rounded-full text-xs h-7 px-3 bg-card cursor-pointer"
-        >
-          Tag Flash Sale
         </Button>
         <Button
           variant="destructive"

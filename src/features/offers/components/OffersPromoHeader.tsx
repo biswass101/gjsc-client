@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@/lib/navigation";
 import { Sparkles, Truck, Gift, Flame, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAdmin } from "@/context/admin-context";
 import { resolveBannerImageUrl, handleBannerImageError } from "@/features/admin-banners";
-
+import { systemApi } from "@/lib/api/system";
 
 export const PROMO_CODES = [
   {
@@ -35,6 +35,59 @@ export const PROMO_CODES = [
 
 export function OffersPromoHeader() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [discounts, setDiscounts] = useState(PROMO_CODES);
+
+  useEffect(() => {
+    let mounted = true;
+    systemApi
+      .getPublicDiscounts()
+      .then((data) => {
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((d: any) => {
+            let discountLabel = "";
+            let icon = Sparkles;
+            if (d.type === "percentage") {
+              discountLabel = `${d.value}% OFF`;
+              icon = Sparkles;
+            } else if (d.type === "fixed") {
+              discountLabel = `৳${Number(d.value).toLocaleString()} OFF`;
+              icon = Gift;
+            } else if (d.type === "free_shipping") {
+              discountLabel = "FREE SHIPPING";
+              icon = Truck;
+            } else {
+              discountLabel = `${d.value} OFF`;
+            }
+
+            const minSpend =
+              d.minOrderAmount && Number(d.minOrderAmount) > 0
+                ? `On orders over ৳${Number(d.minOrderAmount).toLocaleString()}`
+                : "No minimum spend";
+
+            return {
+              code: d.code,
+              discount: discountLabel,
+              minSpend,
+              description:
+                d.description ||
+                (d.type === "free_shipping"
+                  ? "Complimentary express delivery across Dhaka and all Bangladesh districts."
+                  : `Special promotional discount of ${discountLabel} on authentic Japanese beauty products.`),
+              icon,
+            };
+          });
+          setDiscounts(formatted);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch public discounts, using defaults:", err);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -100,7 +153,7 @@ export function OffersPromoHeader() {
 
         {/* Active Promo Codes Carousel / Grid */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
-          {PROMO_CODES.map((promo) => {
+          {discounts.map((promo) => {
             const isCopied = copiedCode === promo.code;
             return (
               <div

@@ -250,6 +250,35 @@ export const adminApi = {
   },
 
 
+  // Flash Sales Management
+  getFlashSales(): Promise<any[]> {
+    return apiClient.get('/admin/flash-sales');
+  },
+
+  getFlashSaleById(id: number | string): Promise<any> {
+    return apiClient.get(`/admin/flash-sales/${id}`);
+  },
+
+  createFlashSale(data: any): Promise<any> {
+    return apiClient.post('/admin/flash-sales', data);
+  },
+
+  updateFlashSale(id: number | string, data: any): Promise<any> {
+    return apiClient.patch(`/admin/flash-sales/${id}`, data);
+  },
+
+  deleteFlashSale(id: number | string): Promise<any> {
+    return apiClient.delete(`/admin/flash-sales/${id}`);
+  },
+
+  addFlashSaleItem(flashSaleId: number | string, data: any): Promise<any> {
+    return apiClient.post(`/admin/flash-sales/${flashSaleId}/items`, data);
+  },
+
+  deleteFlashSaleItem(flashSaleId: number | string, itemId: number | string): Promise<any> {
+    return apiClient.delete(`/admin/flash-sales/${flashSaleId}/items/${itemId}`);
+  },
+
   // System & Database Seeding
   seedDatabase(): Promise<{ message: string }> {
     return apiClient.post('/admin/seed', {});

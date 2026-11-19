@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/lib/navigation";
-import { Home, Menu, Store, Tag, Truck } from "lucide-react";
+import { Home, Menu, Store, Tag, Truck, Flame } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import type { User as UserProfile } from "@/types";
 import { MobileMenuHeader } from "./mobile/MobileMenuHeader";
@@ -82,6 +82,20 @@ export function MobileMenu({
                 toggleSection={toggleSection}
                 onLinkClick={handleLinkClick}
               />
+
+              <Link
+                to="/flash-sale"
+                onClick={() => handleLinkClick("/flash-sale")}
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/60 transition-colors font-medium text-foreground text-[14px]"
+              >
+                <div className="flex items-center gap-3">
+                  <Flame className="h-4 w-4 text-rose-500 fill-rose-500 animate-pulse" strokeWidth={1.75} />
+                  <span>Tokyo Flash Drops</span>
+                </div>
+                <span className="rounded-full bg-rose-500/10 text-rose-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider">
+                  Live Deals
+                </span>
+              </Link>
 
               <Link
                 to="/offers"

@@ -14,6 +14,7 @@ interface ProductBuyBoxHeaderProps {
   onToggleWishlist: () => void;
   onShare: () => void;
   onScrollToReviews: () => void;
+  isFlashSale?: boolean | undefined;
 }
 
 export function ProductBuyBoxHeader({
@@ -23,18 +24,28 @@ export function ProductBuyBoxHeader({
   onToggleWishlist,
   onShare,
   onScrollToReviews,
+  isFlashSale,
 }: ProductBuyBoxHeaderProps) {
   return (
     <>
-      {/* Brand Eyebrow with Brand Link */}
+      {/* Brand Eyebrow with Brand Link & Flash Sale Badge */}
       <div className="flex items-center justify-between gap-2">
-        <Link
-          to={`/brands/${slugify(product.brand)}`}
-          className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.25em] text-primary hover:text-primary/80 transition-colors"
-        >
-          <span>{product.brand}</span>
-          <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-        </Link>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Link
+            to={`/brands/${slugify(product.brand)}`}
+            className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.25em] text-primary hover:text-primary/80 transition-colors"
+          >
+            <span>{product.brand}</span>
+            <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+
+          {isFlashSale && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs animate-pulse">
+              <Flame className="h-3 w-3 fill-white" />
+              Flash Sale
+            </span>
+          )}
+        </div>
 
         {/* Action buttons: Share & Wishlist */}
         <div className="flex items-center gap-1.5">

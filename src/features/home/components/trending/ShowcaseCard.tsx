@@ -115,8 +115,15 @@ export function ShowcaseCard({
           {/* Badges */}
           <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
             {product.badge && (
-              <span className="rounded-full bg-primary/90 backdrop-blur px-2 py-0.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider text-primary-foreground shadow-xs">
-                {product.badge}
+              <span
+                className={cn(
+                  "rounded-full backdrop-blur px-2 py-0.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider shadow-xs",
+                  product.badge === "Flash Sale"
+                    ? "bg-red-600 text-white border border-red-700 animate-pulse"
+                    : "bg-primary/90 text-primary-foreground",
+                )}
+              >
+                {product.badge === "Flash Sale" ? "⚡ Flash Sale" : product.badge}
               </span>
             )}
             {off > 0 && (

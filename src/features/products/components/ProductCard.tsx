@@ -56,8 +56,15 @@ export function ProductCard({
           {/* Top Left Badges */}
           <div className="absolute left-1.5 top-1.5 sm:left-2.5 sm:top-2.5 flex flex-col gap-1 z-10 pointer-events-none">
             {product.badge && (
-              <span className="rounded-full bg-background/90 px-1.5 sm:px-2 py-0.5 text-[7px] sm:text-[9px] uppercase tracking-wider font-semibold text-foreground backdrop-blur-xs border border-border/40 shadow-xs">
-                {product.badge}
+              <span
+                className={cn(
+                  "rounded-full px-1.5 sm:px-2 py-0.5 text-[7px] sm:text-[9px] uppercase tracking-wider font-semibold backdrop-blur-xs shadow-xs",
+                  product.badge === "Flash Sale"
+                    ? "bg-red-600 text-white border border-red-700 font-bold shadow-red-500/30 animate-pulse"
+                    : "bg-background/90 text-foreground border border-border/40",
+                )}
+              >
+                {product.badge === "Flash Sale" ? "⚡ Flash Sale" : product.badge}
               </span>
             )}
             {off > 0 && (

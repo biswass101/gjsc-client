@@ -6,3 +6,4 @@ export * from "./admin/catalog";
 export * from "./admin/orders";
 export * from "./admin/content";
 export * from "./admin/system";
+export * from "./admin/flash-sale";

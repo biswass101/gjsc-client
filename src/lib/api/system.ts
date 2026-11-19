@@ -12,5 +12,13 @@ export const systemApi = {
   getSettings(): Promise<Record<string, any>> {
     return apiClient.get('/settings');
   },
+
+  getActiveFlashSale(): Promise<any> {
+    return apiClient.get('/flash-sales/active');
+  },
+
+  getPublicDiscounts(): Promise<any[]> {
+    return apiClient.get('/discounts/public');
+  },
 };
 

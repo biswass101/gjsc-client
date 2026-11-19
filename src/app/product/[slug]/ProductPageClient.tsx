@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "@/lib/navigation";
+import { Link, useNavigate } from "@/lib/navigation";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { PackageSearch } from "lucide-react";
+import { PackageSearch, Flame, ArrowRight } from "lucide-react";
 import { PRODUCTS, adminProductToStorefront, mergeStorefrontProducts } from "@/lib/catalog";
 import { useShop } from "@/context";
 import { useAdmin } from "@/context/admin-context";
-import { catalogApi } from "@/lib/api";
-import type { Product, AdminProduct } from "@/types";
+import { catalogApi, systemApi } from "@/lib/api";
+import type { Product, AdminProduct, FlashSaleItem } from "@/types";
 import {
   useProductGallery,
   useProductBundle,
@@ -159,6 +159,7 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
   const navigate = useNavigate();
   const { addToCart, toggleWishlist, wishlist, addRecent, recent } = useShop();
   const [dbCatalog, setDbCatalog] = useState<Product[]>([]);
+  const [activeFlashSale, setActiveFlashSale] = useState<any | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -177,10 +178,47 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
         );
       })
       .catch(() => {});
+
+    systemApi
+      .getActiveFlashSale()
+      .then((sale: any) => {
+        if (!active) return;
+        if (sale && sale.isActive !== false && Array.isArray(sale.items) && sale.items.length > 0) {
+          setActiveFlashSale(sale);
+        }
+      })
+      .catch(() => {});
+
     return () => {
       active = false;
     };
   }, []);
+
+  // Check if current product is included in the active Flash Sale
+  const flashDeal = useMemo<FlashSaleItem | null>(() => {
+    if (!activeFlashSale || !product) return null;
+    const items: FlashSaleItem[] = activeFlashSale.items || [];
+    const prodSlug = product.slug?.toLowerCase();
+    const prodId = String(product.id);
+    return (
+      items.find((it) => {
+        const slugMatch = it.slug && it.slug.toLowerCase() === prodSlug;
+        const idMatch = it.productId && String(it.productId) === prodId;
+        return slugMatch || idMatch;
+      }) || null
+    );
+  }, [activeFlashSale, product]);
+
+  // If in flash sale, compute effective storefront product with flash pricing & badge
+  const effectiveProduct = useMemo<Product>(() => {
+    if (!flashDeal) return product;
+    return {
+      ...product,
+      price: flashDeal.price,
+      compareAt: flashDeal.compareAt || product.compareAt || product.price,
+      badge: "Flash Sale",
+    };
+  }, [product, flashDeal]);
 
   // Synchronized catalog for recommendations and cross-sells (live DB first)
   const allCatalogProducts = useMemo(() => {
@@ -188,9 +226,9 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
     return mergeStorefrontProducts(adminProducts, base);
   }, [adminProducts, dbCatalog]);
 
-  const gallery = useProductGallery(product);
-  const bundle = useProductBundle(product, allCatalogProducts);
-  const reviews = useProductReviews(product.slug);
+  const gallery = useProductGallery(effectiveProduct);
+  const bundle = useProductBundle(effectiveProduct, allCatalogProducts);
+  const reviews = useProductReviews(effectiveProduct.slug);
 
   useEffect(() => {
     addRecent(product.slug);
@@ -202,13 +240,13 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
   const related = useMemo(
     () =>
       allCatalogProducts
-        .filter((p) => p.category === product.category && p.slug !== product.slug)
+        .filter((p) => p.category === effectiveProduct.category && p.slug !== effectiveProduct.slug)
         .slice(0, 4),
-    [allCatalogProducts, product],
+    [allCatalogProducts, effectiveProduct],
   );
   const fallbackRelated = useMemo(
-    () => allCatalogProducts.filter((p) => p.slug !== product.slug).slice(0, 4),
-    [allCatalogProducts, product],
+    () => allCatalogProducts.filter((p) => p.slug !== effectiveProduct.slug).slice(0, 4),
+    [allCatalogProducts, effectiveProduct],
   );
   const alsoLike = related.length ? related : fallbackRelated;
 
@@ -216,9 +254,9 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
     () =>
       recent
         .map((s) => allCatalogProducts.find((p) => p.slug === s))
-        .filter((p): p is Product => Boolean(p) && p?.slug !== product.slug)
+        .filter((p): p is Product => Boolean(p) && p?.slug !== effectiveProduct.slug)
         .slice(0, 4),
-    [recent, allCatalogProducts, product.slug],
+    [recent, allCatalogProducts, effectiveProduct.slug],
   );
 
   const handleShare = async () => {
@@ -227,8 +265,8 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
     if (navigator.share) {
       try {
         await navigator.share({
-          title: product.name,
-          text: `${product.name} — Authentic Japanese Skincare on Glorious Japan`,
+          title: effectiveProduct.name,
+          text: `${effectiveProduct.name} — Authentic Japanese Skincare on Glorious Japan`,
           url,
         });
         return;
@@ -243,24 +281,34 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
   };
 
   const handleAddToCart = () => {
-    addToCart(product.slug, bundle.qty, bundle.size, product);
-    toast.success("Added to shopping bag", {
-      description: `${bundle.qty}× ${product.name} (${bundle.size}) is now in your bag.`,
-      action: {
-        label: "View Bag",
-        onClick: () => navigate({ to: "/cart" }),
-      },
-    });
+    addToCart(effectiveProduct.slug, bundle.qty, bundle.size, effectiveProduct);
+    if (flashDeal) {
+      toast.success("⚡ Claimed Tokyo Flash Deal!", {
+        description: `${bundle.qty}× ${effectiveProduct.name} claimed at ৳${effectiveProduct.price.toLocaleString()} (${flashDeal.discount}% OFF).`,
+        action: {
+          label: "View Bag",
+          onClick: () => navigate({ to: "/cart" }),
+        },
+      });
+    } else {
+      toast.success("Added to shopping bag", {
+        description: `${bundle.qty}× ${effectiveProduct.name} (${bundle.size}) is now in your bag.`,
+        action: {
+          label: "View Bag",
+          onClick: () => navigate({ to: "/cart" }),
+        },
+      });
+    }
   };
 
   const handleBuyNow = () => {
-    addToCart(product.slug, bundle.qty, bundle.size, product);
+    addToCart(effectiveProduct.slug, bundle.qty, bundle.size, effectiveProduct);
     navigate({ to: "/checkout" });
   };
 
   const handleAddBundleToCart = () => {
     if (!bundle.companionProduct) return;
-    addToCart(product.slug, 1, bundle.size, product);
+    addToCart(effectiveProduct.slug, 1, bundle.size, effectiveProduct);
     addToCart(
       bundle.companionProduct.slug,
       1,
@@ -268,7 +316,7 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
       bundle.companionProduct,
     );
     toast.success("Ritual Bundle added to bag!", {
-      description: `${product.name} + ${bundle.companionProduct.name} added with exclusive bundle discount.`,
+      description: `${effectiveProduct.name} + ${bundle.companionProduct.name} added with exclusive bundle discount.`,
       action: {
         label: "Checkout",
         onClick: () => navigate({ to: "/checkout" }),
@@ -282,24 +330,55 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
     }
   };
 
-  const totalReviewsCount = product.reviews + reviews.reviewsList.length - 3;
+  const totalReviewsCount = effectiveProduct.reviews + reviews.reviewsList.length - 3;
 
   return (
     <Layout>
       <ProductStructuredData
-        product={product}
+        product={effectiveProduct}
         galleryImages={gallery.galleryImages}
         reviewsCount={totalReviewsCount}
       />
 
       {/* Top Provenance & Breadcrumb Bar */}
-      <ProductBreadcrumb product={product} />
+      <ProductBreadcrumb product={effectiveProduct} isFlashSale={Boolean(flashDeal)} />
+
+      {/* Flash Sale Urgency Top Banner on PDP */}
+      {flashDeal && (
+        <div className="border-b border-red-500/30 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white shadow-md">
+          <div className="container-lux py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/25 backdrop-blur-xs border border-white/20 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-xs animate-pulse">
+                <Flame className="h-3.5 w-3.5 fill-white" />
+                Flash Sale Active
+              </span>
+              <span className="font-semibold text-white">
+                {activeFlashSale?.title || "Tokyo Luxury Flash Drop"}
+              </span>
+              <span className="hidden md:inline text-white/80">•</span>
+              <span className="hidden md:inline text-white/90">
+                Save <strong>{bundle.discountPct}% OFF</strong> · Tokyo Flash Price: <strong>৳{effectiveProduct.price.toLocaleString()}</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                to="/flash-sale"
+                className="inline-flex items-center gap-1 font-semibold text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              >
+                <span>View all deals</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Product Hero / Buy Section */}
       <section className="container-lux py-6 sm:py-10">
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
           <ProductGallery
-            product={product}
+            product={effectiveProduct}
             galleryImages={gallery.galleryImages}
             activeImageIndex={gallery.activeImageIndex}
             discountPct={bundle.discountPct}
@@ -307,10 +386,11 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
             onPrevImage={gallery.handlePrevImage}
             onNextImage={gallery.handleNextImage}
             onOpenLightbox={() => gallery.setIsLightboxOpen(true)}
+            isFlashSale={Boolean(flashDeal)}
           />
 
           <ProductBuyBox
-            product={product}
+            product={effectiveProduct}
             qty={bundle.qty}
             setQty={bundle.setQty}
             size={bundle.size}
@@ -327,13 +407,16 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
             onAddToCart={handleAddToCart}
             onBuyNow={handleBuyNow}
             onScrollToReviews={scrollToReviews}
+            flashDeal={flashDeal}
+            flashSaleCampaignTitle={activeFlashSale?.title}
+            flashSaleEndsAt={activeFlashSale?.endsAt}
           />
         </div>
       </section>
 
       {/* "Complete the Ritual" / "Frequently Bought Together" Bundle Card */}
       <ProductBundleDeal
-        product={product}
+        product={effectiveProduct}
         companionProduct={bundle.companionProduct}
         bundleBaseTotal={bundle.bundleBaseTotal}
         bundleDiscountedTotal={bundle.bundleDiscountedTotal}
@@ -343,7 +426,7 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
 
       {/* Structured Skincare Accordions & Tabs */}
       <ProductTabs
-        product={product}
+        product={effectiveProduct}
         reviewsList={reviews.reviewsList}
         helpfulClicked={reviews.helpfulClicked}
         replyingToId={reviews.replyingToId}
@@ -362,17 +445,22 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
 
       {/* Recommendations & Recently Viewed */}
       <ProductRecommendations
-        product={product}
+        product={effectiveProduct}
         alsoLike={alsoLike}
         recentlyViewed={recentlyViewed}
       />
 
       {/* Sticky Mobile Add-To-Bag Bottom Bar */}
-      <ProductStickyMobileBar product={product} qty={bundle.qty} onAddToCart={handleAddToCart} />
+      <ProductStickyMobileBar
+        product={effectiveProduct}
+        qty={bundle.qty}
+        onAddToCart={handleAddToCart}
+        isFlashSale={Boolean(flashDeal)}
+      />
 
       {/* Lightbox Zoom Dialog */}
       <ProductLightboxModal
-        product={product}
+        product={effectiveProduct}
         galleryImages={gallery.galleryImages}
         activeImageIndex={gallery.activeImageIndex}
         isOpen={gallery.isLightboxOpen}

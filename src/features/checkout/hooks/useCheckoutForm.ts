@@ -7,6 +7,7 @@ import { useAdmin } from "@/context/admin-context";
 import type { DeliveryZone, PaymentMethod, OrderConfirmationData } from "../types";
 import { VALID_COUPONS } from "../data/checkoutConstants";
 import { customerApi, ordersApi, paymentApi, tokenStorage } from "@/lib/api";
+import type { CouponValidationResult } from "@/lib/api/orders";
 
 export function useCheckoutForm() {
   const { lines, subtotal, clearCart, user } = useShop();
@@ -134,13 +135,14 @@ export function useCheckoutForm() {
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSummaryData, setOrderSummaryData] = useState<OrderConfirmationData | null>(null);
+  const [appliedCouponData, setAppliedCouponData] = useState<CouponValidationResult | null>(null);
 
   // Dynamic Shipping Calculation based on admin settings
   const baseShippingFee = useMemo(() => {
     if (subtotal === 0) return 0;
+    if (appliedCoupon === "FREESHIP" || appliedCouponData?.type === "free_shipping") return 0;
     const freeMin = typeof settings.freeShippingMin === "number" ? settings.freeShippingMin : 5000;
     if (subtotal >= freeMin) return 0;
-    if (appliedCoupon === "FREESHIP") return 0;
 
     const rateDhaka = typeof settings.insideDhakaRate === "number" ? settings.insideDhakaRate : 60;
     const rateOutside = typeof settings.outsideDhakaRate === "number" ? settings.outsideDhakaRate : 120;
@@ -156,21 +158,35 @@ export function useCheckoutForm() {
       default:
         return rateDhaka;
     }
-  }, [subtotal, zone, appliedCoupon, settings.freeShippingMin, settings.insideDhakaRate, settings.outsideDhakaRate, settings.expressDeliveryRate]);
+  }, [subtotal, zone, appliedCoupon, appliedCouponData, settings.freeShippingMin, settings.insideDhakaRate, settings.outsideDhakaRate, settings.expressDeliveryRate]);
 
-  // Coupon Discount Calculation
+  // Coupon Discount Calculation (Dynamic from DB validation result with fallback to presets)
   const couponDiscount = useMemo(() => {
     if (!appliedCoupon) return 0;
-    const rule = VALID_COUPONS[appliedCoupon];
-    if (!rule) return 0;
-    if (rule.type === "percent") {
-      return Math.round((subtotal * rule.value) / 100);
+    if (appliedCouponData && appliedCouponData.code.toUpperCase() === appliedCoupon.toUpperCase()) {
+      if (typeof appliedCouponData.discountAmount === "number" && appliedCouponData.discountAmount >= 0) {
+        return Math.min(appliedCouponData.discountAmount, subtotal);
+      }
+      if (appliedCouponData.type === "percentage") {
+        return Math.round((subtotal * appliedCouponData.value) / 100);
+      }
+      if (appliedCouponData.type === "fixed") {
+        return Math.min(appliedCouponData.value, subtotal);
+      }
+      return 0;
     }
-    if (rule.type === "fixed") {
-      return Math.min(rule.value, subtotal);
+
+    const rule = VALID_COUPONS[appliedCoupon];
+    if (rule) {
+      if (rule.type === "percent") {
+        return Math.round((subtotal * rule.value) / 100);
+      }
+      if (rule.type === "fixed") {
+        return Math.min(rule.value, subtotal);
+      }
     }
     return 0;
-  }, [appliedCoupon, subtotal]);
+  }, [appliedCoupon, appliedCouponData, subtotal]);
 
   const giftFee = giftWrap ? 150 : 0;
   const grandTotal = Math.max(0, subtotal - couponDiscount + baseShippingFee + giftFee);
@@ -181,9 +197,18 @@ export function useCheckoutForm() {
     if (!clean) return;
 
     try {
-      const res = await ordersApi.validateCoupon(clean, subtotal);
+      const cartItems = lines.map((l) => ({
+        productId: Number(l.product.id) || undefined,
+        slug: l.product.slug,
+        price: l.product.price,
+        qty: l.qty,
+        category: l.product.category,
+      }));
+
+      const res = await ordersApi.validateCoupon(clean, subtotal, cartItems);
       if (res?.valid) {
         setAppliedCoupon(res.code);
+        setAppliedCouponData(res);
         setCouponInput("");
         toast.success("Coupon code applied successfully!", {
           description: res.message || `${res.code}: ৳${res.discountAmount} off`,
@@ -192,10 +217,20 @@ export function useCheckoutForm() {
       }
     } catch (err: any) {
       if (VALID_COUPONS[clean]) {
+        const fallbackRule = VALID_COUPONS[clean];
         setAppliedCoupon(clean);
+        setAppliedCouponData({
+          valid: true,
+          code: clean,
+          type: fallbackRule?.type === "percent" ? "percentage" : fallbackRule?.type || "percentage",
+          value: fallbackRule?.value || 0,
+          discountAmount: fallbackRule?.type === "percent" ? Math.round((subtotal * (fallbackRule?.value || 0)) / 100) : (fallbackRule?.value || 0),
+          newSubtotal: subtotal,
+          message: fallbackRule?.label || clean,
+        });
         setCouponInput("");
         toast.success("Coupon code applied successfully!", {
-          description: VALID_COUPONS[clean]?.label,
+          description: fallbackRule?.label,
         });
         return;
       }
@@ -207,6 +242,7 @@ export function useCheckoutForm() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
+    setAppliedCouponData(null);
     toast.info("Coupon removed");
   };
 
@@ -479,6 +515,15 @@ export function useCheckoutForm() {
     couponInput,
     setCouponInput,
     appliedCoupon,
+    appliedCouponLabel:
+      appliedCouponData?.description ||
+      (appliedCouponData
+        ? appliedCouponData.type === "percentage"
+          ? `${appliedCouponData.value}% Off Entire Ritual`
+          : appliedCouponData.type === "fixed"
+            ? `৳${appliedCouponData.value} Off Entire Ritual`
+            : "Free Nationwide Shipping"
+        : VALID_COUPONS[appliedCoupon || ""]?.label || (appliedCoupon ? `${appliedCoupon} Applied` : undefined)),
     isSubmitting,
     orderSummaryData,
     baseShippingFee,

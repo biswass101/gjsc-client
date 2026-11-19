@@ -11,6 +11,7 @@ import {
   Search,
   Shield,
   Globe,
+  Flame,
 } from "lucide-react";
 import { CategoriesDropdown } from "./DropDowns/CategoriesDropdown";
 import { CollectionsDropdown } from "./DropDowns/CollectionsDropdown";
@@ -64,6 +65,12 @@ export const navItems: NavItemData[] = [
     label: "Offers",
     icon: Tag,
     iconClassName: "text-primary",
+  },
+  {
+    to: "/flash-sale",
+    label: "Flash Drop",
+    icon: Flame,
+    iconClassName: "text-rose-500 fill-rose-500 animate-pulse",
   },
   {
     to: "/pre-order",

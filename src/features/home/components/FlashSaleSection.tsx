@@ -1,38 +1,90 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useShop } from "@/context";
 import { Link } from "@/lib/navigation";
 import { toast } from "sonner";
 import { ArrowRight, Flame, Zap } from "lucide-react";
-import { FLASH_ITEMS, FlashItem } from "./flash-sale/flashData";
+import { systemApi } from "@/lib/api";
+import type { FlashItem } from "./flash-sale/flashData";
 import { FlashCard } from "./flash-sale/FlashCard";
 
 export function FlashSaleSection() {
   const { addToCart, toggleWishlist, wishlist } = useShop();
 
+  const [campaignTitle, setCampaignTitle] = useState("Flash Sale");
+  const [campaignDesc, setCampaignDesc] = useState(
+    "Deepest discounts on Tokyo favorites. Prices revert once timer ends or stock is claimed."
+  );
+  const [items, setItems] = useState<FlashItem[]>([]);
+  const [endsAtDate, setEndsAtDate] = useState<Date | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   const [timeLeft, setTimeLeft] = useState({
-    hours: 8,
-    minutes: 42,
-    seconds: 19,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
   });
 
+  // Fetch active flash sale from backend
+  useEffect(() => {
+    let isMounted = true;
+    async function loadActiveSale() {
+      try {
+        const sale = await systemApi.getActiveFlashSale();
+        if (!isMounted) return;
+
+        if (sale && sale.isActive !== false && Array.isArray(sale.items) && sale.items.length > 0) {
+          if (sale.title) setCampaignTitle(sale.title);
+          if (sale.description) setCampaignDesc(sale.description);
+          if (sale.endsAt) {
+            setEndsAtDate(new Date(sale.endsAt));
+          }
+          setItems(sale.items);
+          setIsVisible(true);
+        } else {
+          setIsVisible(false);
+        }
+      } catch {
+        setIsVisible(false);
+      }
+    }
+
+    loadActiveSale();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Countdown timer logic
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: 59, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return { hours: 12, minutes: 0, seconds: 0 };
-      });
+      if (endsAtDate) {
+        const diff = Math.max(0, endsAtDate.getTime() - Date.now());
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft({ hours, minutes, seconds });
+      } else {
+        setTimeLeft((prev) => {
+          if (prev.seconds > 0) {
+            return { ...prev, seconds: prev.seconds - 1 };
+          } else if (prev.minutes > 0) {
+            return { ...prev, minutes: 59, seconds: 59 };
+          } else if (prev.hours > 0) {
+            return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+          }
+          return { hours: 12, minutes: 0, seconds: 0 };
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [endsAtDate]);
+
+  if (!isVisible) {
+    return null;
+  }
 
   const handleClaim = (item: FlashItem) => {
     addToCart(item.slug);
@@ -60,21 +112,20 @@ export function FlashSaleSection() {
               <span>LIMITED QUANTITY DROPS</span>
             </div>
             <h2 className="mt-1 font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-              Flash Sale
+              {campaignTitle}
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-              Deepest discounts on Tokyo favorites. Prices revert once timer ends or stock is
-              claimed.
+              {campaignDesc}
             </p>
           </div>
 
           {/* Live Countdown Box & Link to Offers */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-auto">
             <Link
-              to="/offers"
+              to="/flash-sale"
               className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-rose-600 hover:underline order-2 sm:order-1"
             >
-              <span>View all deals</span>
+              <span>View all flash drops</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
 
@@ -100,9 +151,9 @@ export function FlashSaleSection() {
           </div>
         </div>
 
-        {/* 4 Flash Cards Grid */}
+        {/* Flash Cards Grid */}
         <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {FLASH_ITEMS.map((item) => (
+          {items.map((item) => (
             <FlashCard
               key={item.id}
               item={item}
@@ -116,3 +167,4 @@ export function FlashSaleSection() {
     </section>
   );
 }
+

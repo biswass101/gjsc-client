@@ -65,12 +65,45 @@ export function formatApiVideo(v: any): AdminFeaturedVideo {
   };
 }
 
+export function formatApiDiscount(d: any): AdminDiscount {
+  return {
+    id: String(d.id),
+    code: d.code,
+    type: d.type || "percentage",
+    value: Number(d.value) || 0,
+    minSpend: Number(d.minSpend) || 0,
+    usageLimit: Number(d.usageLimit) || 100,
+    usageCount: Number(d.usageCount) || 0,
+    status: d.status || "active",
+    startDate: d.startDate ? String(d.startDate).slice(0, 10) : new Date().toISOString().slice(0, 10),
+    endDate: d.endDate ? String(d.endDate).slice(0, 10) : "2026-12-31",
+  };
+}
+
 export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
   const [discounts, setDiscounts] = useState<AdminDiscount[]>(INITIAL_DISCOUNTS);
   const [banners, setBanners] = useState<AdminBanner[]>([]);
   const [isLoadingBanners, setIsLoadingBanners] = useState<boolean>(true);
   const [featuredVideos, setFeaturedVideos] =
     useState<AdminFeaturedVideo[]>(INITIAL_FEATURED_VIDEOS);
+
+  // Sync promotional discounts from backend MySQL database on mount
+  useEffect(() => {
+    let isMounted = true;
+    adminApi
+      .getDiscounts()
+      .then((data) => {
+        if (!isMounted || !Array.isArray(data) || data.length === 0) return;
+        setDiscounts(data.map(formatApiDiscount));
+      })
+      .catch((err) => {
+        console.warn("Could not fetch discounts from backend, using seed fallback:", err?.message || err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Sync featured videos from backend MySQL database on mount
   useEffect(() => {
@@ -154,32 +187,85 @@ export function useMarketingSlice(addActivityLog: AddActivityLogFn) {
   // DISCOUNT ACTIONS
   const addDiscount = useCallback(
     (input: Omit<AdminDiscount, "id" | "usageCount">): AdminDiscount => {
-      const id = `disc-${Date.now()}`;
+      const tempId = `disc-${Date.now()}`;
       const newDiscount: AdminDiscount = {
         ...input,
-        id,
+        id: tempId,
         code: input.code.toUpperCase().trim(),
         usageCount: 0,
       };
       setDiscounts((prev) => [newDiscount, ...prev]);
       addActivityLog("Created Coupon", newDiscount.code, `Value: ${newDiscount.value}`);
+
+      // Persist to backend MySQL database
+      adminApi
+        .createDiscount({
+          code: newDiscount.code,
+          type: newDiscount.type,
+          value: Number(newDiscount.value),
+          minSpend: Number(newDiscount.minSpend || 0),
+          usageLimit: Number(newDiscount.usageLimit || 100),
+          status: newDiscount.status || "active",
+          startDate: newDiscount.startDate ? new Date(newDiscount.startDate).toISOString() : null,
+          endDate: newDiscount.endDate ? new Date(newDiscount.endDate).toISOString() : null,
+        })
+        .then((created) => {
+          if (created && created.id) {
+            const formatted = formatApiDiscount(created);
+            setDiscounts((prev) => prev.map((d) => (d.id === tempId ? formatted : d)));
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to persist discount in backend:", err);
+        });
+
       return newDiscount;
     },
     [addActivityLog],
   );
 
-  const toggleDiscount = useCallback((id: string) => {
-    setDiscounts((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: d.status === "active" ? "expired" : "active" } : d,
-      ),
-    );
-  }, []);
+  const toggleDiscount = useCallback(
+    (id: string) => {
+      let targetCode = "";
+      let newStatus: AdminDiscount["status"] = "active";
+      setDiscounts((prev) =>
+        prev.map((d) => {
+          if (d.id === id) {
+            targetCode = d.code;
+            newStatus = d.status === "active" ? "expired" : "active";
+            return { ...d, status: newStatus };
+          }
+          return d;
+        }),
+      );
+      addActivityLog("Toggled Coupon Status", targetCode || id, `Status: ${newStatus}`);
+
+      const numericId = parseInt(id, 10);
+      if (!isNaN(numericId) && /^\d+$/.test(id.trim())) {
+        adminApi.updateDiscount(numericId, { status: newStatus }).catch((err) => {
+          console.error(`Failed to update discount #${id} in backend:`, err);
+        });
+      }
+    },
+    [addActivityLog],
+  );
 
   const deleteDiscount = useCallback(
     (id: string) => {
-      setDiscounts((prev) => prev.filter((d) => d.id !== id));
-      addActivityLog("Deleted Coupon", id);
+      let targetCode = id;
+      setDiscounts((prev) => {
+        const found = prev.find((d) => d.id === id);
+        if (found) targetCode = found.code;
+        return prev.filter((d) => d.id !== id);
+      });
+      addActivityLog("Deleted Coupon", targetCode);
+
+      const numericId = parseInt(id, 10);
+      if (!isNaN(numericId) && /^\d+$/.test(id.trim())) {
+        adminApi.deleteDiscount(numericId).catch((err) => {
+          console.error(`Failed to delete discount #${id} in backend:`, err);
+        });
+      }
     },
     [addActivityLog],
   );
