@@ -45,8 +45,14 @@ export function ProductTabs({
 }: ProductTabsProps) {
   return (
     <section id="reviews-section" className="container-lux pb-16">
-      <Tabs defaultValue="ritual" className="w-full">
+      <Tabs defaultValue="reviews" className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto rounded-full border border-border/60 bg-secondary/40 p-1">
+          <TabsTrigger
+            value="reviews"
+            className="rounded-full px-5 py-2 text-xs font-medium cursor-pointer"
+          >
+            Verified Reviews ({reviewsList.length})
+          </TabsTrigger>
           <TabsTrigger
             value="ritual"
             className="rounded-full px-5 py-2 text-xs font-medium cursor-pointer"
@@ -60,26 +66,12 @@ export function ProductTabs({
             Hero Botanicals & INCI
           </TabsTrigger>
           <TabsTrigger
-            value="reviews"
-            className="rounded-full px-5 py-2 text-xs font-medium cursor-pointer"
-          >
-            Verified Reviews ({reviewsList.length})
-          </TabsTrigger>
-          <TabsTrigger
             value="shipping"
             className="rounded-full px-5 py-2 text-xs font-medium cursor-pointer"
           >
             Shipping & Authenticity
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="ritual" className="mt-8">
-          <ProductRitualTab product={product} />
-        </TabsContent>
-
-        <TabsContent value="ingredients" className="mt-8">
-          <ProductIngredientsTab product={product} />
-        </TabsContent>
 
         <TabsContent value="reviews" className="mt-8">
           <ProductReviewsTab
@@ -99,6 +91,14 @@ export function ProductTabs({
             onSubmitReply={onSubmitReply}
             onToggleReplies={onToggleReplies}
           />
+        </TabsContent>
+
+        <TabsContent value="ritual" className="mt-8">
+          <ProductRitualTab product={product} />
+        </TabsContent>
+
+        <TabsContent value="ingredients" className="mt-8">
+          <ProductIngredientsTab product={product} />
         </TabsContent>
 
         <TabsContent value="shipping" className="mt-8">

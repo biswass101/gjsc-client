@@ -13,6 +13,22 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({ review, onApprove, onHide, onReply, onDelete }: ReviewCardProps) {
+  const imagesList: string[] = Array.isArray(review.images)
+    ? review.images
+    : typeof review.images === "string"
+      ? (() => {
+          try {
+            const parsed = JSON.parse(review.images);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return (review.images as string).startsWith("http") ||
+              (review.images as string).startsWith("data:")
+              ? [review.images]
+              : [];
+          }
+        })()
+      : [];
+
   return (
     <div
       className={`rounded-xl border p-5 bg-card shadow-xs transition-all duration-200 ${
@@ -75,6 +91,27 @@ export function ReviewCard({ review, onApprove, onHide, onReply, onDelete }: Rev
           <p className="text-sm text-foreground/90 leading-relaxed pt-1">
             &quot;{review.comment}&quot;
           </p>
+
+          {/* Customer Attached Photos */}
+          {imagesList.length > 0 && (
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
+              {imagesList.map((img, idx) => (
+                <a
+                  key={idx}
+                  href={img}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative w-12 h-12 rounded-lg overflow-hidden border border-border/80 hover:border-primary transition-all hover:scale-105 cursor-pointer shadow-xs shrink-0 bg-secondary/30"
+                >
+                  <img
+                    src={img}
+                    alt={`Review attachment ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
 
           {/* Admin Reply Card */}
           {review.adminReply && (

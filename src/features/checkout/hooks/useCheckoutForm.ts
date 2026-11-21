@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useShop } from "@/context";
 import { useAdmin } from "@/context/admin-context";
@@ -12,17 +12,16 @@ import type { CouponValidationResult } from "@/lib/api/orders";
 export function useCheckoutForm() {
   const { lines, subtotal, clearCart, user } = useShop();
   const { settings, refreshSettings } = useAdmin();
+  const refreshSettingsRef = useRef(refreshSettings);
 
-  // Fresh sync from backend database on mount and upon any admin update events
   useEffect(() => {
-    if (typeof refreshSettings === "function") {
-      refreshSettings();
-    }
+    refreshSettingsRef.current = refreshSettings;
+  }, [refreshSettings]);
 
+  // Sync settings when explicit admin update events are fired across tabs/windows
+  useEffect(() => {
     const handleSync = () => {
-      if (typeof refreshSettings === "function") {
-        refreshSettings();
-      }
+      refreshSettingsRef.current?.();
     };
 
     window.addEventListener("gjsc_settings_synced", handleSync);
@@ -37,7 +36,7 @@ export function useCheckoutForm() {
       window.removeEventListener("gjsc_settings_synced", handleSync);
       window.removeEventListener("storage", handleStorage);
     };
-  }, [refreshSettings]);
+  }, []);
 
   // Contact info
   const [fullName, setFullName] = useState(user?.name ?? "");

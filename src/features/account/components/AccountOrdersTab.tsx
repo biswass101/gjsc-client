@@ -1,7 +1,9 @@
 "use client";
 
-import { Eye, Package, RotateCcw, Truck } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, Eye, Package, RotateCcw, Truck } from "lucide-react";
 import { Link } from "@/lib/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatBDT } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
@@ -23,6 +25,17 @@ export function AccountOrdersTab({
   onViewReceipt,
   onBuyAgain,
 }: AccountOrdersTabProps) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    toast.success(`Order ID "${id}" copied to clipboard!`, {
+      description: "You can paste this on the Tracking Page anytime to track live shipment.",
+    });
+    setTimeout(() => setCopiedId(null), 3000);
+  };
+
   const filteredOrders = orders.filter((o) => {
     if (orderFilter === "all") return true;
     if (orderFilter === "Active") {
@@ -87,11 +100,33 @@ export function AccountOrdersTab({
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3 text-xs">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <span className="font-display font-bold text-sm text-foreground">
-                    #{order.id}
-                  </span>
-                  <span className="text-muted-foreground">• {order.date}</span>
-                  <span className="text-muted-foreground hidden md:inline">• {order.courier}</span>
+                  <div className="inline-flex items-center gap-1.5 bg-secondary/70 rounded-md px-2.5 py-1 border border-border/60">
+                    <span className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      Order ID:
+                    </span>
+                    <span className="font-mono font-bold text-xs sm:text-sm text-foreground">
+                      #{order.id}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyId(order.id)}
+                      title="Copy Order ID for Tracking"
+                      className="ml-1 p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {copiedId === order.id ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </div>
+                  <span className="text-muted-foreground">• Placed: {order.date}</span>
+                  <span className="text-muted-foreground hidden md:inline">• Courier: {order.courier}</span>
+                  {order.consignmentId && order.consignmentId !== "Pending Assignment" && (
+                    <span className="text-muted-foreground font-mono text-[11px] hidden lg:inline">
+                      • CN: {order.consignmentId}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -177,10 +212,10 @@ export function AccountOrdersTab({
                     Receipt
                   </Button>
 
-                  <Button size="sm" asChild className="rounded-full text-xs gap-1.5 cursor-pointer">
+                  <Button size="sm" asChild className="rounded-full text-xs gap-1.5 shadow-2xs cursor-pointer">
                     <Link to={`/track?orderId=${encodeURIComponent(order.id)}`}>
                       <Truck className="h-3.5 w-3.5" />
-                      Track
+                      Track Order
                     </Link>
                   </Button>
                 </div>

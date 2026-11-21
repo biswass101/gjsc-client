@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { PRODUCTS } from "@/lib/catalog";
 import type { Product, CartLine, User, Notification } from "@/types";
 import { DEMO_NOTIFICATIONS, ShopContextType, type ProfileUpdateInput } from "./shop-types";
-import { authApi, catalogApi, customerApi, tokenStorage } from "@/lib/api";
+import { authApi, catalogApi, customerApi, systemApi, tokenStorage } from "@/lib/api";
 import type { GoogleAuthPayload, FacebookAuthPayload } from "@/lib/api/auth";
 import type { BackendCartResponse } from "@/lib/api/customer";
 
@@ -92,6 +92,7 @@ function normalizeCatalogProduct(raw: any): Product {
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [catalogMap, setCatalogMap] = useState<Record<string, Product>>({});
+  const [activeFlashSale, setActiveFlashSale] = useState<any | null>(null);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -138,18 +139,38 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       });
   }, [upsertCatalogProducts]);
 
+  // Hydrate active flash sale deals to ensure cart always synchronizes flash sale pricing
+  const refreshFlashSaleCache = useCallback(() => {
+    systemApi
+      .getActiveFlashSale()
+      .then((sale: any) => {
+        if (sale && sale.isActive !== false && Array.isArray(sale.items)) {
+          setActiveFlashSale(sale);
+        } else {
+          setActiveFlashSale(null);
+        }
+      })
+      .catch(() => {
+        /* non-fatal */
+      });
+  }, []);
+
   useEffect(() => {
     refreshCatalogCache();
+    refreshFlashSaleCache();
 
     const handleCatalogUpdate = () => {
       fetchedSlugsRef.current.clear();
       refreshCatalogCache();
+      refreshFlashSaleCache();
     };
     window.addEventListener("gjsc_catalog_updated", handleCatalogUpdate);
+    window.addEventListener("gjsc_flash_sale_updated", handleCatalogUpdate);
     return () => {
       window.removeEventListener("gjsc_catalog_updated", handleCatalogUpdate);
+      window.removeEventListener("gjsc_flash_sale_updated", handleCatalogUpdate);
     };
-  }, [refreshCatalogCache]);
+  }, [refreshCatalogCache, refreshFlashSaleCache]);
 
   // Apply authoritative backend cart response to both cart lines & live catalogMap
   const applyBackendCart = useCallback(
@@ -591,20 +612,50 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setNotifications((ns) => ns.map((n) => ({ ...n, read: true })));
   }, []);
 
-  // Resolve cart lines strictly by exact slug: Live DB catalog > line product snapshot > static fallback
+  // Pre-index flash sale items by lowercase slug for instant cart synchronization
+  const flashPriceMap = useMemo(() => {
+    const map: Record<string, { price: number; compareAt: number; discount: number }> = {};
+    if (activeFlashSale && Array.isArray(activeFlashSale.items)) {
+      for (const item of activeFlashSale.items) {
+        if (item?.slug) {
+          map[item.slug.toLowerCase()] = {
+            price: Number(item.price),
+            compareAt: Number(item.compareAt || item.price),
+            discount: Number(item.discount || 0),
+          };
+        }
+      }
+    }
+    return map;
+  }, [activeFlashSale]);
+
+  // Resolve cart lines strictly: Active Flash Deal price > line product snapshot > live DB catalog > static fallback
   const lines = useMemo(
     () =>
       cart
         .map((l) => {
           const slugKey = l.slug.toLowerCase();
-          const product =
-            catalogMap[slugKey] ||
+          const baseProduct =
             l.product ||
+            catalogMap[slugKey] ||
             PRODUCTS.find((p) => p.slug.toLowerCase() === slugKey);
-          return product ? { product, qty: l.qty, size: l.size } : null;
+          if (!baseProduct) return null;
+
+          // Check if product is currently in active flash sale
+          const flashDeal = flashPriceMap[slugKey];
+          const product: Product = flashDeal
+            ? {
+                ...baseProduct,
+                price: flashDeal.price,
+                compareAt: flashDeal.compareAt || baseProduct.compareAt || baseProduct.price,
+                badge: "Flash Sale",
+              }
+            : (l.product && typeof l.product.price === "number" ? l.product : baseProduct);
+
+          return { product, qty: l.qty, size: l.size };
         })
         .filter(Boolean) as { product: Product; qty: number; size: string }[],
-    [cart, catalogMap],
+    [cart, catalogMap, flashPriceMap],
   );
 
   const subtotal = useMemo(() => lines.reduce((s, l) => s + l.product.price * l.qty, 0), [lines]);

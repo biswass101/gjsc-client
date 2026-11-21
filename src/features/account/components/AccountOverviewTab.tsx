@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import {
   ArrowRight,
   Award,
+  Check,
   CheckCircle2,
   Circle,
+  Copy,
   Crown,
   Droplets,
   Heart,
@@ -15,6 +18,7 @@ import {
   Truck,
 } from "lucide-react";
 import { Link } from "@/lib/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatBDT } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
@@ -40,6 +44,17 @@ export function AccountOverviewTab({
   onNavigateTab,
   onViewReceipt,
 }: AccountOverviewTabProps) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    toast.success(`Order ID "${id}" copied to clipboard!`, {
+      description: "You can track your package anytime on our Tracking Page.",
+    });
+    setTimeout(() => setCopiedId(null), 3000);
+  };
+
   const recentOrder = orders[0];
   const loyalty = dashboard?.loyalty;
   const points = dashboard?.points;
@@ -299,14 +314,28 @@ export function AccountOverviewTab({
       {/* Recent Order Snapshot */}
       {recentOrder ? (
         <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-border/50 pb-3">
+          <div className="flex items-center justify-between border-b border-border/50 pb-3 flex-wrap gap-2">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block">
                 Most Recent Order
               </span>
-              <h4 className="font-display text-lg font-medium text-foreground">
-                #{recentOrder.id}
-              </h4>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="font-mono font-bold text-base text-foreground bg-secondary/80 px-2 py-0.5 rounded border border-border/60">
+                  #{recentOrder.id}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyId(recentOrder.id)}
+                  title="Copy Order ID for Tracking"
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  {copiedId === recentOrder.id ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              </div>
             </div>
             <span
               className={cn(

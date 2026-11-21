@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Star, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,10 @@ interface ProductWriteReviewModalProps {
   reviewComment: string;
   setReviewComment: (comment: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  reviewImages?: string[];
+  onUploadImages?: (files: FileList | File[]) => void;
+  onRemoveImage?: (index: number) => void;
+  isUploadingImage?: boolean;
 }
 
 export function ProductWriteReviewModal({
@@ -37,10 +41,14 @@ export function ProductWriteReviewModal({
   reviewComment,
   setReviewComment,
   onSubmit,
+  reviewImages = [],
+  onUploadImages,
+  onRemoveImage,
+  isUploadingImage = false,
 }: ProductWriteReviewModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
+      <DialogContent className="max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Write a Customer Review</DialogTitle>
         </DialogHeader>
@@ -130,6 +138,78 @@ export function ProductWriteReviewModal({
             />
           </div>
 
+          {/* Skincare Photo Upload Section */}
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Camera className="h-3.5 w-3.5 text-primary" />
+                Upload Review Images (Optional)
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {reviewImages.length}/4 photos
+              </span>
+            </div>
+
+            {/* Thumbnail previews */}
+            {reviewImages.length > 0 && (
+              <div className="mt-2 grid grid-cols-4 gap-2">
+                {reviewImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative group aspect-square rounded-lg overflow-hidden border border-border/80 bg-secondary/30"
+                  >
+                    <img
+                      src={img}
+                      alt={`Review photo ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {onRemoveImage && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveImage(idx)}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-black/70 text-white hover:bg-rose-600 transition-colors cursor-pointer"
+                        title="Remove photo"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Upload trigger button */}
+            {reviewImages.length < 4 && (
+              <label className="mt-2 flex flex-col items-center justify-center p-3 border-2 border-dashed border-border/80 hover:border-primary/60 rounded-xl cursor-pointer bg-secondary/10 hover:bg-secondary/20 transition-colors">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  multiple
+                  className="hidden"
+                  disabled={isUploadingImage}
+                  onChange={(e) => {
+                    if (e.target.files && onUploadImages) {
+                      onUploadImages(e.target.files);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                {isUploadingImage ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span>Uploading photo(s)...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <ImagePlus className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-foreground">Attach skincare photos</span>
+                    <span className="text-[11px] text-muted-foreground/80">(PNG, JPG)</span>
+                  </div>
+                )}
+              </label>
+            )}
+          </div>
+
           <div className="pt-2 flex justify-end gap-2">
             <Button
               type="button"
@@ -139,7 +219,11 @@ export function ProductWriteReviewModal({
             >
               Cancel
             </Button>
-            <Button type="submit" className="rounded-full text-xs px-6 cursor-pointer">
+            <Button
+              type="submit"
+              disabled={isUploadingImage}
+              className="rounded-full text-xs px-6 cursor-pointer"
+            >
               Submit Review
             </Button>
           </div>

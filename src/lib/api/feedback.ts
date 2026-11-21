@@ -25,8 +25,14 @@ export const feedbackApi = {
     return apiClient.post(`/reviews/${reviewId}/helpful`);
   },
 
-  replyReview(reviewId: number, comment: string, name?: string): Promise<any> {
-    return apiClient.post(`/reviews/${reviewId}/replies`, { comment, name });
+  replyReview(reviewId: number, comment: string, name?: string, role?: string): Promise<any> {
+    return apiClient.post(`/reviews/${reviewId}/replies`, { comment, name, role });
+  },
+
+  uploadReviewImage(file: File): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.upload<{ url: string }>('/uploads/image', formData);
   },
 
   getVideos(): Promise<any[]> {

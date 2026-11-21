@@ -87,6 +87,7 @@ export interface AdminReview {
   verified: boolean;
   status: "approved" | "pending" | "hidden";
   adminReply?: string | undefined;
+  images?: string[] | undefined;
 }
 
 export interface AdminFaq {

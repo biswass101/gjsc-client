@@ -12,6 +12,10 @@ export const INITIAL_REVIEWS: UserReview[] = [
     comment:
       "Absorbs beautifully with zero stickiness. The subtle natural scent is so calming. My skin barrier feels nourished and radiant even under Dhaka humidity.",
     helpfulCount: 14,
+    images: [
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760854/glorious_japan_skin_care/hero/sakura-spa-skincare-trio.png",
+      "https://res.cloudinary.com/soakj9w7/image/upload/v1794760834/glorious_japan_skin_care/hero/Glorious_Japan_Skincare_Spring_Glow.png",
+    ],
     replies: [
       {
         id: "rep-1",

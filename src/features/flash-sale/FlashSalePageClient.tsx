@@ -130,7 +130,30 @@ export function FlashSalePageClient() {
 
   // Handlers
   const handleClaimDeal = (item: FlashSaleItem) => {
-    addToCart(item.slug);
+    addToCart(item.slug, 1, "Standard", {
+      id: String(item.productId || item.id),
+      slug: item.slug,
+      name: item.name,
+      japaneseName: item.name,
+      brand: item.brand,
+      category: "Skincare",
+      price: item.price,
+      compareAt: item.compareAt || item.price,
+      rating: item.rating || 4.9,
+      reviews: 24,
+      image: item.image,
+      images: [item.image],
+      short: `Exclusive Tokyo Flash Deal: ${item.discount}% OFF`,
+      description: `Exclusive Tokyo Flash Deal: ${item.discount}% OFF limited allocation.`,
+      badge: "Flash Sale",
+      skinTypes: ["All Types"],
+      concerns: ["Dryness", "Dullness"],
+      benefits: ["Deep Hydration", "Radiance"],
+      howTo: "Apply daily onto clean skin.",
+      ingredients: ["Natural authentic botanical extracts"],
+      sizes: ["Standard"],
+      stock: item.stockLeft || 10,
+    });
     toast.success(`Claimed Flash Deal for ${item.name}! 🌸`, {
       description: `Flash price ৳${item.price.toLocaleString()} (${item.discount}% savings) added to bag.`,
     });

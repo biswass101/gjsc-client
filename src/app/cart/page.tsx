@@ -126,14 +126,30 @@ export default function CartPage() {
                     <Link to="/product/$slug" params={{ slug: product.slug }} className="font-display text-xl transition-colors hover:text-primary">
                       {product.name}
                     </Link>
-                    <p className="text-xs text-muted-foreground">{size}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">{size}</p>
+                      {product.badge === "Flash Sale" && (
+                        <span className="rounded bg-rose-500/10 px-1.5 py-0.5 text-[9.5px] font-bold text-rose-600 uppercase tracking-wider">
+                          ⚡ Flash Deal Applied
+                        </span>
+                      )}
+                    </div>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-full border border-border">
                         <button aria-label="Decrease quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty - 1, size)}><Minus className="h-3 w-3" /></button>
                         <span className="w-7 text-center text-sm">{qty}</span>
                         <button aria-label="Increase quantity" className="grid h-8 w-8 place-items-center rounded-full hover:bg-secondary" onClick={() => setQty(product.slug, qty + 1, size)}><Plus className="h-3 w-3" /></button>
                       </div>
-                      <span className="font-semibold">{formatBDT(product.price * qty)}</span>
+                      <div className="flex flex-col items-end">
+                        {product.compareAt && product.compareAt > product.price && (
+                          <span className="text-xs text-muted-foreground line-through">
+                            {formatBDT(product.compareAt * qty)}
+                          </span>
+                        )}
+                        <span className="font-semibold text-foreground">
+                          {formatBDT(product.price * qty)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <button aria-label={`Remove ${product.name}`} onClick={() => removeFromCart(product.slug, size)} className="self-start text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" strokeWidth={1.5} /></button>

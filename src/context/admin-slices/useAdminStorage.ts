@@ -168,7 +168,18 @@ export function useAdminStorage(params: StorageParams) {
           setFeaturedVideos(parsed.featuredVideos);
         }
         if (parsed.pageMetas) setPageMetas(parsed.pageMetas);
-        if (parsed.reviews) setReviews(parsed.reviews);
+        if (parsed.reviews && Array.isArray(parsed.reviews)) {
+          setReviews(
+            parsed.reviews.map((r: any) => ({
+              ...r,
+              images: Array.isArray(r.images)
+                ? r.images
+                : typeof r.images === "string" && r.images.startsWith("http")
+                  ? [r.images]
+                  : [],
+            }))
+          );
+        }
         if (parsed.faqs) setFaqs(parsed.faqs);
         if (parsed.merchandising) setMerchandising(parsed.merchandising);
         if (parsed.settings) setSettings((prev) => ({ ...prev, ...parsed.settings }));

@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatBDT } from "@/lib/catalog";
+import { cn } from "@/lib/utils";
 import { useShop } from "@/context";
 
 export function CartDrawer() {
@@ -55,7 +56,14 @@ export function CartDrawer() {
                     >
                       {product.name}
                     </Link>
-                    <p className="text-xs text-muted-foreground">{size}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                      <p className="text-xs text-muted-foreground">{size}</p>
+                      {product.badge === "Flash Sale" && (
+                        <span className="rounded bg-rose-500/10 px-1.5 py-0.2 text-[9px] font-bold text-rose-600 uppercase tracking-wider">
+                          ⚡ Flash Deal
+                        </span>
+                      )}
+                    </div>
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-full border border-border">
                         <button
@@ -74,7 +82,16 @@ export function CartDrawer() {
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
-                      <span className="text-sm font-semibold">{formatBDT(product.price * qty)}</span>
+                      <div className="flex flex-col items-end">
+                        {product.compareAt && product.compareAt > product.price && (
+                          <span className="text-[11px] text-muted-foreground line-through">
+                            {formatBDT(product.compareAt * qty)}
+                          </span>
+                        )}
+                        <span className={cn("text-sm font-semibold", product.badge === "Flash Sale" ? "text-rose-600 dark:text-rose-400" : "text-foreground")}>
+                          {formatBDT(product.price * qty)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <button

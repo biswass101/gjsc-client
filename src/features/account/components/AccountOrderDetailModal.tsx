@@ -1,7 +1,9 @@
 "use client";
 
-import { CheckCircle2, Download, ExternalLink, Package } from "lucide-react";
+import { useState } from "react";
+import { Check, CheckCircle2, Copy, Download, ExternalLink, Package, Truck } from "lucide-react";
 import { Link } from "@/lib/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -25,17 +27,42 @@ export function AccountOrderDetailModal({
   onClose,
   onDownloadInvoice,
 }: AccountOrderDetailModalProps) {
+  const [copied, setCopied] = useState(false);
+
   if (!order) return null;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(order.id);
+    setCopied(true);
+    toast.success(`Order ID "${order.id}" copied to clipboard!`, {
+      description: "Use this to track your package anytime on our Tracking Page.",
+    });
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   return (
     <Dialog open={Boolean(order)} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-xl p-6">
         <DialogHeader className="border-b border-border/40 pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <DialogTitle className="font-display text-xl font-medium">
-                Order #{order.id}
-              </DialogTitle>
+              <div className="flex items-center gap-1.5">
+                <DialogTitle className="font-display text-xl font-medium">
+                  Order #{order.id}
+                </DialogTitle>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  title="Copy Order ID for Tracking"
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
                 Placed on {order.date} • Courier: {order.courier}
               </DialogDescription>
@@ -50,16 +77,17 @@ export function AccountOrderDetailModal({
         {/* Order Details Body */}
         <div className="space-y-4 py-2 text-xs">
           {/* Tracking Bar */}
-          <div className="rounded-xl border border-border/60 bg-secondary/20 p-3.5 flex items-center justify-between">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 flex items-center justify-between gap-2">
             <div>
-              <span className="text-[11px] text-muted-foreground">Tracking Number (CN)</span>
-              <p className="font-mono font-bold text-foreground text-xs mt-0.5">
-                {order.consignmentId}
+              <span className="text-[11px] text-muted-foreground">Order Tracking Key</span>
+              <p className="font-mono font-bold text-foreground text-xs sm:text-sm mt-0.5">
+                #{order.id} {order.consignmentId && order.consignmentId !== "Pending Assignment" ? `(CN: ${order.consignmentId})` : ""}
               </p>
             </div>
-            <Button size="sm" asChild className="rounded-full text-xs h-8 cursor-pointer">
+            <Button size="sm" asChild className="rounded-full text-xs h-8 cursor-pointer shadow-xs shrink-0">
               <Link to={`/track?orderId=${encodeURIComponent(order.id)}`}>
-                Track Live
+                <Truck className="h-3.5 w-3.5 mr-1" />
+                Track Live Status
                 <ExternalLink className="h-3 w-3 ml-1" />
               </Link>
             </Button>

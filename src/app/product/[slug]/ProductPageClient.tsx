@@ -485,6 +485,10 @@ function ProductDetailContent({ product, adminProducts }: ProductDetailContentPr
         reviewComment={reviews.reviewComment}
         setReviewComment={reviews.setReviewComment}
         onSubmit={reviews.handleSubmitReview}
+        reviewImages={reviews.reviewImages}
+        onUploadImages={reviews.handleUploadImages}
+        onRemoveImage={reviews.handleRemoveImage}
+        isUploadingImage={reviews.isUploadingImage}
       />
     </Layout>
   );

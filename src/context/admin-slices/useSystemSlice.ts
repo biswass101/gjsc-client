@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type {
   AdminPageMeta,
   AdminReview,
@@ -18,6 +18,30 @@ import {
 import type { AddActivityLogFn } from "./types";
 import { adminApi, systemApi, tokenStorage } from "@/lib/api";
 
+function parseReviewImages(val: unknown): string[] {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  }
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    if (!trimmed || trimmed === "[]" || trimmed === "null" || trimmed === "undefined") {
+      return [];
+    }
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+      }
+    } catch {
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
+        return [trimmed];
+      }
+    }
+  }
+  return [];
+}
+
 export function useSystemSlice(addActivityLog: AddActivityLogFn) {
   const [pageMetas, setPageMetas] = useState<AdminPageMeta[]>(INITIAL_PAGE_METAS);
   const [reviews, setReviews] = useState<AdminReview[]>(INITIAL_REVIEWS);
@@ -26,7 +50,12 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
   const [settings, setSettings] = useState<AdminSettings>(INITIAL_SETTINGS);
   const [notifications, setNotifications] = useState<AdminNotification[]>(INITIAL_NOTIFICATIONS);
 
-  // Refresh settings from database
+  const settingsRef = useRef<AdminSettings>(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  // Refresh settings from database (stable identity to avoid infinite re-render loops in consumer components)
   const refreshSettings = useCallback(async () => {
     try {
       const data = tokenStorage.get()
@@ -39,8 +68,8 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
     } catch {
       /* non-fatal */
     }
-    return settings;
-  }, [settings]);
+    return settingsRef.current;
+  }, []);
 
   // Sync settings from backend MySQL database on mount
   useEffect(() => {
@@ -55,6 +84,48 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
         setSettings((prev) => ({ ...prev, ...data }));
       })
       .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Sync reviews from backend MySQL database on mount
+  useEffect(() => {
+    let isMounted = true;
+    if (tokenStorage.get()) {
+      adminApi
+        .getReviews()
+        .then((data: any) => {
+          if (!isMounted || !data) return;
+          const reviewItems = Array.isArray(data) ? data : data.reviews || [];
+          if (reviewItems.length > 0) {
+            const formatted: AdminReview[] = reviewItems.map((r: any) => ({
+              id: String(r.id),
+              productName: r.productName || "Japanese Skincare",
+              productSlug: r.productSlug || "",
+              customerName: r.name || "Customer",
+              rating: r.rating || 5,
+              date: r.date || new Date(r.createdAt || Date.now()).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }),
+              comment: r.comment || "",
+              verified: Boolean(r.verified),
+              status: r.status || "approved",
+              adminReply: r.adminReply || undefined,
+              images: parseReviewImages(r.images),
+            }));
+            setReviews((prev) => {
+              const prevIds = new Set(formatted.map((f) => f.id));
+              const nonDuplicatePrev = prev.filter((p) => !prevIds.has(p.id));
+              return [...formatted, ...nonDuplicatePrev];
+            });
+          }
+        })
+        .catch(() => {});
+    }
 
     return () => {
       isMounted = false;
@@ -81,6 +152,10 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
     (id: string, status: AdminReview["status"]) => {
       setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
       addActivityLog("Moderated Review", id, `Status: ${status}`);
+      const numericId = Number(id);
+      if (!isNaN(numericId)) {
+        adminApi.moderateReview(numericId, { status }).catch(() => {});
+      }
     },
     [addActivityLog],
   );
@@ -89,6 +164,10 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
     (id: string, reply: string) => {
       setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, adminReply: reply } : r)));
       addActivityLog("Replied to Review", id);
+      const numericId = Number(id);
+      if (!isNaN(numericId)) {
+        adminApi.moderateReview(numericId, { adminReply: reply }).catch(() => {});
+      }
     },
     [addActivityLog],
   );
@@ -97,6 +176,10 @@ export function useSystemSlice(addActivityLog: AddActivityLogFn) {
     (id: string) => {
       setReviews((prev) => prev.filter((r) => r.id !== id));
       addActivityLog("Deleted Review", id);
+      const numericId = Number(id);
+      if (!isNaN(numericId)) {
+        adminApi.deleteReview(numericId).catch(() => {});
+      }
     },
     [addActivityLog],
   );

@@ -18,9 +18,11 @@ export default function TrackPage() {
     phoneInput,
     setPhoneInput,
     isLoading,
+    isRefreshing,
     activeOrder,
     handleTrackSubmit,
     handleSelectPreset,
+    refreshTracking,
     whatsappHelpUrl,
   } = useOrderTracking();
 
@@ -42,7 +44,11 @@ export default function TrackPage() {
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             {/* Left 8 Columns: Live Status & Visual Stepper Timeline */}
             <div className="lg:col-span-8 space-y-6">
-              <TrackingLiveStatus order={activeOrder} />
+              <TrackingLiveStatus
+                order={activeOrder}
+                onRefresh={refreshTracking}
+                isRefreshing={isRefreshing}
+              />
               <TrackingTimeline events={activeOrder.events} />
             </div>
 

@@ -17,5 +17,6 @@ export interface UserReview {
   comment: string;
   helpfulCount: number;
   replies?: ReviewReply[];
+  images?: string[];
 }
 

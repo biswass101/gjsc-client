@@ -110,14 +110,28 @@ export function CheckoutOrderSummary({
                 >
                   {product.name}
                 </Link>
-                <p className="text-[11px] text-muted-foreground">
-                  {size} • Qty: {qty}
-                </p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-[11px] text-muted-foreground">
+                    {size} • Qty: {qty}
+                  </p>
+                  {product.badge === "Flash Sale" && (
+                    <span className="rounded bg-rose-500/10 px-1 py-0.2 text-[9px] font-bold text-rose-600 uppercase tracking-wider">
+                      ⚡ Flash Deal
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <span className="font-semibold text-foreground shrink-0 text-sm">
-                {formatBDT(product.price * qty)}
-              </span>
+              <div className="text-right shrink-0">
+                {product.compareAt && product.compareAt > product.price && (
+                  <p className="text-[11px] text-muted-foreground line-through">
+                    {formatBDT(product.compareAt * qty)}
+                  </p>
+                )}
+                <span className="font-semibold text-foreground text-sm">
+                  {formatBDT(product.price * qty)}
+                </span>
+              </div>
             </div>
           ))}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronDown, ChevronUp, CornerDownRight, MessageSquare, Send } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronDown, ChevronUp, CornerDownRight, MessageSquare, Send, X } from "lucide-react";
 import { Rating } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,24 @@ export function ProductReviewItem({
   onSubmitReply,
   onToggleReplies,
 }: ProductReviewItemProps) {
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  const imagesList: string[] = Array.isArray(review.images)
+    ? review.images
+    : typeof review.images === "string"
+      ? (() => {
+          try {
+            const parsed = JSON.parse(review.images);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return (review.images as string).startsWith("http") ||
+              (review.images as string).startsWith("data:")
+              ? [review.images]
+              : [];
+          }
+        })()
+      : [];
+
   return (
     <div className="rounded-xl border border-border/70 bg-card p-6 shadow-xs space-y-3">
       <div className="flex items-start justify-between gap-4">
@@ -71,6 +90,53 @@ export function ProductReviewItem({
       </div>
 
       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+
+      {/* Customer Attached Photos */}
+      {imagesList.length > 0 && (
+        <div className="flex items-center gap-2.5 pt-1 flex-wrap">
+          {imagesList.map((img, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setSelectedPhoto(img)}
+              className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-border/80 hover:border-primary transition-all hover:scale-105 cursor-pointer shadow-xs shrink-0 bg-secondary/20"
+              title="Click to view photo"
+            >
+              <img
+                src={img}
+                alt={`${review.name} review photo ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Enlarged Photo Lightbox Modal */}
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div
+            className="relative max-w-2xl max-h-[85vh] rounded-xl overflow-hidden bg-background p-2 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedPhoto(null)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/70 text-white hover:bg-black transition-colors cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <img
+              src={selectedPhoto}
+              alt="Customer skincare review"
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Review Actions: Helpful & Reply */}
       <div className="pt-2.5 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">

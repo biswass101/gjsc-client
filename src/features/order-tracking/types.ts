@@ -25,8 +25,8 @@ export interface OrderTrackingData {
   zone: string;
   courier: string;
   consignmentId: string;
-  riderName?: string;
-  riderPhone?: string;
+  riderName?: string | undefined;
+  riderPhone?: string | undefined;
   paymentMethod: string;
   paymentStatus: "Paid via bKash" | "Cash on Delivery (Unpaid)" | "Paid via Card";
   estimatedDelivery: string;
